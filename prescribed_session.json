@@ -1,0 +1,35 @@
+{
+  "patient_name": "David Miller",
+  "clinical_diagnosis_summary": "Comprehensive kinetic chain circuit (4 protocols) prescribed for David Miller (34 yo) addressing Shoulder & Neck with visual EMA compensation monitoring and axial stability.",
+  "precautions": "Moderate symptom threshold (6/10). Maintain neutral spinal alignment and eliminate compensatory shrug or trunk lateral flexion.",
+  "exercises": [
+    {
+      "protocol_id": 8,
+      "protocol_name": "P8: Carpal Tunnel Wrist & Forearm Extension",
+      "target_reps": 4,
+      "target_rom_degrees": 22,
+      "clinical_rationale": "Mobilizes median nerve glide across flexor retinaculum without trapezius tension."
+    },
+    {
+      "protocol_id": 4,
+      "protocol_name": "P4: Post-Fracture Elbow Flexion Rehab",
+      "target_reps": 4,
+      "target_rom_degrees": 113,
+      "clinical_rationale": "Restores humeroulnar flexion and avoids compensatory shoulder abduction swing."
+    },
+    {
+      "protocol_id": 3,
+      "protocol_name": "P3: Cervical & Ergonomic Posture Guard",
+      "target_reps": 2,
+      "target_rom_degrees": 77,
+      "clinical_rationale": "Strengthens deep cervical flexors and retrains neutral craniovertebral alignment."
+    },
+    {
+      "protocol_id": 5,
+      "protocol_name": "P5: Bilateral Overhead Wall-Slide Sync",
+      "target_reps": 4,
+      "target_rom_degrees": 108,
+      "clinical_rationale": "Retrains bilateral serratus anterior activation and symmetric scapulohumeral rhythm."
+    }
+  ]
+}

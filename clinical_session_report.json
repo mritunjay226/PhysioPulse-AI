@@ -1,0 +1,57 @@
+{
+    "session_id": "session_sub_1793048787",
+    "timestamp": "2026-10-27T02:36:27.892988",
+    "patient_name": "David Miller",
+    "prescribed_diagnosis": "Comprehensive kinetic chain circuit (4 protocols) prescribed for David Miller (34 yo) addressing Shoulder & Neck with visual EMA compensation monitoring and axial stability.",
+    "overall_compliance_percent": 100,
+    "exercises_performed": [
+        {
+            "protocol_id": 8,
+            "protocol_name": "P8: Carpal Tunnel Wrist & Forearm Extension (Seated)",
+            "prescribed_reps": 4,
+            "completed_reps": 4,
+            "target_rom_degrees": 22,
+            "achieved_peak_rom_degrees": 38,
+            "mean_symmetry_percent": 67,
+            "compensation_frames_detected": 73,
+            "primary_compensation_issue": "COMPENSATION: SHOULDER TENSION",
+            "duration_seconds": 15.2
+        },
+        {
+            "protocol_id": 4,
+            "protocol_name": "P4: Post-Fracture Elbow Flexion Rehab (Seated)",
+            "prescribed_reps": 4,
+            "completed_reps": 4,
+            "target_rom_degrees": 113,
+            "achieved_peak_rom_degrees": 177,
+            "mean_symmetry_percent": 79,
+            "compensation_frames_detected": 285,
+            "primary_compensation_issue": "COMPENSATION: ELBOW DRIFT",
+            "duration_seconds": 49.0
+        },
+        {
+            "protocol_id": 3,
+            "protocol_name": "P3: Cervical & Ergonomic Posture Guard (Seated)",
+            "prescribed_reps": 2,
+            "completed_reps": 2,
+            "target_rom_degrees": 77,
+            "achieved_peak_rom_degrees": 100,
+            "mean_symmetry_percent": 96,
+            "compensation_frames_detected": 0,
+            "primary_compensation_issue": "None (Clean Biomechanics)",
+            "duration_seconds": 30.1
+        },
+        {
+            "protocol_id": 5,
+            "protocol_name": "P5: Bilateral Overhead Wall-Slide Sync (Dual Arm)",
+            "prescribed_reps": 4,
+            "completed_reps": 4,
+            "target_rom_degrees": 108,
+            "achieved_peak_rom_degrees": 176,
+            "mean_symmetry_percent": 90,
+            "compensation_frames_detected": 1,
+            "primary_compensation_issue": "COMPENSATION: BILATERAL ASYMMETRY",
+            "duration_seconds": 29.7
+        }
+    ]
+}

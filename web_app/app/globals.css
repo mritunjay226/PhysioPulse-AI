@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+:root {
+  /* ========================================================================= */
+  /* CLINICAL DAYLIGHT DESIGN SYSTEM TOKENS (Healix Daylight Blue Theme)      */
+  /* ========================================================================= */
+  
+  /* Canvas & Base Layout */
+  --canvas-bg: #EFF2F6;
+  --window-bg: #FFFFFF;
+  --window-border: #E2E8F0;
+  --header-bg: rgba(255, 255, 255, 0.95);
+  
+  /* Surfaces & Cards */
+  --surface-card: #FFFFFF;
+  --surface-subtle: #F8FAFC;
+  --surface-muted: #F1F5F9;
+  --border-subtle: #E2E8F0;
+  --border-strong: #CBD5E1;
+
+  /* Typography */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+
+  /* Primary Brand Accent (Royal Cobalt Blue #1865F2) */
+  --accent-primary: #1865F2;
+  --accent-primary-hover: #1453CA;
+  --accent-primary-subtle: rgba(24, 101, 242, 0.08);
+  --accent-primary-border: rgba(24, 101, 242, 0.25);
+  --accent-primary-text: #1865F2;
+
+  /* Status Tokens */
+  --status-emerald: #10B981;
+  --status-emerald-bg: rgba(16, 185, 129, 0.1);
+  --status-emerald-border: rgba(16, 185, 129, 0.25);
+  
+  --status-amber: #F59E0B;
+  --status-amber-bg: rgba(245, 158, 11, 0.1);
+  --status-amber-border: rgba(245, 158, 11, 0.25);
+  
+  --status-rose: #EF4444;
+  --status-rose-bg: rgba(239, 68, 68, 0.1);
+  --status-rose-border: rgba(239, 68, 68, 0.25);
+
+  /* Visual Elements & Shadows */
+  --grid-dot-color: #CBD5E1;
+  --shadow-window: 0 25px 60px -15px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+  --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+  --shadow-card-lg: 0 10px 30px -5px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(226, 232, 240, 0.8);
+}
+
+html {
+  color-scheme: light !important;
+  background-color: var(--canvas-bg) !important;
+}
+
+body {
+  color-scheme: light !important;
+  background-color: var(--canvas-bg) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-plus-jakarta), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Force Light Mode Form Controls */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select,
+textarea {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+  border-color: #E2E8F0 !important;
+  color-scheme: light !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+select:focus,
+textarea:focus {
+  background-color: #FFFFFF !important;
+  border-color: #1865F2 !important;
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Clinical Dot Matrix Background */
+.bg-clinical-grid {
+  background-color: var(--canvas-bg) !important;
+  background-image: radial-gradient(#CBD5E1 1.2px, transparent 1.2px) !important;
+  background-size: 20px 20px !important;
+}
+
+/* Theme Utilities */
+.theme-canvas {
+  background-color: var(--canvas-bg);
+}
+
+.theme-window {
+  background-color: var(--window-bg);
+  border-color: var(--window-border);
+  box-shadow: var(--shadow-window);
+}
+
+.theme-header {
+  background-color: var(--header-bg);
+  border-color: var(--border-subtle);
+}
+
+.theme-card {
+  background-color: var(--surface-card);
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-card);
+}
+
+.theme-card-subtle {
+  background-color: var(--surface-subtle);
+  border-color: var(--border-subtle);
+}
+
+.theme-text-primary {
+  color: var(--text-primary);
+}
+
+.theme-text-secondary {
+  color: var(--text-secondary);
+}
+
+.theme-text-muted {
+  color: var(--text-muted);
+}
+
+.theme-btn-primary {
+  background-color: var(--accent-primary);
+  color: #FFFFFF;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.theme-btn-primary:hover {
+  background-color: var(--accent-primary-hover);
+}
+
+.theme-pill-primary {
+  background-color: var(--accent-primary-subtle);
+  border-color: var(--accent-primary-border);
+  color: var(--accent-primary-text);
+}
+
+.theme-pill-emerald {
+  background-color: var(--status-emerald-bg);
+  border-color: var(--status-emerald-border);
+  color: var(--status-emerald);
+}
+
+.theme-pill-amber {
+  background-color: var(--status-amber-bg);
+  border-color: var(--status-amber-border);
+  color: var(--status-amber);
+}
+
+.theme-pill-rose {
+  background-color: var(--status-rose-bg);
+  border-color: var(--status-rose-border);
+  color: var(--status-rose);
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-card {
+    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+  .print-text-dark {
+    color: #0f172a !important;
+  }
+  .print-text-muted {
+    color: #64748b !important;
+  }
+}
