@@ -110,8 +110,8 @@ ${JSON.stringify(report, null, 2)}
 
 Evaluate this rehabilitation session and return the structured JSON report.`;
 
-    // Attempt LLM evaluation with 5-second hard timeout
-    const llmResult = await callLLM(systemPrompt, userPrompt, 5000);
+    // Attempt LLM evaluation with 10-second timeout
+    const llmResult = await callLLM(systemPrompt, userPrompt, 10000);
     if (llmResult) {
       try {
         const parsed = JSON.parse(llmResult);

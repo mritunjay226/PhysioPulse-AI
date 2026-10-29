@@ -2,7 +2,7 @@
 
 :root {
   /* ========================================================================= */
-  /* CLINICAL DAYLIGHT DESIGN SYSTEM TOKENS (Healix Daylight Blue Theme)      */
+  /* CLINICAL DESIGN SYSTEM TOKENS (PhysioPulse AI Theme)                    */
   /* ========================================================================= */
   
   /* Canvas & Base Layout */
@@ -23,12 +23,12 @@
   --text-secondary: #475569;
   --text-muted: #94A3B8;
 
-  /* Primary Brand Accent (Royal Cobalt Blue #1865F2) */
-  --accent-primary: #1865F2;
-  --accent-primary-hover: #1453CA;
-  --accent-primary-subtle: rgba(24, 101, 242, 0.08);
-  --accent-primary-border: rgba(24, 101, 242, 0.25);
-  --accent-primary-text: #1865F2;
+  /* Primary Brand Accent (Clinical Medical Green #059669) */
+  --accent-primary: #059669;
+  --accent-primary-hover: #047857;
+  --accent-primary-subtle: rgba(5, 150, 105, 0.08);
+  --accent-primary-border: rgba(5, 150, 105, 0.25);
+  --accent-primary-text: #059669;
 
   /* Status Tokens */
   --status-emerald: #10B981;
@@ -53,6 +53,7 @@
 html {
   color-scheme: light !important;
   background-color: var(--canvas-bg) !important;
+  scroll-behavior: smooth;
 }
 
 body {

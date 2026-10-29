@@ -7,12 +7,14 @@ import {
   SessionReport,
   ClinicalEvaluationOutput
 } from '@/lib/clinical-engine';
+import { DecipheredDoctorReport } from '@/lib/doctor-report-ocr';
 
 import { SessionBrowserChrome } from '@/components/session/SessionBrowserChrome';
 import { SessionWorkflowStepper } from '@/components/session/SessionWorkflowStepper';
 import { IntakeFormStage, IntakePreset } from '@/components/session/IntakeFormStage';
 import { PrescriptionQueueStage } from '@/components/session/PrescriptionQueueStage';
 import { ClinicalReportStage } from '@/components/session/ClinicalReportStage';
+import { DoctorReportScannerModal } from '@/components/session/DoctorReportScannerModal';
 
 export default function PhysioPulseApp() {
   // 1 = Intake & Triage, 2 = Prescription & Session, 3 = Post-Session Report
@@ -43,8 +45,56 @@ export default function PhysioPulseApp() {
   const [copiedSummary, setCopiedSummary] = useState(false);
   const [copiedTips, setCopiedTips] = useState(false);
 
+  // Doctor Report & OCR State
+  const [isOcrModalOpen, setIsOcrModalOpen] = useState(false);
+  const [doctorReport, setDoctorReport] = useState<DecipheredDoctorReport | null>(null);
+
+  const handleApplyDoctorReport = (rep: DecipheredDoctorReport) => {
+    setDoctorReport(rep);
+    const pName = rep.patient_details.name || rep.session_plan.patient_name || 'Patient';
+    setPatientName(pName);
+    setAge(rep.patient_details.age || 35);
+    setAffectedArea(rep.session_plan.affected_area || 'Shoulder & Neck');
+    setPainLevel(rep.session_plan.vas_pain_level || 6);
+    setSymptoms(
+      `Deciphered Doctor Prescription [${rep.doctor_details.doctor_name}, ${rep.doctor_details.hospital_or_clinic}]:\n` +
+      `Diagnosis: ${rep.clinical_findings.diagnosis}\n\n` +
+      `Clinical Rationale & Directives:\n${rep.session_plan.clinical_diagnosis_summary}`
+    );
+
+    const formulatedPrescription: PrescriptionOutput = {
+      patient_name: pName,
+      clinical_diagnosis_summary: rep.session_plan.clinical_diagnosis_summary,
+      precautions: rep.session_plan.precautions,
+      exercises: rep.session_plan.exercises.map((ex) => ({
+        protocol_id: ex.protocol_id,
+        protocol_name: ex.protocol_name,
+        target_reps: ex.target_reps,
+        target_rom_degrees: ex.target_rom_degrees,
+        clinical_rationale: ex.clinical_rationale
+      }))
+    };
+
+    setPrescription(formulatedPrescription);
+    setActiveProtocols(rep.session_plan.exercises.map((e) => e.protocol_id));
+    setActiveStage(2);
+  };
+
   // Check initial existing status on mount
   useEffect(() => {
+    // Check if a report was forwarded from the landing page scanner
+    try {
+      const pending = sessionStorage.getItem('pending_doctor_report');
+      if (pending) {
+        sessionStorage.removeItem('pending_doctor_report');
+        const parsedReport = JSON.parse(pending);
+        handleApplyDoctorReport(parsedReport);
+        return;
+      }
+    } catch (e) {
+      console.warn('Pending report extraction warning:', e);
+    }
+
     async function checkExistingStatus() {
       try {
         const res = await fetch('/api/session-status');
@@ -261,9 +311,9 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#EFF2F6] text-slate-900 flex flex-col items-center justify-start p-2 sm:p-4 md:p-6 lg:p-8 font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen w-full bg-slate-100/80 text-slate-900 flex flex-col items-center justify-start p-2 sm:p-4 md:p-6 lg:p-8 font-sans selection:bg-emerald-600 selection:text-white">
       {/* Outer Desktop Window Shell */}
-      <div className="relative w-full max-w-[1580px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-[1580px] bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
         {/* 1. Desktop Browser Chrome Header */}
         <SessionBrowserChrome />
 
@@ -276,7 +326,7 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
         />
 
         {/* 3. Main Workbench Canvas */}
-        <main className="bg-[#EFF2F6] bg-clinical-grid min-h-[calc(100vh-140px)] p-4 sm:p-6 lg:p-8">
+        <main className="bg-slate-50 min-h-[calc(100vh-140px)] p-4 sm:p-6 lg:p-8">
           {sessionError && (
             <div className="mb-6 p-4 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 flex items-center gap-3 shadow-md">
               <AlertTriangle className="w-5 h-5 flex-shrink-0 text-rose-400" />
@@ -305,6 +355,8 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
               onApplyPreset={handleApplyPreset}
               circuitMode={circuitMode}
               setCircuitMode={setCircuitMode}
+              onOpenOcrScanner={() => setIsOcrModalOpen(true)}
+              activeReport={doctorReport}
             />
           )}
 
@@ -317,6 +369,8 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
               isRunningSession={isRunningSession}
               onLaunchVisionSession={handleLaunchVisionSession}
               onConcludeSession={() => setIsRunningSession(false)}
+              doctorReport={doctorReport}
+              onViewDoctorReport={() => setIsOcrModalOpen(true)}
             />
           )}
 
@@ -341,6 +395,14 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
           )}
         </main>
       </div>
+
+      {/* Doctor Prescription OCR & Care Plan Formulation Modal */}
+      <DoctorReportScannerModal
+        isOpen={isOcrModalOpen}
+        onClose={() => setIsOcrModalOpen(false)}
+        onApplyPlan={handleApplyDoctorReport}
+      />
     </div>
   );
 }
+

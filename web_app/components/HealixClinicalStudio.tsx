@@ -116,7 +116,7 @@ const DIAGNOSTIC_SCANS: DiagnosticScan[] = [
   }
 ];
 
-export function HealixClinicalStudio({ onStartLiveSession }: { onStartLiveSession?: () => void }) {
+export function PhysioPulseClinicalStudio({ onStartLiveSession }: { onStartLiveSession?: () => void }) {
   const [selectedJoint, setSelectedJoint] = useState<HotspotJoint>(HOTSPOT_JOINTS[0]);
   const [rotationAngle, setRotationAngle] = useState(15);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -170,4 +170,5 @@ export function HealixClinicalStudio({ onStartLiveSession }: { onStartLiveSessio
   );
 }
 
-export default HealixClinicalStudio;
+export const HealixClinicalStudio = PhysioPulseClinicalStudio;
+export default PhysioPulseClinicalStudio;

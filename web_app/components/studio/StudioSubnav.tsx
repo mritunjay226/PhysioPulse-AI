@@ -20,7 +20,7 @@ export function StudioSubnav() {
             <HeartPulse className="w-4.5 h-4.5 text-white" />
           </div>
           <span className="text-slate-900 font-bold tracking-tight text-base font-sans">
-            Healix <span className="text-blue-600">.</span>
+            PhysioPulse <span className="text-teal-500">AI</span>
           </span>
         </Link>
         <span className="text-slate-300 font-light hidden sm:inline">/</span>
@@ -39,7 +39,7 @@ export function StudioSubnav() {
           onClick={() => {
             if (navigator.share) {
               navigator.share({
-                title: 'Curtis Valk — Healix Bio-Kinematics Dossier',
+                title: 'Curtis Valk — PhysioPulse AI Bio-Kinematics Dossier',
                 url: window.location.href
               }).catch(() => {});
             } else {

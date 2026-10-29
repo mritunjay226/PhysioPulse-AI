@@ -1,57 +1,21 @@
 {
-    "session_id": "session_sub_1793048787",
-    "timestamp": "2026-10-27T02:36:27.892988",
-    "patient_name": "David Miller",
-    "prescribed_diagnosis": "Comprehensive kinetic chain circuit (4 protocols) prescribed for David Miller (34 yo) addressing Shoulder & Neck with visual EMA compensation monitoring and axial stability.",
-    "overall_compliance_percent": 100,
+    "session_id": "session_sub_1793215452",
+    "timestamp": "2026-10-29T00:54:12.635007",
+    "patient_name": "Mritunjay Mishra",
+    "prescribed_diagnosis": "This circuit addresses Mritunjay Mishra's primary complaint of shoulder dysfunction post-rotator cuff surgery and secondary neck pain from prolonged sitting. The kinetic chain approach integrates the affected shoulder (Protocol 1) with synergistic scapular stabilization (Protocol 5) and an axial postural anchor (Protocol 3) to ensure optimal glenohumeral rhythm and prevent compensatory neck movement. Protocol 7 is excluded as Protocol 3 provides a more direct postural anchor for the upper kinetic chain, which is the primary focus given the shoulder and neck complaints.",
+    "overall_compliance_percent": 0,
     "exercises_performed": [
         {
-            "protocol_id": 8,
-            "protocol_name": "P8: Carpal Tunnel Wrist & Forearm Extension (Seated)",
-            "prescribed_reps": 4,
-            "completed_reps": 4,
-            "target_rom_degrees": 22,
-            "achieved_peak_rom_degrees": 38,
-            "mean_symmetry_percent": 67,
-            "compensation_frames_detected": 73,
-            "primary_compensation_issue": "COMPENSATION: SHOULDER TENSION",
-            "duration_seconds": 15.2
-        },
-        {
-            "protocol_id": 4,
-            "protocol_name": "P4: Post-Fracture Elbow Flexion Rehab (Seated)",
-            "prescribed_reps": 4,
-            "completed_reps": 4,
-            "target_rom_degrees": 113,
-            "achieved_peak_rom_degrees": 177,
-            "mean_symmetry_percent": 79,
-            "compensation_frames_detected": 285,
-            "primary_compensation_issue": "COMPENSATION: ELBOW DRIFT",
-            "duration_seconds": 49.0
-        },
-        {
-            "protocol_id": 3,
-            "protocol_name": "P3: Cervical & Ergonomic Posture Guard (Seated)",
-            "prescribed_reps": 2,
-            "completed_reps": 2,
-            "target_rom_degrees": 77,
-            "achieved_peak_rom_degrees": 100,
-            "mean_symmetry_percent": 96,
-            "compensation_frames_detected": 0,
-            "primary_compensation_issue": "None (Clean Biomechanics)",
-            "duration_seconds": 30.1
-        },
-        {
-            "protocol_id": 5,
-            "protocol_name": "P5: Bilateral Overhead Wall-Slide Sync (Dual Arm)",
-            "prescribed_reps": 4,
-            "completed_reps": 4,
-            "target_rom_degrees": 108,
-            "achieved_peak_rom_degrees": 176,
-            "mean_symmetry_percent": 90,
-            "compensation_frames_detected": 1,
-            "primary_compensation_issue": "COMPENSATION: BILATERAL ASYMMETRY",
-            "duration_seconds": 29.7
+            "protocol_id": 1,
+            "protocol_name": "P1: Frozen Shoulder Abduction (Seated/Standing)",
+            "prescribed_reps": 10,
+            "completed_reps": 0,
+            "target_rom_degrees": 90,
+            "achieved_peak_rom_degrees": 110,
+            "mean_symmetry_percent": 100,
+            "compensation_frames_detected": 345,
+            "primary_compensation_issue": "COMPENSATION: BENT ELBOW",
+            "duration_seconds": 21.1
         }
     ]
 }

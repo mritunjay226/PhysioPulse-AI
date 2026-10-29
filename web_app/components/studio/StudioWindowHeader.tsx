@@ -23,7 +23,7 @@ export function StudioWindowHeader() {
       <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-1 text-[11px] text-slate-600 shadow-xs max-w-sm w-full justify-between">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-blue-600" />
-          <span className="font-medium tracking-tight font-sans">healix.com</span>
+          <span className="font-medium tracking-tight font-sans">physiopulse.ai</span>
           <span className="text-slate-400 text-[10px]">· Curtis Valk (34)</span>
         </div>
         <Search className="w-3 h-3 text-slate-400" />

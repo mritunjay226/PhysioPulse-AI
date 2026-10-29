@@ -118,12 +118,12 @@ export function StudioPatientPassport() {
                 Curtis Valk
               </h3>
               <p className="text-[11px] text-slate-400 font-mono">
-                PID #HLX-88214
+                PID #PP-88214
               </p>
             </div>
           </div>
           <button
-            onClick={() => alert('Patient QR Token: HLX-CURTIS-88214-VERIFIED')}
+            onClick={() => alert('Patient QR Token: PP-CURTIS-88214-VERIFIED')}
             className="p-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors cursor-pointer"
             title="Scan Patient QR"
           >

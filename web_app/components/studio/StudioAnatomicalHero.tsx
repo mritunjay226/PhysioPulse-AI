@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { EfficientMuscularVideo } from '@/components/ui/EfficientMuscularVideo';
 
 export interface HotspotJoint {
   id: string;
@@ -86,15 +86,13 @@ export function StudioAnatomicalHero({
           transform: `scale(${zoomLevel})`
         }}
       >
-        {/* Anatomical Model Image */}
+        {/* Anatomical Model Dynamic 3D Video */}
         <div className="relative w-[340px] h-[580px] sm:w-[380px] sm:h-[620px] flex items-center justify-center">
-          <Image
-            src="/anatomical_model_2x.png"
-            alt="Human Anatomical Musculoskeletal Model"
-            width={400}
-            height={650}
-            priority
+          <EfficientMuscularVideo
             className="w-full h-full object-contain filter drop-shadow-[0_20px_40px_rgba(15,23,42,0.12)]"
+            poster="/muscular_poster.jpg"
+            alt="Human Anatomical Musculoskeletal Model Video"
+            blendMultiply={true}
           />
 
           {/* Hotspot Interactive Markers */}

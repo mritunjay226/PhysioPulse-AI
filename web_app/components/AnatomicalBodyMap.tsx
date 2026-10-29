@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
+import { EfficientMuscularVideo } from '@/components/ui/EfficientMuscularVideo';
 import { Activity, Check } from 'lucide-react';
 
 export interface AnatomicalBodyMapProps {
@@ -120,7 +120,7 @@ export function AnatomicalBodyMap({
               </p>
             </div>
           </div>
-          <span className="text-[11px] font-mono font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+          <span className="text-[11px] font-mono font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
             {activeProtocols.length} Targeted Joint{activeProtocols.length === 1 ? '' : 's'}
           </span>
         </div>
@@ -130,20 +130,18 @@ export function AnatomicalBodyMap({
         </p>
 
         {/* 3D Muscular Model Canvas Container */}
-        <div className="relative flex items-center justify-center py-6 bg-[#EFF2F6] rounded-xl border border-slate-200 overflow-hidden min-h-[460px] bg-clinical-grid">
+        <div className="relative flex items-center justify-center py-6 bg-slate-50 rounded-xl border border-slate-200 overflow-hidden min-h-[460px]">
           {/* Concentric telemetry rings */}
           <div className="absolute w-[260px] h-[260px] rounded-full border border-slate-200/80 pointer-events-none" />
-          <div className="absolute w-[360px] h-[360px] rounded-full border border-dashed border-slate-100 pointer-events-none" />
+          <div className="absolute w-[360px] h-[360px] rounded-full border border-dashed border-slate-200/50 pointer-events-none" />
 
           {/* 3D Muscular Model Image */}
           <div className="relative w-[240px] h-[420px] flex items-center justify-center select-none">
-            <Image
-              src="/anatomical_model_2x.png"
-              alt="3D Anatomical Musculoskeletal Model"
-              width={260}
-              height={440}
-              priority
+            <EfficientMuscularVideo
               className="w-full h-full object-contain filter drop-shadow-[0_15px_30px_rgba(15,23,42,0.12)]"
+              poster="/muscular_poster.jpg"
+              alt="3D Anatomical Musculoskeletal Model Video"
+              blendMultiply={true}
             />
 
             {/* Interactive Protocol Pins Over the 3D Body */}
@@ -169,15 +167,12 @@ export function AnatomicalBodyMap({
                     <span
                       className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shadow-md ${
                         active
-                          ? 'bg-blue-600 text-white ring-4 ring-blue-500/30 shadow-md font-extrabold'
-                          : 'bg-white text-slate-700 border border-slate-300 hover:border-blue-400 hover:text-blue-600'
+                          ? 'bg-emerald-600 text-white ring-4 ring-emerald-500/30 shadow-md font-extrabold'
+                          : 'bg-white text-slate-700 border border-slate-300 hover:border-emerald-500 hover:text-emerald-700'
                       }`}
                     >
                       {active ? '✓' : '+'}
                     </span>
-                    {active && (
-                      <span className="absolute -inset-1 rounded-full bg-blue-500/25 animate-ping-subtle pointer-events-none" />
-                    )}
                   </div>
                 </button>
               );
@@ -189,7 +184,7 @@ export function AnatomicalBodyMap({
             <div className="absolute bottom-3 left-4 right-4 z-30 p-3 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-xl text-xs text-slate-800 pointer-events-none transition-all">
               <div className="flex items-center justify-between mb-1">
                 <span className="font-bold text-slate-900 font-sans">{hoveredPin.name}</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold border border-blue-200">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-bold border border-emerald-200">
                   Protocol {hoveredPin.protocolId}
                 </span>
               </div>
@@ -208,9 +203,9 @@ export function AnatomicalBodyMap({
           {BODY_PINS.filter((p) => isProtocolActive(p.protocolId)).map((pin) => (
             <span
               key={pin.id}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[11px] font-semibold font-mono"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold font-mono"
             >
-              <Check className="w-3 h-3 text-blue-600 stroke-[3]" />
+              <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
               <span>{pin.name}</span>
             </span>
           ))}

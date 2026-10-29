@@ -1,35 +1,28 @@
 {
-  "patient_name": "David Miller",
-  "clinical_diagnosis_summary": "Comprehensive kinetic chain circuit (4 protocols) prescribed for David Miller (34 yo) addressing Shoulder & Neck with visual EMA compensation monitoring and axial stability.",
-  "precautions": "Moderate symptom threshold (6/10). Maintain neutral spinal alignment and eliminate compensatory shrug or trunk lateral flexion.",
+  "patient_name": "Mritunjay Mishra",
+  "clinical_diagnosis_summary": "This circuit addresses Mritunjay Mishra's primary complaint of shoulder pain post-rotator cuff surgery and secondary neck pain from prolonged sitting. The kinetic chain approach integrates the primary shoulder agonist (Protocol 1) with a synergistic bilateral shoulder and scapular stabilizer (Protocol 5) to ensure proper scapulohumeral rhythm and prevent compensatory movement. The circuit is anchored by an axial postural component (Protocol 3) to address the cervical spine dysfunction contributing to his neck pain and to promote overall postural integrity, which is crucial for optimal shoulder function.",
+  "precautions": "Perform all movements slowly and with controlled velocity. Avoid any compensatory elevation of the shoulder girdle during abduction (Protocol 1 & 5). Maintain a pain-free range of motion, stopping if pain exceeds a 3/10 increase. Ensure no forward head posture or excessive thoracic kyphosis is present during Protocol 3.",
   "exercises": [
     {
-      "protocol_id": 8,
-      "protocol_name": "P8: Carpal Tunnel Wrist & Forearm Extension",
-      "target_reps": 4,
-      "target_rom_degrees": 22,
-      "clinical_rationale": "Mobilizes median nerve glide across flexor retinaculum without trapezius tension."
-    },
-    {
-      "protocol_id": 4,
-      "protocol_name": "P4: Post-Fracture Elbow Flexion Rehab",
-      "target_reps": 4,
-      "target_rom_degrees": 113,
-      "clinical_rationale": "Restores humeroulnar flexion and avoids compensatory shoulder abduction swing."
-    },
-    {
-      "protocol_id": 3,
-      "protocol_name": "P3: Cervical & Ergonomic Posture Guard",
-      "target_reps": 2,
-      "target_rom_degrees": 77,
-      "clinical_rationale": "Strengthens deep cervical flexors and retrains neutral craniovertebral alignment."
+      "protocol_id": 1,
+      "protocol_name": "P1: Frozen Shoulder Abduction",
+      "target_reps": 10,
+      "target_rom_degrees": 90,
+      "clinical_rationale": "Directly targets glenohumeral abduction to restore range of motion and strength post-rotator cuff surgery, focusing on isolated joint movement without compensatory scapular elevation."
     },
     {
       "protocol_id": 5,
       "protocol_name": "P5: Bilateral Overhead Wall-Slide Sync",
-      "target_reps": 4,
-      "target_rom_degrees": 108,
-      "clinical_rationale": "Retrains bilateral serratus anterior activation and symmetric scapulohumeral rhythm."
+      "target_reps": 10,
+      "target_rom_degrees": 120,
+      "clinical_rationale": "Enhances scapulohumeral rhythm and bilateral shoulder girdle stability, synergistically supporting the primary shoulder abduction by promoting proper scapular upward rotation and posterior tilt, crucial for post-rotator cuff recovery."
+    },
+    {
+      "protocol_id": 3,
+      "protocol_name": "P3: Cervical & Ergonomic Posture Guard",
+      "target_reps": 15,
+      "target_rom_degrees": 90,
+      "clinical_rationale": "Addresses the cervical spine and postural deficits contributing to neck pain and potentially impacting shoulder mechanics. This protocol acts as the axial postural anchor, promoting neutral cervical alignment and core engagement essential for kinetic chain efficiency."
     }
   ]
 }

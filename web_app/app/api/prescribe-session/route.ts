@@ -74,7 +74,7 @@ Patient Natural Language Description: "${input.symptoms}"
 Map the symptoms and kinetic chain synergists to ${minExercises}-${maxExercises} protocols from the 8 available and output the complete JSON prescription.`;
 
     // Attempt LLM generation
-    const llmResult = await callLLM(systemPrompt, userPrompt, 4500);
+    const llmResult = await callLLM(systemPrompt, userPrompt, 10000);
     if (llmResult) {
       try {
         const parsed = JSON.parse(llmResult);

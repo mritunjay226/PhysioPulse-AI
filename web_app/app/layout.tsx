@@ -17,8 +17,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Healix — Clinical Computer Vision Telerehabilitation",
-  description: "Precision 3D biomechanical kinematic analysis and telerehabilitation intelligence platform.",
+  title: "PhysioPulse AI — Clinical Computer Vision Telerehabilitation",
+  description: "Autonomous markerless 3D biomechanical kinematic analysis, clinical physical therapy prescription, and patient care planning intelligence platform.",
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
       lang="en"
       className={`${plusJakarta.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans bg-[#EFF2F6] text-slate-900 selection:bg-blue-600 selection:text-white">
+      <body className="min-h-full flex flex-col font-sans bg-[#EFF2F6] text-slate-900 selection:bg-emerald-600 selection:text-white">
         {children}
       </body>
     </html>
