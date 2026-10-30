@@ -80,7 +80,8 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
 select:focus,
 textarea:focus {
   background-color: #FFFFFF !important;
-  border-color: #1865F2 !important;
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
 }
 
 /* Custom subtle scrollbars */
@@ -180,20 +181,68 @@ textarea:focus {
 }
 
 @media print {
-  body {
+  @page {
+    size: letter portrait;
+    margin: 8mm 8mm 8mm 8mm;
+  }
+
+  html, body {
     background: #ffffff !important;
     color: #0f172a !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
+
   .no-print {
     display: none !important;
   }
-  .print-card {
-    border: 1px solid #e2e8f0 !important;
+
+  /* Reset outer application chrome in print */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: auto !important;
+    background: #ffffff !important;
+  }
+
+  /* Compact publication card styling */
+  .theme-card, .print-card {
+    border: 1px solid #cbd5e1 !important;
     background: #ffffff !important;
     color: #0f172a !important;
     box-shadow: none !important;
-    page-break-inside: avoid;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    margin-bottom: 8px !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
+
+  /* Tighten spacing */
+  .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 8px !important;
+  }
+
+  .grid {
+    gap: 6px !important;
+  }
+
+  /* Compact typography in print */
+  h2 {
+    font-size: 15px !important;
+    line-height: 1.2 !important;
+  }
+  h3 {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+  h4 {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+
   .print-text-dark {
     color: #0f172a !important;
   }

@@ -17,13 +17,25 @@ def create_deck():
     BG_DARK = RGBColor(11, 19, 43)        # #0B132B Deep Obsidian Navy
     CARD_BG = RGBColor(22, 33, 62)        # #16213E Indigo Card
     CARD_BORDER = RGBColor(39, 53, 90)    # #27355A
-    ACCENT_CYAN = RGBColor(0, 229, 255)   # #00E5FF Vibrant Tech Cyan
-    ACCENT_EMERALD = RGBColor(16, 185, 129)# #10B981 Clinical Green
+    ACCENT_CYAN = RGBColor(16, 185, 129)   # Clinical Emerald #10B981
+    ACCENT_EMERALD = RGBColor(5, 150, 105) # Deep Emerald #059669
     ACCENT_ROSE = RGBColor(244, 63, 94)   # #F43F5E Compensation Red
     ACCENT_AMBER = RGBColor(245, 158, 11) # #F59E0B Warning Gold
     TEXT_WHITE = RGBColor(255, 255, 255)  # #FFFFFF
     TEXT_MUTED = RGBColor(148, 163, 184)  # #94A3B8 Slate Gray
     TEXT_DIM = RGBColor(100, 116, 139)    # #64748B Dark Slate
+
+    def get_img_path(filename):
+        candidates = [
+            filename,
+            os.path.join("ppt", filename),
+            os.path.join(os.path.dirname(__file__) if "__file__" in globals() else ".", "ppt", filename),
+            os.path.join(os.path.dirname(__file__) if "__file__" in globals() else ".", filename)
+        ]
+        for p in candidates:
+            if os.path.exists(p):
+                return p
+        return None
 
     def set_slide_background(slide):
         bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
@@ -429,12 +441,14 @@ def create_deck():
     add_header(s5, "Biomechanical Precision & Math", "Engineering Depth: Signal Stabilization & Clinical ROM Telemetry", "05 / 09")
 
     # Left: Embed Matplotlib Chart 1
-    if os.path.exists("chart_signal_stabilization.png"):
-        s5.shapes.add_picture("chart_signal_stabilization.png", Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.6))
+    c1 = get_img_path("chart_signal_stabilization.png")
+    if c1:
+        s5.shapes.add_picture(c1, Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.6))
 
     # Right: Embed Matplotlib Chart 2
-    if os.path.exists("chart_14day_telemetry.png"):
-        s5.shapes.add_picture("chart_14day_telemetry.png", Inches(6.75), Inches(1.6), Inches(5.8), Inches(3.6))
+    c2 = get_img_path("chart_14day_telemetry.png")
+    if c2:
+        s5.shapes.add_picture(c2, Inches(6.75), Inches(1.6), Inches(5.8), Inches(3.6))
 
     # Bottom 3 Technical Callouts
     tech_boxes = [
@@ -552,8 +566,9 @@ def create_deck():
     add_header(s7, "B2B Business Model & Monetization", "Commercial Viability: CMS Remote Therapeutic Monitoring (RTM)", "07 / 09")
 
     # Left: Embed Matplotlib Chart 4
-    if os.path.exists("chart_cpt_reimbursement.png"):
-        s7.shapes.add_picture("chart_cpt_reimbursement.png", Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.6))
+    c4 = get_img_path("chart_cpt_reimbursement.png")
+    if c4:
+        s7.shapes.add_picture(c4, Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.6))
 
     # Right: 3 Monetization Pillars
     b2b_pillars = [
@@ -632,8 +647,9 @@ def create_deck():
     add_header(s8, "Mandatory Deliverable #2", "Impact, Adoption & Scaling Plan (0 → 1,000+ Users)", "08 / 09")
 
     # Left: Embed Matplotlib Chart 3
-    if os.path.exists("chart_scaling_trajectory.png"):
-        s8.shapes.add_picture("chart_scaling_trajectory.png", Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.6))
+    c3 = get_img_path("chart_scaling_trajectory.png")
+    if c3:
+        s8.shapes.add_picture(c3, Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.6))
 
     # Right: Phase 1 & Phase 2 Roadmaps
     phases = [
@@ -790,7 +806,9 @@ def create_deck():
     # Save
     output_filename = "PhysioPulse_AI_Pitch_Deck_10_out_of_10.pptx"
     prs.save(output_filename)
-    print(f"Presentation successfully created: {output_filename}")
+    os.makedirs("ppt", exist_ok=True)
+    prs.save(os.path.join("ppt", output_filename))
+    print(f"Presentation successfully created: {output_filename} and ppt/{output_filename}")
 
 if __name__ == "__main__":
     create_deck()

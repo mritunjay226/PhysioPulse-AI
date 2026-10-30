@@ -15,7 +15,7 @@ export function ReportHomeCareCards({ cards }: { cards: HomeCareCardItem[] }) {
     <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-7 shadow-sm theme-card">
       <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
             <Sparkles className="w-4 h-4 stroke-[2.5]" />
           </div>
           <div>
@@ -27,7 +27,7 @@ export function ReportHomeCareCards({ cards }: { cards: HomeCareCardItem[] }) {
             </p>
           </div>
         </div>
-        <span className="text-[11px] font-mono font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+        <span className="text-[11px] font-mono font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
           4 At-Home Prescriptions
         </span>
       </div>
@@ -40,7 +40,7 @@ export function ReportHomeCareCards({ cards }: { cards: HomeCareCardItem[] }) {
           >
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 font-bold">
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold">
                   {c.category}
                 </span>
                 <span className="text-[11px] font-mono text-slate-400">Card #{idx + 1}</span>

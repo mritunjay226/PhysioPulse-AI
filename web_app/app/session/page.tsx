@@ -7,7 +7,10 @@ import {
   SessionReport,
   ClinicalEvaluationOutput
 } from '@/lib/clinical-engine';
-import { DecipheredDoctorReport } from '@/lib/doctor-report-ocr';
+import {
+  DecipheredDoctorReport,
+  convertReportToPhysioPrescription
+} from '@/lib/doctor-report-ocr';
 
 import { SessionBrowserChrome } from '@/components/session/SessionBrowserChrome';
 import { SessionWorkflowStepper } from '@/components/session/SessionWorkflowStepper';
@@ -51,32 +54,19 @@ export default function PhysioPulseApp() {
 
   const handleApplyDoctorReport = (rep: DecipheredDoctorReport) => {
     setDoctorReport(rep);
-    const pName = rep.patient_details.name || rep.session_plan.patient_name || 'Patient';
-    setPatientName(pName);
+    const formulatedPrescription = convertReportToPhysioPrescription(rep);
+    setPatientName(formulatedPrescription.patient_name);
     setAge(rep.patient_details.age || 35);
     setAffectedArea(rep.session_plan.affected_area || 'Shoulder & Neck');
     setPainLevel(rep.session_plan.vas_pain_level || 6);
     setSymptoms(
-      `Deciphered Doctor Prescription [${rep.doctor_details.doctor_name}, ${rep.doctor_details.hospital_or_clinic}]:\n` +
+      `Deciphered Medical Document [${rep.doctor_details.doctor_name}, ${rep.doctor_details.hospital_or_clinic}]:\n` +
       `Diagnosis: ${rep.clinical_findings.diagnosis}\n\n` +
       `Clinical Rationale & Directives:\n${rep.session_plan.clinical_diagnosis_summary}`
     );
 
-    const formulatedPrescription: PrescriptionOutput = {
-      patient_name: pName,
-      clinical_diagnosis_summary: rep.session_plan.clinical_diagnosis_summary,
-      precautions: rep.session_plan.precautions,
-      exercises: rep.session_plan.exercises.map((ex) => ({
-        protocol_id: ex.protocol_id,
-        protocol_name: ex.protocol_name,
-        target_reps: ex.target_reps,
-        target_rom_degrees: ex.target_rom_degrees,
-        clinical_rationale: ex.clinical_rationale
-      }))
-    };
-
     setPrescription(formulatedPrescription);
-    setActiveProtocols(rep.session_plan.exercises.map((e) => e.protocol_id));
+    setActiveProtocols(formulatedPrescription.exercises.map((e) => e.protocol_id));
     setActiveStage(2);
   };
 
@@ -174,7 +164,7 @@ export default function PhysioPulseApp() {
   const handleApplyPreset = (preset: IntakePreset) => {
     setAffectedArea(preset.area);
     setPainLevel(preset.pain);
-    setSymptoms(preset.desc);
+    setSymptoms(preset.symptoms || preset.desc);
     setActiveProtocols(preset.protocols);
   };
 
@@ -221,7 +211,6 @@ export default function PhysioPulseApp() {
       setIsGeneratingPrescription(false);
     }
   };
-
   const handleLaunchVisionSession = async () => {
     setIsRunningSession(true);
     setSessionError(null);

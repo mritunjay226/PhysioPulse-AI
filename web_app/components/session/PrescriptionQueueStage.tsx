@@ -91,6 +91,41 @@ export function PrescriptionQueueStage({
           </button>
         </div>
 
+        {/* Radiology Scan Guard Badge */}
+        {doctorReport?.radiology_scan && (
+          <div className="mt-5 p-4 rounded-xl bg-blue-50/80 border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0">
+                {doctorReport.radiology_scan.modality === 'xray' ? '🩻' : '🧲'}
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-bold text-blue-950 font-sans">
+                    {doctorReport.radiology_scan.modality_label}
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-200 font-semibold">
+                    {doctorReport.radiology_scan.pathology_grade}
+                  </span>
+                  <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold">
+                    Guarded Kinematics
+                  </span>
+                </div>
+                <p className="text-[11px] text-blue-800/90 font-sans mt-0.5">
+                  Biomechanical safety ceiling: Target ROM capped at {doctorReport.radiology_scan.biomechanical_restrictions.recommended_rom_cap_degrees || 70}° to protect articular integrity.
+                </p>
+              </div>
+            </div>
+            {onViewDoctorReport && (
+              <button
+                onClick={onViewDoctorReport}
+                className="text-xs font-semibold text-blue-700 hover:text-blue-900 underline shrink-0 cursor-pointer"
+              >
+                Inspect Imaging Study
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Precautions Alert */}
         <div className="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
@@ -325,8 +360,8 @@ export function PrescriptionQueueStage({
 
       {/* Focused Camera Modal Dialog */}
       {isVisionModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-7xl max-h-[96vh] flex flex-col my-auto">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md overflow-y-auto p-2 sm:p-4 lg:p-6 flex justify-center items-start animate-in fade-in duration-200">
+          <div className="relative w-full max-w-7xl my-2 sm:my-4">
             <EmbeddedVisionStudio
               isRunning={isRunningSession}
               onConcludeSession={handleConcludeModalSession}

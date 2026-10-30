@@ -58,13 +58,13 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
           return (
             <div
               key={idx}
-              className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm flex flex-col justify-between print-card theme-card"
+              className="bg-white border border-slate-200/90 hover:border-emerald-300/80 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between print-card theme-card"
             >
               <div>
                 {/* Header Badge */}
                 <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100 font-sans">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
                       EXERCISE #{idx + 1}
                     </span>
                     <h4 className="text-sm font-bold text-slate-900 font-sans">
@@ -112,12 +112,12 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
                     {/* Achieved Peak ROM Bar */}
                     <div>
                       <div className="flex justify-between text-[11px] text-slate-700 mb-0.5 font-sans">
-                        <span className="text-blue-600 font-semibold">Peak Range Achieved</span>
-                        <span className="font-extrabold text-blue-600 font-mono">{peakRom}°</span>
+                        <span className="text-emerald-800 font-bold">Peak Range Achieved</span>
+                        <span className="font-extrabold text-emerald-700 font-mono text-xs">{peakRom}°</span>
                       </div>
                       <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
                         <div
-                          className="bg-blue-600 h-full rounded-full transition-all duration-700"
+                          className="bg-gradient-to-r from-emerald-500 to-teal-600 h-full rounded-full transition-all duration-700 shadow-2xs shadow-emerald-500/20"
                           style={{ width: `${Math.min(100, Math.round((peakRom / 180) * 100))}%` }}
                         />
                       </div>
@@ -139,7 +139,7 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                         <path
-                          className={isSymmetryOptimal ? 'text-blue-600' : 'text-rose-600'}
+                          className={isSymmetryOptimal ? 'text-emerald-600' : 'text-rose-600'}
                           strokeDasharray={`${symmetry}, 100`}
                           strokeWidth="3.5"
                           strokeLinecap="round"
@@ -155,7 +155,7 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
 
                     <div className="font-sans text-xs">
                       <span className="text-[10px] text-slate-400 uppercase block font-mono">Symmetry</span>
-                      <span className={`text-xs font-bold ${isSymmetryOptimal ? 'text-blue-600' : 'text-rose-600'}`}>
+                      <span className={`text-xs font-bold ${isSymmetryOptimal ? 'text-emerald-700' : 'text-rose-600'}`}>
                         {isSymmetryOptimal ? 'Optimal Balance' : 'Asymmetry Detected'}
                       </span>
                     </div>
@@ -170,7 +170,7 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
                     {/* Visual Segmented Stability Ratio Bar */}
                     <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden flex my-1.5">
                       <div
-                        className="bg-blue-600 h-full transition-all duration-700"
+                        className="bg-gradient-to-r from-emerald-500 to-teal-500 h-full transition-all duration-700"
                         style={{ width: `${cleanPct}%` }}
                         title={`Clean Frames: ${cleanPct}%`}
                       />
@@ -215,7 +215,7 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100 font-sans">
           <div>
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
+              <TrendingUp className="w-4 h-4 text-emerald-600" />
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-sans">
                 14-Day Kinetic Progression & Recovery Curve
               </h3>
@@ -227,11 +227,11 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
 
           <div className="flex items-center gap-4 text-xs font-sans">
             <span className="flex items-center gap-1.5 text-slate-800 font-semibold font-sans">
-              <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-xs" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 shadow-xs" />
               Peak ROM (°)
             </span>
             <span className="flex items-center gap-1.5 text-slate-500 font-sans">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <span className="w-2.5 h-2.5 rounded-full bg-teal-400" />
               Symmetry (%)
             </span>
           </div>
@@ -265,20 +265,20 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
               </g>
             ))}
 
-            {/* Symmetry Curve (Emerald) */}
+            {/* Symmetry Curve (Teal) */}
             <path
               d={`M ${trajectory.map((d, i) => `${50 + i * 48},${200 - (d.symmetry / 100) * 160}`).join(' L ')}`}
               fill="none"
-              stroke="#10B981"
+              stroke="#2DD4BF"
               strokeWidth="2"
               strokeDasharray="4 2"
             />
 
-            {/* ROM Curve (Royal Blue) */}
+            {/* ROM Curve (Clinical Emerald) */}
             <path
               d={`M ${trajectory.map((d, i) => `${50 + i * 48},${200 - (d.rom / 180) * 180}`).join(' L ')}`}
               fill="none"
-              stroke="#1865F2"
+              stroke="#059669"
               strokeWidth="3"
               strokeLinecap="round"
             />
@@ -299,8 +299,8 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
                     cx={cx}
                     cy={cyRom}
                     r={isSelected ? 6 : 4}
-                    fill={isSelected ? '#1865F2' : '#FFFFFF'}
-                    stroke="#1865F2"
+                    fill={isSelected ? '#059669' : '#FFFFFF'}
+                    stroke="#059669"
                     strokeWidth={isSelected ? 3 : 2}
                     className="transition-all"
                   />
@@ -317,7 +317,7 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
                   <text
                     x={cx}
                     y="195"
-                    fill={isSelected ? '#1865F2' : '#94A3B8'}
+                    fill={isSelected ? '#059669' : '#94A3B8'}
                     fontSize="9"
                     fontFamily="monospace"
                     textAnchor="middle"
@@ -335,13 +335,13 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
             <div className="absolute top-4 right-4 bg-white/95 border border-slate-200 rounded-2xl p-3.5 backdrop-blur-md shadow-lg text-xs font-sans z-10 animate-in fade-in">
               <div className="flex items-center justify-between gap-4 font-bold text-slate-900 border-b border-slate-100 pb-1.5 mb-1.5 font-sans">
                 <span>{trajectory[selectedTrajectoryDay].day} ({trajectory[selectedTrajectoryDay].date})</span>
-                <span className="text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 text-[10px] font-mono">
+                <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 text-[10px] font-mono">
                   {trajectory[selectedTrajectoryDay].milestone || 'Regular Session'}
                 </span>
               </div>
               <div className="space-y-1 text-slate-600 font-mono">
-                <p>Peak ROM: <strong className="text-blue-600 font-bold">{trajectory[selectedTrajectoryDay].rom}°</strong></p>
-                <p>Symmetry: <strong className="text-emerald-600 font-bold">{trajectory[selectedTrajectoryDay].symmetry}%</strong></p>
+                <p>Peak ROM: <strong className="text-emerald-700 font-bold">{trajectory[selectedTrajectoryDay].rom}°</strong></p>
+                <p>Symmetry: <strong className="text-emerald-700 font-bold">{trajectory[selectedTrajectoryDay].symmetry}%</strong></p>
                 <p>Compensations: <strong className="text-slate-800 font-bold">{trajectory[selectedTrajectoryDay].compensations} frames</strong></p>
               </div>
             </div>

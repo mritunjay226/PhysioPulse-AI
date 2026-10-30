@@ -78,37 +78,63 @@ export async function POST(req: NextRequest) {
     let evaluation: ClinicalEvaluationOutput | null = null;
     let source = 'deterministic_engine';
 
-    const systemPrompt = `You are a Chief Orthopedic Physiatrist and Biomechanics Clinical Evaluator.
+    const systemPrompt = `You are a Chief Orthopedic Physiatrist and Biomechanics Clinical Evaluator at PhysioPulse AI.
 Analyze the patient's prescribed rehabilitation routine against the real-time computer vision session report.
-Examine range of motion (ROM) compliance, bilateral symmetry scores, rep completion, and compensatory habits caught by MediaPipe pose tracking.
+The report MUST be concise, professional, and formatted specifically for a compact, publication-ready clinical discharge PDF (prevent multi-page sprawl).
 
 You MUST respond strictly with a valid JSON object matching this schema:
 {
-  "executive_summary": "Professional clinical paragraph summarizing the patient's performance, stability, and trajectory.",
+  "executive_summary": "Crisp 2-3 sentence clinical synthesis summarizing joint range-of-motion achievement, bilateral symmetry stability, and primary compensation habits caught during computer vision tracking.",
   "joint_breakdown": [
     {
-      "protocol_name": "P1: Frozen Shoulder Abduction",
+      "protocol_name": "P1: Frozen Shoulder Abduction (Seated/Standing)",
       "target_rom": 90,
-      "achieved_rom": 94,
-      "rom_status": "Target Achieved (+4°)",
-      "symmetry_score": 92,
-      "compensation_issue": "COMPENSATION: SHRUGGING",
-      "clinical_analysis": "Detailed joint kinematics review."
+      "achieved_rom": 113,
+      "rom_status": "Target Exceeded (+23°)",
+      "symmetry_score": 89,
+      "compensation_issue": "COMPENSATION: BENT ELBOW",
+      "clinical_analysis": "One concise clinical sentence analyzing joint kinematics and motor control."
     }
   ],
   "next_session_adjustments": [
-    "Specific clinical adjustment 1 (e.g., increase target ROM by 5° or focus on core stabilization)"
+    "Strictly 2-3 concise, high-priority clinical adjustments (1 sentence each)."
   ],
-  "readiness_score": 88
+  "readiness_score": 85,
+  "clinical_tips": [
+    {
+      "category": "Immediate Care",
+      "title": "Concise Directive Title",
+      "instruction": "One crisp instruction sentence tailored to the patient's detected compensations.",
+      "rationale": "One crisp biomechanical rationale sentence."
+    },
+    {
+      "category": "Ergonomic Habit",
+      "title": "Concise Directive Title",
+      "instruction": "One crisp instruction sentence tailored to the patient's detected compensations.",
+      "rationale": "One crisp biomechanical rationale sentence."
+    },
+    {
+      "category": "Exercise Progression",
+      "title": "Concise Directive Title",
+      "instruction": "One crisp instruction sentence tailored to the patient's detected compensations.",
+      "rationale": "One crisp biomechanical rationale sentence."
+    },
+    {
+      "category": "Articular Safeguard",
+      "title": "Concise Directive Title",
+      "instruction": "One crisp instruction sentence tailored to the patient's detected compensations.",
+      "rationale": "One crisp biomechanical rationale sentence."
+    }
+  ]
 }`;
 
     const userPrompt = `Prescription Data:
 ${JSON.stringify(prescription, null, 2)}
 
-Clinical Session Performance Telemetry:
+Clinical Session Performance Telemetry (Direct from Python Vision Engine):
 ${JSON.stringify(report, null, 2)}
 
-Evaluate this rehabilitation session and return the structured JSON report.`;
+Evaluate this rehabilitation session and return the structured JSON report with concise, high-density clinical findings.`;
 
     // Attempt LLM evaluation with 10-second timeout
     const llmResult = await callLLM(systemPrompt, userPrompt, 10000);
@@ -127,7 +153,10 @@ Evaluate this rehabilitation session and return the structured JSON report.`;
             executive_summary: parsed.executive_summary,
             joint_breakdown: parsed.joint_breakdown,
             next_session_adjustments: parsed.next_session_adjustments,
-            readiness_score: Math.min(100, Math.max(0, parsed.readiness_score))
+            readiness_score: Math.min(100, Math.max(0, parsed.readiness_score)),
+            clinical_tips: Array.isArray(parsed.clinical_tips) && parsed.clinical_tips.length > 0
+              ? parsed.clinical_tips
+              : fallback.clinical_tips
           };
           source = 'llm_agent';
         }

@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
-  HeartPulse,
   Share2,
   Bookmark,
   Printer,
@@ -15,12 +15,18 @@ export function StudioSubnav() {
   return (
     <div className="h-14 px-6 border-b border-slate-200/80 bg-white flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs font-bold">
-            <HeartPulse className="w-4.5 h-4.5 text-white" />
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs group-hover:border-emerald-500/30 group-hover:bg-emerald-50/50 transition-colors">
+            <Image
+              src="/logo.svg"
+              alt="PhysioPulse AI Logo"
+              width={24}
+              height={20}
+              className="w-full h-full object-contain"
+            />
           </div>
-          <span className="text-slate-900 font-bold tracking-tight text-base font-sans">
-            PhysioPulse <span className="text-teal-500">AI</span>
+          <span className="text-slate-900 font-extrabold tracking-tight text-base font-sans">
+            PhysioPulse <span className="text-emerald-600 font-mono text-xs font-bold">AI</span>
           </span>
         </Link>
         <span className="text-slate-300 font-light hidden sm:inline">/</span>
@@ -67,7 +73,7 @@ export function StudioSubnav() {
         </button>
         <Link
           href="/session"
-          className="ml-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all shadow-blue-500/20"
+          className="ml-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
         >
           <span>Live Session</span>
           <ArrowRight className="w-3.5 h-3.5" />

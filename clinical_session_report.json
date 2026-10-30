@@ -1,21 +1,21 @@
 {
-    "session_id": "session_sub_1793215452",
-    "timestamp": "2026-10-29T00:54:12.635007",
+    "session_id": "session_sub_1793351011",
+    "timestamp": "2026-10-30T14:33:31.528651",
     "patient_name": "Mritunjay Mishra",
-    "prescribed_diagnosis": "This circuit addresses Mritunjay Mishra's primary complaint of shoulder dysfunction post-rotator cuff surgery and secondary neck pain from prolonged sitting. The kinetic chain approach integrates the affected shoulder (Protocol 1) with synergistic scapular stabilization (Protocol 5) and an axial postural anchor (Protocol 3) to ensure optimal glenohumeral rhythm and prevent compensatory neck movement. Protocol 7 is excluded as Protocol 3 provides a more direct postural anchor for the upper kinetic chain, which is the primary focus given the shoulder and neck complaints.",
-    "overall_compliance_percent": 0,
+    "prescribed_diagnosis": "The patient presents with symptoms indicative of Carpal Tunnel Syndrome, primarily affecting the wrist and forearm. To address this, the rehabilitation circuit targets the primary complaint (Protocol 8: Carpal Tunnel Wrist & Forearm Extension) by improving wrist and forearm mobility and strength. This is synergistically supported by Protocol 4 (Post-Fracture Elbow Flexion Rehab) to enhance elbow and forearm kinetic chain function, crucial for proximal stability during distal tasks. The circuit is anchored by Protocol 3 (Cervical & Ergonomic Posture Guard) to address the axial postural component, recognizing that poor cervical and thoracic posture can exacerbate upper extremity nerve compression and muscle imbalances, thereby promoting a comprehensive kinetic chain approach.",
+    "overall_compliance_percent": 67,
     "exercises_performed": [
         {
-            "protocol_id": 1,
-            "protocol_name": "P1: Frozen Shoulder Abduction (Seated/Standing)",
-            "prescribed_reps": 10,
-            "completed_reps": 0,
-            "target_rom_degrees": 90,
-            "achieved_peak_rom_degrees": 110,
+            "protocol_id": 8,
+            "protocol_name": "P8: Carpal Tunnel Wrist & Forearm Extension (Seated)",
+            "prescribed_reps": 12,
+            "completed_reps": 8,
+            "target_rom_degrees": 30,
+            "achieved_peak_rom_degrees": 139,
             "mean_symmetry_percent": 100,
-            "compensation_frames_detected": 345,
-            "primary_compensation_issue": "COMPENSATION: BENT ELBOW",
-            "duration_seconds": 21.1
+            "compensation_frames_detected": 0,
+            "primary_compensation_issue": "None (Clean Biomechanics)",
+            "duration_seconds": 120.1
         }
     ]
 }

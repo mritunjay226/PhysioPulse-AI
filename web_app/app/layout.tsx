@@ -19,6 +19,13 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "PhysioPulse AI — Clinical Computer Vision Telerehabilitation",
   description: "Autonomous markerless 3D biomechanical kinematic analysis, clinical physical therapy prescription, and patient care planning intelligence platform.",
+  icons: {
+    icon: [
+      { url: "/logo.svg", type: "image/svg+xml" }
+    ],
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({

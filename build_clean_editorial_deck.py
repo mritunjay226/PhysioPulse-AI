@@ -13,7 +13,7 @@ def create_factual_editorial_deck():
     prs.slide_height = Inches(7.5)
     blank_layout = prs.slide_layouts[6]
 
-    # Clean, Honest Clinical Palette (Zero Slop, Zero Bluffing)
+    # Clean, Honest Clinical Palette (Clinical Emerald Signature Accent)
     BG_OFFWHITE = RGBColor(248, 250, 252)      # Slate-50 Crisp Canvas
     CARD_WHITE = RGBColor(255, 255, 255)       # Card White
     BORDER_SUBTLE = RGBColor(226, 232, 240)    # Slate-200 Hairline Border
@@ -23,12 +23,24 @@ def create_factual_editorial_deck():
     TEXT_MUTED = RGBColor(71, 85, 105)         # Slate-600 Secondary
     TEXT_DIM = RGBColor(148, 163, 184)         # Slate-400 Footnotes
     
-    PRIMARY_BLUE = RGBColor(29, 78, 216)       # Blue-700 Surgical Royal Blue
-    BLUE_LIGHT = RGBColor(239, 246, 255)       # Blue-50 Subtle Tint
+    PRIMARY_BLUE = RGBColor(5, 150, 105)       # Emerald-600 Signature Clinical Accent
+    BLUE_LIGHT = RGBColor(236, 253, 245)       # Emerald-50 Subtle Tint
     EMERALD = RGBColor(5, 150, 105)            # Emerald-600 Clinical Green
     EMERALD_LIGHT = RGBColor(236, 253, 245)    # Emerald-50
     CRIMSON = RGBColor(220, 38, 38)            # Red-600 Alert Red
     AMBER = RGBColor(217, 119, 6)              # Amber-600
+
+    def get_img_path(filename):
+        candidates = [
+            filename,
+            os.path.join("ppt", filename),
+            os.path.join(os.path.dirname(__file__) if "__file__" in globals() else ".", "ppt", filename),
+            os.path.join(os.path.dirname(__file__) if "__file__" in globals() else ".", filename)
+        ]
+        for p in candidates:
+            if os.path.exists(p):
+                return p
+        return None
 
     def set_slide_background(slide):
         bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
@@ -422,8 +434,9 @@ def create_factual_editorial_deck():
     add_header(s5, "Built-In Camera Engineering", "Why Our Camera Tracking Is So Accurate (Real Benchmarks)", "05 / 09")
 
     # Left: Embed Real Matplotlib Benchmark: Signal Precision
-    if os.path.exists("graph_real_signal_filter.png"):
-        s5.shapes.add_picture("graph_real_signal_filter.png", Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.4))
+    img5 = get_img_path("graph_real_signal_filter.png")
+    if img5:
+        s5.shapes.add_picture(img5, Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.4))
 
     # Right: 3 Real Engineering Features Built Into Code
     tech_boxes = [
@@ -567,8 +580,9 @@ def create_factual_editorial_deck():
     add_header(s7, "Working Prototype Verification", "Prototype Testing: Target vs. Measured Joint Angles", "07 / 09")
 
     # Left: Embed Real Prototype Telemetry Benchmark
-    if os.path.exists("graph_prototype_telemetry.png"):
-        s7.shapes.add_picture("graph_prototype_telemetry.png", Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.4))
+    img7 = get_img_path("graph_prototype_telemetry.png")
+    if img7:
+        s7.shapes.add_picture(img7, Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.4))
 
     # Right: What the Prototype Measures
     telemetry_points = [
@@ -641,8 +655,9 @@ def create_factual_editorial_deck():
     add_header(s8, "Target Roadmap & Deployment", "Our Deployment Plan: From Working Prototype to Users", "08 / 09")
 
     # Left: Embed Deployment Roadmap Chart
-    if os.path.exists("graph_deployment_roadmap.png"):
-        s8.shapes.add_picture("graph_deployment_roadmap.png", Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.4))
+    img8 = get_img_path("graph_deployment_roadmap.png")
+    if img8:
+        s8.shapes.add_picture(img8, Inches(0.8), Inches(1.6), Inches(5.8), Inches(3.4))
 
     # Right: 3 Honest Rollout Phases
     phases = [
@@ -808,9 +823,12 @@ def create_factual_editorial_deck():
     # Save
     output_filename = "PhysioPulse_AI_Executive_Pitch_Deck.pptx"
     prs.save(output_filename)
-    print(f"Factual, Non-Bluffing Presentation successfully created: {output_filename}")
+    os.makedirs("ppt", exist_ok=True)
+    prs.save(os.path.join("ppt", output_filename))
+    print(f"Factual, Non-Bluffing Presentation successfully created: {output_filename} and ppt/{output_filename}")
     try:
         prs.save("PhysioPulse_AI_Pitch_Deck_10_out_of_10.pptx")
+        prs.save(os.path.join("ppt", "PhysioPulse_AI_Pitch_Deck_10_out_of_10.pptx"))
     except Exception as e:
         print("Note: Secondary save skipped:", e)
 

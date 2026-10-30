@@ -29,7 +29,7 @@ export function ReportDirectivesChecklist({
     <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-7 shadow-sm theme-card">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
             <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
           </div>
           <div>
@@ -71,7 +71,7 @@ export function ReportDirectivesChecklist({
               className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start gap-3.5 ${
                 isDone
                   ? 'bg-slate-50/50 border-slate-200 opacity-70'
-                  : 'bg-slate-50/70 hover:bg-white border-slate-200 hover:border-blue-300 shadow-xs'
+                  : 'bg-slate-50/70 hover:bg-white border-slate-200 hover:border-emerald-300 shadow-xs'
               }`}
             >
               <div className="mt-0.5">
@@ -79,13 +79,13 @@ export function ReportDirectivesChecklist({
                   type="checkbox"
                   checked={isDone}
                   onChange={() => onToggleDirective(idx)}
-                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer"
+                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 cursor-pointer"
                 />
               </div>
 
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 font-bold">
+                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold">
                     {dir.category}
                   </span>
                   <h4

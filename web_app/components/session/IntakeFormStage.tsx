@@ -24,7 +24,7 @@ export interface IntakePreset {
   title: string;
   area: string;
   pain: number;
-  symptoms: string;
+  symptoms?: string;
   desc: string;
   protocols: number[];
 }
@@ -154,14 +154,14 @@ export function IntakeFormStage({
                 <div>
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="text-xs font-bold text-slate-900 font-sans">
-                      Upload Doctor Prescription or Clinical Referral
+                      Upload Prescription, X-Ray, or MRI Study
                     </span>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white border border-emerald-200 text-emerald-800">
-                      OCR Intake Active
+                      Multimodal Radiology AI Active
                     </span>
                   </div>
                   <p className="text-xs text-slate-600 font-sans leading-relaxed max-w-xl">
-                    Extracts diagnoses, ICD-10 indications, and surgical precautions directly from handwritten prescriptions or referral notes.
+                    Deciphers handwritten doctor scripts and inspects musculoskeletal X-Rays / 3.0T MRIs to automatically calibrate safe ROM limits.
                   </p>
                 </div>
               </div>
@@ -173,7 +173,7 @@ export function IntakeFormStage({
                   className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  <span>{activeReport ? 'View / Rescan Prescription' : 'Scan Prescription (OCR)'}</span>
+                  <span>{activeReport ? 'View / Rescan Document' : 'Scan Prescription / X-Ray / MRI'}</span>
                 </button>
               </div>
             </div>

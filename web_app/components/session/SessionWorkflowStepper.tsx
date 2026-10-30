@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { HeartPulse, ChevronRight, Activity, Zap } from 'lucide-react';
+import Image from 'next/image';
+import { ChevronRight, Activity, Zap } from 'lucide-react';
 
 export interface SessionWorkflowStepperProps {
   activeStage: 1 | 2 | 3;
@@ -20,9 +21,16 @@ export function SessionWorkflowStepper({
   return (
     <header className="px-6 py-4 border-b border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4 no-print select-none">
       <div className="flex items-center gap-3.5">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-xs">
-            <HeartPulse className="w-5 h-5 text-white" />
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="w-10 h-10 rounded-xl bg-slate-900/5 border border-slate-200/80 p-1.5 flex items-center justify-center shrink-0 shadow-2xs group-hover:border-emerald-500/30 group-hover:bg-emerald-50/50 transition-colors">
+            <Image
+              src="/logo.svg"
+              alt="PhysioPulse AI Logo"
+              width={34}
+              height={30}
+              className="w-full h-full object-contain"
+              priority
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">

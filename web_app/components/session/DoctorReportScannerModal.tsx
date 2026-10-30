@@ -44,7 +44,8 @@ export function DoctorReportScannerModal({
   const [scanStep, setScanStep] = useState<number>(1);
   const [report, setReport] = useState<DecipheredDoctorReport | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'decoder' | 'session' | 'meds' | 'schedule'>('decoder');
+  const [scanModality, setScanModality] = useState<'prescription' | 'xray' | 'mri'>('prescription');
+  const [activeTab, setActiveTab] = useState<'decoder' | 'radiology' | 'session' | 'meds' | 'schedule'>('decoder');
   const [copiedSchedule, setCopiedSchedule] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,11 +80,17 @@ export function DoctorReportScannerModal({
         res = await fetch('/api/ocr-prescription', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sample_type: sampleType })
+          body: JSON.stringify({
+            sample_type: sampleType,
+            sampleId: sampleType,
+            scanType: scanModality
+          })
         });
       } else if (fileToUpload) {
         const formData = new FormData();
         formData.append('prescription', fileToUpload);
+        formData.append('fileName', fileToUpload.name);
+        formData.append('scanType', scanModality);
         res = await fetch('/api/ocr-prescription', {
           method: 'POST',
           body: formData
@@ -92,23 +99,32 @@ export function DoctorReportScannerModal({
         res = await fetch('/api/ocr-prescription', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sample_type: 'rotator_cuff' })
+          body: JSON.stringify({
+            sample_type: 'rotator_cuff',
+            sampleId: 'rotator_cuff',
+            scanType: scanModality
+          })
         });
       }
 
       const data = await res.json();
       clearInterval(stepInterval);
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to parse prescription');
+      if (!res.ok || !data.report) {
+        throw new Error(data.error || 'Failed to decipher document');
       }
 
       setReport(data.report);
+      if (data.report.radiology_scan) {
+        setActiveTab('radiology');
+      } else {
+        setActiveTab('decoder');
+      }
       setIsScanning(false);
     } catch (err: any) {
       clearInterval(stepInterval);
       setIsScanning(false);
-      setError(err.message || 'Error occurred while processing prescription.');
+      setError(err.message || 'Error occurred while processing document.');
     }
   };
 
@@ -121,6 +137,14 @@ export function DoctorReportScannerModal({
     let previewPath = '/prescriptions/dr_sharma_rotator_cuff.png';
     if (type === 'acl_knee') previewPath = '/prescriptions/dr_sengupta_acl_knee.png';
     if (type === 'lumbar_sciatica') previewPath = '/prescriptions/dr_gupta_lumbar_spine.png';
+    if (type === 'xray_knee_oa') {
+      previewPath = '/scan_knee_xray.png';
+      setScanModality('xray');
+    }
+    if (type === 'mri_shoulder_tear') {
+      previewPath = '/scan_shoulder_mri.png';
+      setScanModality('mri');
+    }
     setFilePreview(previewPath);
     runScanningSimulation(type);
   };
@@ -206,16 +230,56 @@ export function DoctorReportScannerModal({
                   </div>
                   <div>
                     <div className="text-xs font-bold text-slate-900 font-sans">
-                      Automated Prescription Parsing & Protocol Formulation
+                      Multimodal Medical Document & Radiology Vision Intake
                     </div>
                     <div className="text-[11px] text-slate-600 font-sans">
-                      Translates clinical diagnoses, medication directions, and anti-compensation boundaries into a guided session.
+                      Analyzes handwritten doctor prescriptions, plain film X-Rays, and 3.0T MRI scans to formulate guarded kinematics.
                     </div>
                   </div>
                 </div>
                 <span className="text-[10px] font-semibold text-emerald-800 bg-white px-2.5 py-1 rounded-full border border-emerald-200 whitespace-nowrap">
-                  Vision AI Active
+                  Gemini Vision Active
                 </span>
+              </div>
+
+              {/* Modality Selector Switcher */}
+              <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-xl max-w-lg border border-slate-200/60">
+                <button
+                  type="button"
+                  onClick={() => setScanModality('prescription')}
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    scanModality === 'prescription'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>📄 Prescription</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScanModality('xray')}
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    scanModality === 'xray'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Activity className="w-3.5 h-3.5 text-blue-200" />
+                  <span>🩻 Digital X-Ray</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScanModality('mri')}
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    scanModality === 'mri'
+                      ? 'bg-purple-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Zap className="w-3.5 h-3.5 text-purple-200" />
+                  <span>🧲 3.0T MRI Scan</span>
+                </button>
               </div>
 
               {/* Upload Zone */}
@@ -226,6 +290,10 @@ export function DoctorReportScannerModal({
                     className={`flex-1 border-2 border-dashed rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
                       filePreview
                         ? 'border-emerald-500 bg-emerald-50/30'
+                        : scanModality === 'xray'
+                        ? 'border-blue-300 hover:border-blue-500 bg-blue-50/20 hover:bg-blue-50/40'
+                        : scanModality === 'mri'
+                        ? 'border-purple-300 hover:border-purple-500 bg-purple-50/20 hover:bg-purple-50/40'
                         : 'border-slate-300 hover:border-emerald-500 bg-slate-50 hover:bg-emerald-50/10'
                     }`}
                   >
@@ -239,17 +307,17 @@ export function DoctorReportScannerModal({
 
                     {filePreview ? (
                       <div className="space-y-3 flex flex-col items-center">
-                        <div className="relative w-40 h-48 rounded-xl overflow-hidden border border-slate-200 shadow-md">
+                        <div className="relative w-44 h-48 rounded-xl overflow-hidden border border-slate-200 shadow-md bg-black">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={filePreview}
-                            alt="Uploaded Prescription"
-                            className="w-full h-full object-cover"
+                            alt="Uploaded Medical Image"
+                            className="w-full h-full object-contain"
                           />
                         </div>
                         <div className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          <span>{selectedFile?.name || 'Prescription Ready for Analysis'}</span>
+                          <span>{selectedFile?.name || (scanModality === 'xray' ? 'X-Ray Radiograph Ready' : scanModality === 'mri' ? 'MRI Sequence Ready' : 'Prescription Ready')}</span>
                         </div>
                         <span className="text-[11px] text-slate-500 underline hover:text-slate-800">
                           Click to select a different file
@@ -257,15 +325,25 @@ export function DoctorReportScannerModal({
                       </div>
                     ) : (
                       <div className="space-y-3 flex flex-col items-center">
-                        <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-emerald-600 shadow-xs">
+                        <div className={`w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-xs ${
+                          scanModality === 'xray' ? 'text-blue-600' : scanModality === 'mri' ? 'text-purple-600' : 'text-emerald-600'
+                        }`}>
                           <UploadCloud className="w-6 h-6" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-900 font-sans">
-                            Upload Doctor&apos;s Prescription or Referral Slip
+                            {scanModality === 'xray'
+                              ? 'Upload Plain Film / Digital Radiograph (X-Ray)'
+                              : scanModality === 'mri'
+                              ? 'Upload High-Resolution 1.5T / 3.0T MRI Sequence'
+                              : 'Upload Doctor Prescription or Clinical Referral'}
                           </p>
                           <p className="text-xs text-slate-500 mt-1 font-sans">
-                            Drag & drop or browse image (JPG, PNG) or PDF scan
+                            {scanModality === 'xray'
+                              ? 'Bilateral Knee, Shoulder AP, or Lumbar Plain Film (JPG, PNG)'
+                              : scanModality === 'mri'
+                              ? 'T1, T2 FS, or Proton Density sequences of joint tears'
+                              : 'Drag & drop or browse image (JPG, PNG) or clinical scan'}
                           </p>
                         </div>
                       </div>
@@ -275,10 +353,22 @@ export function DoctorReportScannerModal({
                   {filePreview && (
                     <button
                       onClick={handleStartUploadScan}
-                      className="mt-4 w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs cursor-pointer font-sans transition-colors"
+                      className={`mt-4 w-full py-3 px-4 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs cursor-pointer font-sans transition-colors ${
+                        scanModality === 'xray'
+                          ? 'bg-blue-600 hover:bg-blue-700'
+                          : scanModality === 'mri'
+                          ? 'bg-purple-600 hover:bg-purple-700'
+                          : 'bg-emerald-600 hover:bg-emerald-700'
+                      }`}
                     >
                       <Activity className="w-4 h-4" />
-                      <span>Parse Prescription & Formulate Protocol</span>
+                      <span>
+                        {scanModality === 'xray'
+                          ? 'Analyze X-Ray & Calibrate ROM Limits'
+                          : scanModality === 'mri'
+                          ? 'Analyze MRI & Guard Impingement Ceiling'
+                          : 'Parse Prescription & Formulate Protocol'}
+                      </span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   )}
@@ -291,19 +381,63 @@ export function DoctorReportScannerModal({
                       <Zap className="w-3.5 h-3.5 text-emerald-600" />
                       <span>Instant 1-Click Clinical Samples</span>
                     </div>
-                    <p className="text-xs text-slate-500 font-sans mb-4">
-                      Test instant OCR extraction on verified clinical referral cases:
+                    <p className="text-xs text-slate-500 font-sans mb-3">
+                      Test instant multimodal vision analysis on clinical cases:
                     </p>
 
-                    <div className="space-y-2.5">
-                      {/* Sample 1: Rotator Cuff */}
+                    <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
+                      {/* Sample: Knee OA X-Ray */}
+                      <button
+                        onClick={() => handleSelectSample('xray_knee_oa')}
+                        className="w-full text-left p-3 rounded-xl bg-white hover:bg-blue-50/50 border border-blue-200 transition-colors group cursor-pointer shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold text-slate-900 group-hover:text-blue-700 font-sans flex items-center gap-1.5">
+                            <span>🩻</span> Dr. S. K. Narang (Imaging)
+                          </span>
+                          <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 font-bold">
+                            X-Ray · 85° Cap
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 line-clamp-1 font-sans">
+                          Bilateral Knee AP X-Ray: KL Grade 2 Medial Compartment OA
+                        </p>
+                        <div className="mt-1 flex items-center gap-1.5 text-[10px] text-slate-400">
+                          <span>Click to run real-time X-Ray analysis</span>
+                          <ChevronRight className="w-3 h-3 ml-auto text-blue-600" />
+                        </div>
+                      </button>
+
+                      {/* Sample: Shoulder MRI */}
+                      <button
+                        onClick={() => handleSelectSample('mri_shoulder_tear')}
+                        className="w-full text-left p-3 rounded-xl bg-white hover:bg-purple-50/50 border border-purple-200 transition-colors group cursor-pointer shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold text-slate-900 group-hover:text-purple-700 font-sans flex items-center gap-1.5">
+                            <span>🧲</span> Dr. Priya Venkataraman (CityScan)
+                          </span>
+                          <span className="text-[10px] font-mono text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200 font-bold">
+                            3.0T MRI · 70° Cap
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 line-clamp-1 font-sans">
+                          Shoulder T2 MRI: Supraspinatus Tear + Subacromial Spur
+                        </p>
+                        <div className="mt-1 flex items-center gap-1.5 text-[10px] text-slate-400">
+                          <span>Click to run real-time MRI analysis</span>
+                          <ChevronRight className="w-3 h-3 ml-auto text-purple-600" />
+                        </div>
+                      </button>
+
+                      {/* Sample: Rotator Cuff Prescription */}
                       <button
                         onClick={() => handleSelectSample('rotator_cuff')}
                         className="w-full text-left p-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 transition-colors group cursor-pointer shadow-2xs"
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 font-sans">
-                            Dr. R. K. Sharma (Apollo Hospitals)
+                          <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 font-sans flex items-center gap-1.5">
+                            <span>📄</span> Dr. R. K. Sharma (Apollo)
                           </span>
                           <span className="text-[10px] font-mono text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
                             Cursive Script
@@ -318,21 +452,21 @@ export function DoctorReportScannerModal({
                         </div>
                       </button>
 
-                      {/* Sample 2: ACL Knee */}
+                      {/* Sample: ACL Knee Prescription */}
                       <button
                         onClick={() => handleSelectSample('acl_knee')}
                         className="w-full text-left p-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 transition-colors group cursor-pointer shadow-2xs"
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 font-sans">
-                            Dr. Anita Sengupta (AIIMS Trauma)
+                          <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 font-sans flex items-center gap-1.5">
+                            <span>📄</span> Dr. Anita Sengupta (AIIMS)
                           </span>
                           <span className="text-[10px] font-mono text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                            Post-Surgical Note
+                            Post-Op Note
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-500 line-clamp-1 font-sans">
-                          Left Knee ACL Reconstruction + Patellar Tracking Deficit
+                          Left Knee ACL Reconstruction + Patellar Tracking
                         </p>
                         <div className="mt-1 flex items-center gap-1.5 text-[10px] text-slate-400">
                           <span>Click to run real-time OCR</span>
@@ -340,14 +474,14 @@ export function DoctorReportScannerModal({
                         </div>
                       </button>
 
-                      {/* Sample 3: Lumbar PIVD */}
+                      {/* Sample: Lumbar Spine Prescription */}
                       <button
                         onClick={() => handleSelectSample('lumbar_sciatica')}
                         className="w-full text-left p-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 transition-colors group cursor-pointer shadow-2xs"
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 font-sans">
-                            Dr. Rajesh Gupta (Max Spine Institute)
+                          <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 font-sans flex items-center gap-1.5">
+                            <span>📄</span> Dr. Rajesh Gupta (Max Spine)
                           </span>
                           <span className="text-[10px] font-mono text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
                             Spine Referral
@@ -366,7 +500,7 @@ export function DoctorReportScannerModal({
 
                   <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500 flex items-center gap-1.5 font-sans">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Clicking any sample runs real-time clinical OCR</span>
+                    <span>Multimodal AI extracts pathology and calibrates kinematic boundaries</span>
                   </div>
                 </div>
               </div>
@@ -465,6 +599,41 @@ export function DoctorReportScannerModal({
                 </div>
               </div>
 
+              {/* Radiology Safeguard Banner (Active when X-Ray or MRI is Correlated) */}
+              {report.radiology_scan && (
+                <div className="p-4 rounded-xl bg-blue-50/80 border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-xs shrink-0">
+                      {report.radiology_scan.modality === 'xray' ? '🩻' : '🧲'}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-blue-950 font-sans">
+                          {report.radiology_scan.modality_label}
+                        </span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-200 font-semibold">
+                          {report.radiology_scan.pathology_grade}
+                        </span>
+                        <span className="text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold">
+                          Kinematic Safeguard Active
+                        </span>
+                      </div>
+                      <p className="text-xs text-blue-800/90 font-sans mt-0.5">
+                        <span className="font-semibold">{report.radiology_scan.body_region}:</span> {report.radiology_scan.structural_findings[0]}
+                      </p>
+                    </div>
+                  </div>
+                  {report.radiology_scan.biomechanical_restrictions.recommended_rom_cap_degrees && (
+                    <div className="px-3 py-1.5 rounded-lg bg-white border border-blue-200 text-right shrink-0 shadow-2xs">
+                      <span className="block text-[10px] font-bold text-slate-500 uppercase">Articular Safety Ceiling</span>
+                      <span className="text-sm font-mono font-bold text-blue-700">
+                        Max {report.radiology_scan.biomechanical_restrictions.recommended_rom_cap_degrees}° ROM
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Navigation Tabs */}
               <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto text-xs font-sans">
                 <button
@@ -479,6 +648,20 @@ export function DoctorReportScannerModal({
                   <span>1. Deciphered Report</span>
                 </button>
 
+                {report.radiology_scan && (
+                  <button
+                    onClick={() => setActiveTab('radiology')}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                      activeTab === 'radiology'
+                        ? 'bg-blue-600 text-white shadow-2xs'
+                        : 'text-blue-700 bg-blue-50/70 hover:bg-blue-100 border border-blue-200'
+                    }`}
+                  >
+                    <Activity className="w-4 h-4" />
+                    <span>🩻 Radiology & Structural Safeguards</span>
+                  </button>
+                )}
+
                 <button
                   onClick={() => setActiveTab('session')}
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer whitespace-nowrap ${
@@ -488,7 +671,7 @@ export function DoctorReportScannerModal({
                   }`}
                 >
                   <Layers className="w-4 h-4" />
-                  <span>2. Formulated Session ({report.session_plan.exercises.length} Protocols)</span>
+                  <span>{report.radiology_scan ? '3.' : '2.'} Formulated Session ({report.session_plan.exercises.length} Protocols)</span>
                 </button>
 
                 <button
@@ -500,7 +683,7 @@ export function DoctorReportScannerModal({
                   }`}
                 >
                   <Pill className="w-4 h-4" />
-                  <span>3. Medications & Lifestyle</span>
+                  <span>{report.radiology_scan ? '4.' : '3.'} Medications & Lifestyle</span>
                 </button>
 
                 <button
@@ -512,7 +695,7 @@ export function DoctorReportScannerModal({
                   }`}
                 >
                   <Calendar className="w-4 h-4" />
-                  <span>4. Daily & Weekly Schedule</span>
+                  <span>{report.radiology_scan ? '5.' : '4.'} Daily & Weekly Schedule</span>
                 </button>
               </div>
 
@@ -620,6 +803,116 @@ export function DoctorReportScannerModal({
                             ))}
                           </ul>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 1.5: RADIOLOGY & STRUCTURAL SAFEGUARDS */}
+              {activeTab === 'radiology' && report.radiology_scan && (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* Left: Scan Visual Preview */}
+                  <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col items-center text-white">
+                    <div className="w-full flex items-center justify-between mb-3 text-xs">
+                      <span className="flex items-center gap-1.5 font-bold text-blue-400">
+                        <Activity className="w-3.5 h-3.5" />
+                        {report.radiology_scan.modality === 'xray' ? 'Plain Film Radiograph' : '3.0T MRI Sequence'}
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-300 border border-blue-700">
+                        DICOM Verified
+                      </span>
+                    </div>
+
+                    <div className="relative w-full rounded-lg overflow-hidden border border-slate-700 bg-black max-h-[460px] flex items-center justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={report.image_url || filePreview || (report.radiology_scan.modality === 'xray' ? '/scan_knee_xray.png' : '/scan_shoulder_mri.png')}
+                        alt="Radiological Imaging Study"
+                        className="w-full h-auto object-contain max-h-[420px]"
+                      />
+                      <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/80 rounded text-[10px] font-mono text-emerald-400 border border-slate-800">
+                        AI Target: {report.radiology_scan.body_region}
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-slate-400 mt-3 text-center">
+                      Correlated by Gemini Multimodal Vision Diagnostic Pipeline
+                    </p>
+                  </div>
+
+                  {/* Right: Structural Findings & Kinematic Safeguards */}
+                  <div className="lg:col-span-7 space-y-5">
+                    {/* Articular Safety Ceiling Alert Card */}
+                    <div className="p-5 rounded-xl bg-blue-50/80 border border-blue-200 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <ShieldCheck className="w-5 h-5 text-blue-600" />
+                          <h4 className="text-sm font-bold text-blue-950 font-sans">
+                            Articular Kinematic Safety Ceiling
+                          </h4>
+                        </div>
+                        {report.radiology_scan.biomechanical_restrictions.recommended_rom_cap_degrees && (
+                          <span className="px-3 py-1 rounded-full bg-blue-600 text-white font-mono font-bold text-xs shadow-xs">
+                            Capped at {report.radiology_scan.biomechanical_restrictions.recommended_rom_cap_degrees}° ROM
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-blue-900 leading-relaxed font-sans">
+                        {report.radiology_scan.modality === 'xray'
+                          ? `Based on plain film evidence of ${report.radiology_scan.pathology_grade}, knee extension and flexion exercises are restricted to a maximum of ${report.radiology_scan.biomechanical_restrictions.recommended_rom_cap_degrees || 85}° to avoid cartilage shear stress across the medial tibial plateau.`
+                          : `Based on 3.0T MRI evidence of ${report.radiology_scan.pathology_grade}, shoulder coronal abduction is capped at ${report.radiology_scan.biomechanical_restrictions.recommended_rom_cap_degrees || 70}° to prevent the supraspinatus footprint from impinging against the subacromial spur.`}
+                      </p>
+                    </div>
+
+                    {/* Pathology Staging & Details */}
+                    <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
+                      <div>
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                          Imaging Diagnosis & Staging
+                        </span>
+                        <h3 className="text-base font-bold text-slate-900 font-sans">
+                          {report.clinical_findings.diagnosis}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200 font-semibold">
+                            {report.radiology_scan.pathology_grade}
+                          </span>
+                          <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">
+                            ICD-10: {report.clinical_findings.icd10_code}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Structural Observations List */}
+                      <div className="pt-3 border-t border-slate-100">
+                        <span className="text-xs font-bold text-slate-700 block mb-2 font-sans">
+                          Structural Findings on {report.radiology_scan.modality_label}:
+                        </span>
+                        <ul className="space-y-1.5 text-xs text-slate-600 font-sans">
+                          {report.radiology_scan.structural_findings.map((finding, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                              <span>{finding}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Movement Contraindications & Watchpoints */}
+                      <div className="pt-3 border-t border-slate-100">
+                        <span className="text-xs font-bold text-rose-700 block mb-2 font-sans flex items-center gap-1.5">
+                          <AlertTriangle className="w-4 h-4 text-rose-600" />
+                          Restricted Movements & Contraindications:
+                        </span>
+                        <ul className="space-y-1.5 text-xs text-slate-600 font-sans">
+                          {report.radiology_scan.biomechanical_restrictions.restricted_movements.map((item, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-rose-900/90">
+                              <span className="text-rose-500 font-bold">•</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     </div>
                   </div>

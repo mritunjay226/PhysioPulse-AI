@@ -18,7 +18,7 @@ export function ReportKinematicVitals({ vitals }: ReportKinematicVitalsProps) {
     <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-7 shadow-sm theme-card">
       <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
             <Activity className="w-4 h-4 stroke-[2.5]" />
           </div>
           <div>
@@ -41,7 +41,7 @@ export function ReportKinematicVitals({ vitals }: ReportKinematicVitalsProps) {
         <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-100 flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-400 mb-2">
             <span className="text-[10px] font-mono uppercase font-semibold">Symmetry</span>
-            <Target className="w-3.5 h-3.5 text-blue-600" />
+            <Target className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <div>
             <span className="text-xl font-bold font-mono text-slate-900 block">
@@ -73,10 +73,10 @@ export function ReportKinematicVitals({ vitals }: ReportKinematicVitalsProps) {
         <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-100 flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-400 mb-2">
             <span className="text-[10px] font-mono uppercase font-semibold">ROM Delta</span>
-            <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <div>
-            <span className="text-xl font-bold font-mono text-blue-600 block">
+            <span className="text-xl font-bold font-mono text-emerald-700 block">
               +{vitals.rom_delta_average}°
             </span>
             <span className="text-[10px] text-emerald-600 font-semibold block mt-0.5">
@@ -89,7 +89,7 @@ export function ReportKinematicVitals({ vitals }: ReportKinematicVitalsProps) {
         <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-100 flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-400 mb-2">
             <span className="text-[10px] font-mono uppercase font-semibold">Reserve</span>
-            <Clock className="w-3.5 h-3.5 text-blue-600" />
+            <Clock className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <div>
             <span className="text-sm font-bold font-sans text-slate-800 block truncate">
@@ -105,7 +105,7 @@ export function ReportKinematicVitals({ vitals }: ReportKinematicVitalsProps) {
         <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-100 flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-400 mb-2">
             <span className="text-[10px] font-mono uppercase font-semibold">Velocity</span>
-            <Activity className="w-3.5 h-3.5 text-blue-600" />
+            <Activity className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <div>
             <span className="text-sm font-bold font-sans text-slate-800 block truncate">

@@ -107,3 +107,12 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# ==============================================================================
+# Agent tools & Root Output Artifacts (Canonical files kept in ppt/)
+# ==============================================================================
+.agents/
+skills-lock.json
+/*.png
+/*.pptx
+

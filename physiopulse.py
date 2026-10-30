@@ -16,21 +16,28 @@ import json
 from datetime import datetime
 
 # =========================================================================
-# 0. MODEL INITIALIZATION (High-Accuracy FULL Model Preferred)
+# 0. MODEL INITIALIZATION (Low-Latency LITE Model Preferred for 30+ FPS)
 # =========================================================================
 FULL_MODEL_PATH = "pose_landmarker_full.task"
 LITE_MODEL_PATH = "pose_landmarker_lite.task"
-MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task"
+LITE_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+FULL_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task"
 
-if os.path.exists(FULL_MODEL_PATH):
-    MODEL_PATH = FULL_MODEL_PATH
-elif os.path.exists(LITE_MODEL_PATH):
+# Prioritize low-latency lite model (12-18ms) for locked 30+ FPS real-time webcam processing
+if os.path.exists(LITE_MODEL_PATH):
     MODEL_PATH = LITE_MODEL_PATH
-else:
+elif os.path.exists(FULL_MODEL_PATH):
     MODEL_PATH = FULL_MODEL_PATH
-    print("⏳ Downloading MediaPipe High-Accuracy Full Pose model (~9.4 MB)...")
-    urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
-    print("✅ Model downloaded!")
+else:
+    MODEL_PATH = LITE_MODEL_PATH
+    print("⏳ Downloading MediaPipe Low-Latency Lite Pose model (~5.6 MB)...")
+    try:
+        urllib.request.urlretrieve(LITE_MODEL_URL, MODEL_PATH)
+        print("✅ Lite Model downloaded!")
+    except Exception as e:
+        print(f"⚠️ Warning: Could not download Lite model ({e}), checking Full model...")
+        if os.path.exists(FULL_MODEL_PATH):
+            MODEL_PATH = FULL_MODEL_PATH
 
 
 # =========================================================================
@@ -40,7 +47,7 @@ def _generate_init_frame():
     try:
         img = np.zeros((480, 848, 3), dtype=np.uint8)
         img[:] = (18, 18, 21)
-        ret, buf = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 80])
+        ret, buf = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 68])
         return buf.tobytes() if ret else None
     except Exception:
         return None
@@ -50,6 +57,8 @@ latest_frame_id = 0
 stream_lock = threading.Lock()
 new_frame_condition = threading.Condition(stream_lock)
 active_stream_token = 0.0
+active_stream_clients = 0  # Number of active MJPEG persistent viewers
+last_snapshot_time = 0.0   # Timestamp of last snapshot request
 is_streaming = True
 external_action = None  # 'skip' or 'quit'
 show_skeleton = True    # Toggleable via frontend
@@ -77,6 +86,12 @@ class ZeroLatencyCamera:
             self.thread.start()
 
     def _init_camera(self):
+        # Strictly enforce DirectShow property initialization order:
+        # 1. CAP_PROP_FOURCC = 'MJPG'
+        # 2. CAP_PROP_FRAME_WIDTH = width
+        # 3. CAP_PROP_FRAME_HEIGHT = height
+        # 4. CAP_PROP_FPS = 30
+        # 5. CAP_PROP_BUFFERSIZE = 1
         for cam_idx in [0, 1]:
             try:
                 c = cv2.VideoCapture(cam_idx, cv2.CAP_DSHOW)
@@ -84,13 +99,18 @@ class ZeroLatencyCamera:
                     c.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
                     c.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
                     c.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+                    c.set(cv2.CAP_PROP_FPS, 30)
                     c.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+
                     ret_t, frame_t = c.read()
                     if ret_t and frame_t is not None:
                         self.cap = c
                         self.frame = frame_t
                         self.ret = True
-                        print(f"✅ ZeroLatencyCamera initialized on DirectShow index {cam_idx} ({frame_t.shape[1]}x{frame_t.shape[0]})")
+                        fourcc_int = int(c.get(cv2.CAP_PROP_FOURCC))
+                        codec = "".join([chr((fourcc_int >> 8 * i) & 0xFF) for i in range(4)])
+                        actual_fps = c.get(cv2.CAP_PROP_FPS)
+                        print(f"✅ ZeroLatencyCamera initialized on DirectShow index {cam_idx} ({frame_t.shape[1]}x{frame_t.shape[0]} @ {actual_fps} FPS, Codec: {codec})")
                         return
                     c.release()
             except Exception:
@@ -99,26 +119,44 @@ class ZeroLatencyCamera:
             try:
                 c = cv2.VideoCapture(cam_idx)
                 if c.isOpened():
+                    c.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
                     c.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
                     c.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+                    c.set(cv2.CAP_PROP_FPS, 30)
                     c.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+
                     ret_t, frame_t = c.read()
                     if ret_t and frame_t is not None:
                         self.cap = c
                         self.frame = frame_t
                         self.ret = True
-                        print(f"✅ ZeroLatencyCamera initialized on default backend index {cam_idx} ({frame_t.shape[1]}x{frame_t.shape[0]})")
+                        fourcc_int = int(c.get(cv2.CAP_PROP_FOURCC))
+                        codec = "".join([chr((fourcc_int >> 8 * i) & 0xFF) for i in range(4)])
+                        actual_fps = c.get(cv2.CAP_PROP_FPS)
+                        print(f"✅ ZeroLatencyCamera initialized on default backend index {cam_idx} ({frame_t.shape[1]}x{frame_t.shape[0]} @ {actual_fps} FPS, Codec: {codec})")
                         return
                     c.release()
             except Exception:
                 pass
 
         print("❌ Warning: Falling back to camera 0.")
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        if not self.cap.isOpened():
+            self.cap = cv2.VideoCapture(0)
         if self.cap.isOpened():
+            self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+            self.cap.set(cv2.CAP_PROP_FPS, 30)
             self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+            ret_t, frame_t = self.cap.read()
+            if ret_t and frame_t is not None:
+                self.frame = frame_t
+                self.ret = True
+            fourcc_int = int(self.cap.get(cv2.CAP_PROP_FOURCC))
+            codec = "".join([chr((fourcc_int >> 8 * i) & 0xFF) for i in range(4)])
+            actual_fps = self.cap.get(cv2.CAP_PROP_FPS)
+            print(f"✅ Fallback camera initialized ({self.width}x{self.height} @ {actual_fps} FPS, Codec: {codec})")
 
     def _capture_worker(self):
         empty_streak = 0
@@ -142,7 +180,7 @@ class ZeroLatencyCamera:
                 self.last_capture_time = time.monotonic()
             self.new_frame_event.set()
 
-    def read_latest(self, wait_timeout=0.04):
+    def read_latest(self, wait_timeout=0.08):
         self.new_frame_event.wait(timeout=wait_timeout)
         self.new_frame_event.clear()
         with self.lock:
@@ -181,7 +219,7 @@ class VideoStreamHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        global latest_jpeg_frame, stream_lock, is_streaming, external_action, live_telemetry, active_stream_token, new_frame_condition, show_skeleton
+        global latest_jpeg_frame, stream_lock, is_streaming, external_action, live_telemetry, active_stream_token, new_frame_condition, show_skeleton, active_stream_clients, last_snapshot_time
 
         if self.path.startswith('/video_feed'):
             import socket
@@ -195,43 +233,49 @@ class VideoStreamHandler(http.server.BaseHTTPRequestHandler):
             my_token = time.time()
             with stream_lock:
                 active_stream_token = my_token
+                active_stream_clients += 1
 
-            self.send_response(200)
-            self.send_header('Age', '0')
-            self.send_header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-age=0')
-            self.send_header('Pragma', 'no-cache')
-            self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=frame')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Connection', 'close')
-            self.end_headers()
+            try:
+                self.send_response(200)
+                self.send_header('Age', '0')
+                self.send_header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-age=0')
+                self.send_header('Pragma', 'no-cache')
+                self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=frame')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Connection', 'close')
+                self.end_headers()
 
-            last_sent_id = -1
-            while is_streaming:
-                frame_bytes = None
+                last_sent_id = -1
+                while is_streaming:
+                    frame_bytes = None
+                    with stream_lock:
+                        if active_stream_token != my_token or not is_streaming:
+                            break
+                        while latest_frame_id == last_sent_id and is_streaming and active_stream_token == my_token:
+                            new_frame_condition.wait(timeout=0.04)
+                        if active_stream_token != my_token or not is_streaming:
+                            break
+                        frame_bytes = latest_jpeg_frame
+                        last_sent_id = latest_frame_id
+
+                    if frame_bytes is not None:
+                        try:
+                            header = f"--frame\r\nContent-Type: image/jpeg\r\nContent-Length: {len(frame_bytes)}\r\n\r\n".encode('ascii')
+                            self.wfile.write(header)
+                            self.wfile.write(frame_bytes)
+                            self.wfile.write(b'\r\n')
+                            self.wfile.flush()
+                        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, TimeoutError, OSError):
+                            break
+                        except Exception:
+                            break
+            finally:
                 with stream_lock:
-                    if active_stream_token != my_token or not is_streaming:
-                        break
-                    while latest_frame_id == last_sent_id and is_streaming and active_stream_token == my_token:
-                        new_frame_condition.wait(timeout=0.04)
-                    if active_stream_token != my_token or not is_streaming:
-                        break
-                    frame_bytes = latest_jpeg_frame
-                    last_sent_id = latest_frame_id
-
-                if frame_bytes is not None:
-                    try:
-                        header = f"--frame\r\nContent-Type: image/jpeg\r\nContent-Length: {len(frame_bytes)}\r\n\r\n".encode('ascii')
-                        self.wfile.write(header)
-                        self.wfile.write(frame_bytes)
-                        self.wfile.write(b'\r\n')
-                        self.wfile.flush()
-                    except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, TimeoutError, OSError):
-                        break
-                    except Exception:
-                        break
+                    active_stream_clients = max(0, active_stream_clients - 1)
 
         elif self.path.startswith('/snapshot') or self.path.startswith('/frame.jpg'):
             with stream_lock:
+                last_snapshot_time = time.monotonic()
                 frame_bytes = latest_jpeg_frame
             if frame_bytes:
                 self.send_response(200)
@@ -244,6 +288,8 @@ class VideoStreamHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
                 try:
                     self.wfile.write(frame_bytes)
+                except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, TimeoutError, OSError):
+                    pass
                 except Exception:
                     pass
             else:
@@ -511,7 +557,7 @@ def calculate_angle_2d(a, b, c):
     return float(np.degrees(np.arccos(cos_angle)))
 
 
-def calculate_angle_3d_vec(va, vb, vc, z_weight=0.55):
+def calculate_angle_3d_vec(va, vb, vc, z_weight=0.48):
     """True 3D Euclidean angle in degrees with Z-depth noise dampening for monocular webcams."""
     a = np.array([va[0], va[1], va[2] * z_weight], dtype=np.float32)
     b = np.array([vb[0], vb[1], vb[2] * z_weight], dtype=np.float32)
@@ -526,7 +572,7 @@ def calculate_angle_3d_vec(va, vb, vc, z_weight=0.55):
     return float(np.degrees(np.arccos(cos_angle)))
 
 
-def get_fused_angle(world_lm, world_filter, now_t, pt_a_2d, pt_b_2d, pt_c_2d, idx_a, idx_b, idx_c):
+def get_fused_angle(world_lm, world_filter, now_t, pt_a_2d, pt_b_2d, pt_c_2d, idx_a, idx_b, idx_c, z_weight=0.48):
     """Blends smoothed 2D screen geometry with smoothed, Z-dampened 3D world geometry."""
     ang_2d = calculate_angle_2d(pt_a_2d, pt_b_2d, pt_c_2d)
     if not world_lm or max(idx_a, idx_b, idx_c) >= len(world_lm):
@@ -542,8 +588,8 @@ def get_fused_angle(world_lm, world_filter, now_t, pt_a_2d, pt_b_2d, pt_c_2d, id
     va = world_filter.smooth(idx_a, wa, now_t)
     vb = world_filter.smooth(idx_b, wb, now_t)
     vc = world_filter.smooth(idx_c, wc, now_t)
-    ang_3d = calculate_angle_3d_vec(va, vb, vc, z_weight=0.55)
-    return 0.62 * ang_2d + 0.38 * ang_3d
+    ang_3d = calculate_angle_3d_vec(va, vb, vc, z_weight=z_weight)
+    return 0.65 * ang_2d + 0.35 * ang_3d
 
 
 def _pt_i(pt):
@@ -620,10 +666,32 @@ def main():
     parser = argparse.ArgumentParser(description="PhysioPulse AI Vision Engine")
     parser.add_argument("--embedded", action="store_true", default=False, help="Run in embedded web streaming mode")
     parser.add_argument("--port", type=int, default=8000, help="HTTP streaming port")
+    parser.add_argument("--high-accuracy", action="store_true", default=False, help="Opt-in to High-Accuracy Full Pose model (~50ms CPU)")
     args, _ = parser.parse_known_args()
 
     embedded = args.embedded
     port = args.port
+    use_high_accuracy = args.high_accuracy or os.environ.get("PHYSIOPULSE_HIGH_ACCURACY", "0").lower() in ("1", "true", "yes")
+
+    active_model = MODEL_PATH
+    if use_high_accuracy:
+        if os.path.exists(FULL_MODEL_PATH):
+            active_model = FULL_MODEL_PATH
+        else:
+            print("⏳ High-accuracy full model requested but not found locally, downloading (~9.4 MB)...")
+            try:
+                urllib.request.urlretrieve(FULL_MODEL_URL, FULL_MODEL_PATH)
+                active_model = FULL_MODEL_PATH
+            except Exception as e:
+                print(f"⚠️ Warning: Could not download Full model ({e}), falling back to {MODEL_PATH}")
+                active_model = MODEL_PATH
+    else:
+        if os.path.exists(LITE_MODEL_PATH):
+            active_model = LITE_MODEL_PATH
+        elif os.path.exists(FULL_MODEL_PATH):
+            active_model = FULL_MODEL_PATH
+
+    print(f"🤖 Active Model Backbone: {os.path.basename(active_model)} ({'High-Accuracy Full Mode' if 'full' in active_model else 'Low-Latency Lite (30+ FPS Mode)'})")
 
     if embedded:
         try:
@@ -634,7 +702,7 @@ def main():
         except Exception as e:
             print(f"⚠️ Warning: Could not bind streaming server to port {port}: {e}")
 
-    base_options = python.BaseOptions(model_asset_path=MODEL_PATH)
+    base_options = python.BaseOptions(model_asset_path=active_model)
     options = vision.PoseLandmarkerOptions(
         base_options=base_options,
         running_mode=vision.RunningMode.VIDEO,
@@ -863,6 +931,9 @@ def main():
     start_time = time.monotonic()
     last_timestamp_ms = -1
     fps_history = []
+    inf_latency_history = []
+    rolling_inf_ms = 0.0
+    loop_count = 0
     prev_loop_time = time.monotonic()
 
     # Landmarks needed for ghost skeleton + active protocols (avoids filtering unused facial/foot points)
@@ -875,6 +946,7 @@ def main():
                 time.sleep(0.004)
                 continue
 
+            loop_count += 1
             loop_now = time.monotonic()
             fps_dt = max(0.001, loop_now - prev_loop_time)
             prev_loop_time = loop_now
@@ -900,7 +972,13 @@ def main():
                 timestamp_ms = last_timestamp_ms + 1
             last_timestamp_ms = timestamp_ms
 
+            t_inf_start = time.monotonic()
             results = landmarker.detect_for_video(mp_image, timestamp_ms)
+            inf_dur_ms = (time.monotonic() - t_inf_start) * 1000.0
+            inf_latency_history.append(inf_dur_ms)
+            if len(inf_latency_history) > 30:
+                inf_latency_history.pop(0)
+            rolling_inf_ms = round(float(np.mean(inf_latency_history)), 1)
 
             primary_angle = 0
             symmetry_score = 100
@@ -1697,49 +1775,58 @@ def main():
                 "camera_view": "Front View"
             })
 
-            stream_out = frame if frame.shape[1] <= 854 else cv2.resize(frame, (848, 480))
-            ret_enc, buffer = cv2.imencode('.jpg', stream_out, [cv2.IMWRITE_JPEG_QUALITY, 72])
-            if ret_enc:
-                now_enc = time.monotonic()
-                capture_latency_ms = round((now_enc - frame_capture_time) * 1000, 1)
-                with stream_lock:
-                    latest_jpeg_frame = buffer.tobytes()
-                    latest_frame_id += 1
-                    new_frame_condition.notify_all()
-                    live_telemetry = {
-                        "mode": mode,
-                        "protocol_name": active_protocol_name,
-                        "exercise_title": cur_guide["title"],
-                        "exercise_short_name": cur_guide["short_name"],
-                        "target_joint": cur_guide["joint"],
-                        "setup_instruction": cur_guide["setup"],
-                        "action_instruction": cur_guide["action"],
-                        "form_tip": cur_guide["avoid"],
-                        "camera_view": cur_guide["camera_view"],
-                        "reps": reps,
-                        "target_reps": target_reps,
-                        "primary_angle": primary_angle,
-                        "max_rom": max_rom,
-                        "target_rom": target_rom,
-                        "symmetry_score": symmetry_score,
-                        "form_status": form_status,
-                        "is_bad_form": is_bad_form,
-                        "feedback_text": feedback_text,
-                        "correction_cue": active_correction_cue,
-                        "correction_direction": active_correction_direction,
-                        "queue_idx": queue_idx,
-                        "total_queue": len(prescription_queue) if is_prescribed_mode else 1,
-                        "advancing": advancing,
-                        "remaining_advance_sec": max(0, round(remaining_sec, 1)) if advancing else 0,
-                        "p3_hold_timer": round(p3_hold_timer, 1),
-                        "angular_velocity": angular_velocity,
-                        "kinematic_phase": kinematic_phase,
-                        "show_skeleton": show_skeleton,
-                        "patient_name": patient_name,
-                        "fps": rolling_fps,
-                        "latency_ms": capture_latency_ms,
-                        "completed": False
-                    }
+            # Gated On-Demand JPEG Encoding: only compress when active stream clients exist or snapshot recently requested
+            needs_jpeg = (embedded and (active_stream_clients > 0 or (now_wall - last_snapshot_time < 3.0))) or not embedded
+            if needs_jpeg:
+                stream_out = frame if frame.shape[1] <= 854 else cv2.resize(frame, (848, 480))
+                ret_enc, buffer = cv2.imencode('.jpg', stream_out, [cv2.IMWRITE_JPEG_QUALITY, 68])
+                if ret_enc:
+                    with stream_lock:
+                        latest_jpeg_frame = buffer.tobytes()
+                        latest_frame_id += 1
+                        new_frame_condition.notify_all()
+
+            capture_latency_ms = round((time.monotonic() - frame_capture_time) * 1000, 1)
+            with stream_lock:
+                live_telemetry = {
+                    "mode": mode,
+                    "protocol_name": active_protocol_name,
+                    "exercise_title": cur_guide["title"],
+                    "exercise_short_name": cur_guide["short_name"],
+                    "target_joint": cur_guide["joint"],
+                    "setup_instruction": cur_guide["setup"],
+                    "action_instruction": cur_guide["action"],
+                    "form_tip": cur_guide["avoid"],
+                    "camera_view": cur_guide["camera_view"],
+                    "reps": reps,
+                    "target_reps": target_reps,
+                    "primary_angle": primary_angle,
+                    "max_rom": max_rom,
+                    "target_rom": target_rom,
+                    "symmetry_score": symmetry_score,
+                    "form_status": form_status,
+                    "is_bad_form": is_bad_form,
+                    "feedback_text": feedback_text,
+                    "correction_cue": active_correction_cue,
+                    "correction_direction": active_correction_direction,
+                    "queue_idx": queue_idx,
+                    "total_queue": len(prescription_queue) if is_prescribed_mode else 1,
+                    "advancing": advancing,
+                    "remaining_advance_sec": max(0, round(remaining_sec, 1)) if advancing else 0,
+                    "p3_hold_timer": round(p3_hold_timer, 1),
+                    "angular_velocity": angular_velocity,
+                    "kinematic_phase": kinematic_phase,
+                    "show_skeleton": show_skeleton,
+                    "patient_name": patient_name,
+                    "fps": rolling_fps,
+                    "inference_ms": rolling_inf_ms,
+                    "latency_ms": capture_latency_ms,
+                    "completed": False
+                }
+
+            # Periodic performance telemetry log (every ~3 seconds / 90 frames)
+            if loop_count % 90 == 0:
+                print(f"⚡ [Performance Telemetry] FPS: {rolling_fps:.1f} | Inference: {rolling_inf_ms:.1f}ms | Capture-to-Output: {capture_latency_ms:.1f}ms | Active Stream Clients: {active_stream_clients}")
 
             if not embedded:
                 disp_frame = frame.copy()

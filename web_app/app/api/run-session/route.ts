@@ -9,10 +9,12 @@ export async function POST(req: NextRequest) {
   const rootDir = getRootDir();
   const pythonPath = getPythonPath(rootDir);
   const reportPath = getReportPath();
+  const spawnTime = Date.now();
 
   console.log(`🚀 Starting fresh PhysioPulse Vision Session:`);
   console.log(`   Working Dir: ${rootDir}`);
   console.log(`   Python Exec: ${pythonPath}`);
+  console.log(`   Spawn Timestamp: ${spawnTime}`);
 
   // 1. Gracefully tell any previous stream on port 8000 to quit and free the camera
   try {
@@ -25,14 +27,18 @@ export async function POST(req: NextRequest) {
     // Port 8000 was idle, which is expected
   }
 
-  // 2. Clear out any previous report so we NEVER read stale session data
-  if (fs.existsSync(reportPath)) {
-    try {
-      fs.unlinkSync(reportPath);
-      console.log('🗑️ Removed old clinical_session_report.json to ensure fresh session telemetry.');
-    } catch (err) {
-      console.warn('⚠️ Could not remove old report:', err);
+  // 2. Safe file reset: Overwrite with pending state instead of just unlink (avoids Windows EPERM/EBUSY race conditions)
+  try {
+    if (fs.existsSync(reportPath)) {
+      fs.writeFileSync(
+        reportPath,
+        JSON.stringify({ pending: true, spawn_timestamp: spawnTime }),
+        'utf-8'
+      );
+      console.log('🔄 Overwrote clinical_session_report.json with pending session marker.');
     }
+  } catch (err) {
+    console.warn('⚠️ Could not reset old report file:', err);
   }
 
   return new Promise<NextResponse>((resolve) => {
@@ -55,60 +61,58 @@ export async function POST(req: NextRequest) {
       console.error(`[physiopulse stderr]: ${data.toString()}`);
     });
 
-    // Check periodically for fresh report generation
+    // Check periodically ONLY for freshly written reports (mtime must be AFTER spawnTime)
     const pollInterval = setInterval(() => {
       if (settled) return;
 
       if (fs.existsSync(reportPath)) {
         try {
-          const raw = fs.readFileSync(reportPath, 'utf-8');
-          const report = JSON.parse(raw);
-          if (report && report.exercises_performed) {
-            settled = true;
-            clearInterval(pollInterval);
-            console.log('✅ Fresh session report detected on completion!');
-            return resolve(
-              NextResponse.json({
-                success: true,
-                message: 'Session completed and report generated',
-                report
-              })
-            );
+          const stats = fs.statSync(reportPath);
+          // Only accept files modified AFTER this process was spawned
+          if (stats.mtimeMs >= spawnTime - 100) {
+            const raw = fs.readFileSync(reportPath, 'utf-8');
+            const report = JSON.parse(raw);
+            if (report && !report.pending && Array.isArray(report.exercises_performed) && report.exercises_performed.length > 0) {
+              settled = true;
+              clearInterval(pollInterval);
+              console.log('✅ Fresh completed session report detected!');
+              return resolve(
+                NextResponse.json({
+                  success: true,
+                  message: 'Session completed and report generated',
+                  report
+                })
+              );
+            }
           }
         } catch {
           // File may be locked mid-write, wait for next tick
         }
       }
-    }, 500);
+    }, 1000);
 
     child.on('close', (code) => {
       if (settled) return;
       clearInterval(pollInterval);
       settled = true;
 
-      // Small delay in case file was written right as process terminated
       setTimeout(() => {
         if (fs.existsSync(reportPath)) {
           try {
+            const stats = fs.statSync(reportPath);
             const raw = fs.readFileSync(reportPath, 'utf-8');
             const report = JSON.parse(raw);
-            return resolve(
-              NextResponse.json({
-                success: true,
-                exitCode: code,
-                report
-              })
-            );
+            if (!report.pending && Array.isArray(report.exercises_performed)) {
+              return resolve(
+                NextResponse.json({
+                  success: true,
+                  exitCode: code,
+                  report
+                })
+              );
+            }
           } catch (err: any) {
-            return resolve(
-              NextResponse.json(
-                {
-                  success: false,
-                  error: `Session closed (${code}) but report could not be parsed: ${err.message}`
-                },
-                { status: 500 }
-              )
-            );
+            console.error('Error reading final report:', err);
           }
         }
 
@@ -116,12 +120,13 @@ export async function POST(req: NextRequest) {
           NextResponse.json(
             {
               success: false,
+              exitCode: code,
               error: `Session closed with code ${code} before report was generated.`
             },
             { status: 500 }
           )
         );
-      }, 400);
+      }, 500);
     });
 
     child.on('error', (err) => {
