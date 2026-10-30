@@ -1,49 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { spawn } from 'child_process';
+import { spawn, ChildProcess } from 'child_process';
 import fs from 'fs';
 import { getRootDir, getPythonPath, getReportPath } from '@/lib/paths';
 
-export const maxDuration = 300; // Allow sufficient time for all exercises
+export const maxDuration = 300; // Allow sufficient time for exercises
+
+// Global singleton to track active child process across requests
+let activeChildProcess: ChildProcess | null = null;
+let activeSessionStartTime: number = 0;
 
 export async function POST(req: NextRequest) {
   const rootDir = getRootDir();
   const pythonPath = getPythonPath(rootDir);
   const reportPath = getReportPath();
-  const spawnTime = Date.now();
 
-  console.log(`🚀 Starting fresh PhysioPulse Vision Session:`);
+  console.log(`🚀 Checking PhysioPulse Vision Session state:`);
   console.log(`   Working Dir: ${rootDir}`);
   console.log(`   Python Exec: ${pythonPath}`);
-  console.log(`   Spawn Timestamp: ${spawnTime}`);
 
-  // 1. Gracefully tell any previous stream on port 8000 to quit and free the camera
+  // 1. Check if an existing vision engine is already actively running on port 8000
+  let isPort8000Alive = false;
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 300);
-    await fetch('http://127.0.0.1:8000/quit', { signal: controller.signal });
-    clearTimeout(timeout);
-    await new Promise((r) => setTimeout(r, 400));
-  } catch {
-    // Port 8000 was idle, which is expected
-  }
-
-  // 2. Safe file reset: Overwrite with pending state instead of just unlink (avoids Windows EPERM/EBUSY race conditions)
-  try {
-    if (fs.existsSync(reportPath)) {
-      fs.writeFileSync(
-        reportPath,
-        JSON.stringify({ pending: true, spawn_timestamp: spawnTime }),
-        'utf-8'
-      );
-      console.log('🔄 Overwrote clinical_session_report.json with pending session marker.');
+    const probe = await fetch('http://127.0.0.1:8000/status', {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(600)
+    });
+    if (probe.ok) {
+      isPort8000Alive = true;
+      console.log('📡 Port 8000 vision stream is already active and healthy. Reusing active engine.');
     }
-  } catch (err) {
-    console.warn('⚠️ Could not reset old report file:', err);
+  } catch {
+    isPort8000Alive = false;
   }
 
-  return new Promise<NextResponse>((resolve) => {
-    let settled = false;
+  // 2. If port 8000 is NOT active and an old process handle is dead, reset file state
+  const sessionStartTime = Date.now();
+  activeSessionStartTime = sessionStartTime;
 
+  if (!isPort8000Alive) {
+    try {
+      if (fs.existsSync(reportPath)) {
+        fs.writeFileSync(
+          reportPath,
+          JSON.stringify({ pending: true, start_time: sessionStartTime }),
+          'utf-8'
+        );
+      }
+    } catch (err) {
+      console.warn('⚠️ Could not reset report file marker:', err);
+    }
+
+    // Spawn new Python engine only if not already running
+    console.log(`🎬 Spawning new Python vision engine process...`);
     const child = spawn(pythonPath, ['physiopulse.py', '--embedded'], {
       cwd: rootDir,
       env: {
@@ -53,29 +61,46 @@ export async function POST(req: NextRequest) {
       windowsHide: false
     });
 
+    activeChildProcess = child;
+
     child.stdout.on('data', (data) => {
-      console.log(`[physiopulse stdout]: ${data.toString()}`);
+      console.log(`[physiopulse]: ${data.toString().trim()}`);
     });
 
     child.stderr.on('data', (data) => {
-      console.error(`[physiopulse stderr]: ${data.toString()}`);
+      console.error(`[physiopulse err]: ${data.toString().trim()}`);
     });
 
-    // Check periodically ONLY for freshly written reports (mtime must be AFTER spawnTime)
-    const pollInterval = setInterval(() => {
+    child.on('close', (code) => {
+      console.log(`[physiopulse] Process closed with exit code ${code}`);
+      activeChildProcess = null;
+    });
+  }
+
+  // 3. Wait for the session to legitimately complete (either by user clicking Save & Finish or completing all reps)
+  return new Promise<NextResponse>((resolve) => {
+    let settled = false;
+
+    // Check periodically for fresh report generation
+    const checkInterval = setInterval(() => {
       if (settled) return;
 
       if (fs.existsSync(reportPath)) {
         try {
           const stats = fs.statSync(reportPath);
-          // Only accept files modified AFTER this process was spawned
-          if (stats.mtimeMs >= spawnTime - 100) {
+          // Only accept reports written AFTER this session started
+          if (stats.mtimeMs >= sessionStartTime - 200) {
             const raw = fs.readFileSync(reportPath, 'utf-8');
             const report = JSON.parse(raw);
-            if (report && !report.pending && Array.isArray(report.exercises_performed) && report.exercises_performed.length > 0) {
+            if (
+              report &&
+              !report.pending &&
+              Array.isArray(report.exercises_performed) &&
+              report.exercises_performed.length > 0
+            ) {
               settled = true;
-              clearInterval(pollInterval);
-              console.log('✅ Fresh completed session report detected!');
+              clearInterval(checkInterval);
+              console.log('✅ Legitimately completed session report verified!');
               return resolve(
                 NextResponse.json({
                   success: true,
@@ -86,63 +111,22 @@ export async function POST(req: NextRequest) {
             }
           }
         } catch {
-          // File may be locked mid-write, wait for next tick
+          // File may be locked mid-write, retry next tick
         }
       }
-    }, 1000);
+    }, 1500);
 
-    child.on('close', (code) => {
+    // Timeout after max duration if nothing happened
+    setTimeout(() => {
       if (settled) return;
-      clearInterval(pollInterval);
+      clearInterval(checkInterval);
       settled = true;
-
-      setTimeout(() => {
-        if (fs.existsSync(reportPath)) {
-          try {
-            const stats = fs.statSync(reportPath);
-            const raw = fs.readFileSync(reportPath, 'utf-8');
-            const report = JSON.parse(raw);
-            if (!report.pending && Array.isArray(report.exercises_performed)) {
-              return resolve(
-                NextResponse.json({
-                  success: true,
-                  exitCode: code,
-                  report
-                })
-              );
-            }
-          } catch (err: any) {
-            console.error('Error reading final report:', err);
-          }
-        }
-
-        return resolve(
-          NextResponse.json(
-            {
-              success: false,
-              exitCode: code,
-              error: `Session closed with code ${code} before report was generated.`
-            },
-            { status: 500 }
-          )
-        );
-      }, 500);
-    });
-
-    child.on('error', (err) => {
-      if (settled) return;
-      clearInterval(pollInterval);
-      settled = true;
-      console.error('Child process launch error:', err);
       return resolve(
-        NextResponse.json(
-          {
-            success: false,
-            error: `Failed to launch vision engine: ${err.message}. Verify Python and virtualenv.`
-          },
-          { status: 500 }
-        )
+        NextResponse.json({
+          success: false,
+          error: 'Vision session timed out without report output.'
+        })
       );
-    });
+    }, 290000);
   });
 }
