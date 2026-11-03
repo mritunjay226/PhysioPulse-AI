@@ -1,28 +1,28 @@
 {
   "patient_name": "Mritunjay Mishra",
-  "clinical_diagnosis_summary": "The patient presents with post-rotator cuff surgery shoulder pain and secondary cervical discomfort due to prolonged sitting. This kinetic chain circuit addresses the primary glenohumeral joint dysfunction (Protocol 1), integrates scapulohumeral rhythm and proximal stability (Protocol 5), and anchors the entire kinetic chain with axial postural control of the cervical spine (Protocol 3). This sequential approach aims to restore optimal shoulder function while mitigating compensatory patterns originating from the neck.",
-  "precautions": "Avoid active pain provocation. Maintain controlled movement velocities, focusing on smooth, deliberate execution. Ensure scapular depression and retraction are maintained during Protocol 1 and 5 to prevent compensatory upper trapezius dominance. For Protocol 3, focus on gentle chin tucks and thoracic extension without neck hyperextension.",
+  "clinical_diagnosis_summary": "The patient presents with post-rotator cuff surgery pain in the shoulder and secondary neck pain due to prolonged sitting. This kinetic chain circuit addresses the primary shoulder dysfunction (Protocol 1) by restoring glenohumeral abduction, integrates scapulohumeral rhythm and proximal kinetic chain stability with bilateral overhead wall slides (Protocol 5), and anchors the circuit with axial postural control via cervical spine stabilization and ergonomic awareness (Protocol 3). This sequential approach aims to improve shoulder function while mitigating compensatory patterns originating from the cervical spine and scapulothoracic region.",
+  "precautions": "Avoid compensatory scapular elevation during abduction (Protocol 1 & 5). Maintain pain-free range of motion, stopping if pain exceeds 4/10. Ensure controlled movement velocities, avoiding ballistic or rapid motions. Focus on smooth, coordinated movements throughout the circuit. Maintain neutral cervical spine alignment during all exercises, especially Protocol 5.",
   "exercises": [
     {
       "protocol_id": 1,
       "protocol_name": "P1: Frozen Shoulder Abduction",
-      "target_reps": 10,
+      "target_reps": 8,
       "target_rom_degrees": 90,
-      "clinical_rationale": "Directly addresses glenohumeral joint mobility and strength post-surgery, focusing on abduction within a pain-free range and without compensatory scapular elevation."
+      "clinical_rationale": "Directly addresses glenohumeral joint mobility and strength post-surgery, focusing on controlled abduction without excessive scapular elevation."
     },
     {
       "protocol_id": 5,
       "protocol_name": "P5: Bilateral Overhead Wall-Slide Sync",
       "target_reps": 10,
-      "target_rom_degrees": 180,
-      "clinical_rationale": "Enhances scapulohumeral rhythm and promotes synergistic activation of the rotator cuff and periscapular muscles, crucial for stable overhead activities and supporting glenohumeral function."
+      "target_rom_degrees": 120,
+      "clinical_rationale": "Enhances scapulohumeral rhythm and proximal kinetic chain integration, promoting coordinated movement between the shoulder girdle and thoracic spine, which can indirectly alleviate compensatory neck strain."
     },
     {
       "protocol_id": 3,
       "protocol_name": "P3: Cervical & Ergonomic Posture Guard",
-      "target_reps": 15,
+      "target_reps": 12,
       "target_rom_degrees": 90,
-      "clinical_rationale": "Establishes a stable axial postural anchor by strengthening deep neck flexors and improving thoracic mobility, directly counteracting the effects of prolonged sitting and providing a stable base for upper extremity function."
+      "clinical_rationale": "Establishes an axial postural anchor by reinforcing proper cervical spine alignment and engaging deep neck flexors, directly addressing the patient's reported neck pain and improving overall postural stability."
     }
   ]
 }
