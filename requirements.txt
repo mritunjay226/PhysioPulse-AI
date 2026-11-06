@@ -1,18 +1,7 @@
 # ==============================================================================
-# PhysioPulse AI - Python Package Requirements
+# PhysioPulse AI - Production Vercel Serverless Requirements
+# Note: Heavy local-only packages (MediaPipe, GUI OpenCV, pyttsx3, matplotlib,
+# python-pptx) are kept in requirements-local.txt to stay within the 500MB limit.
 # ==============================================================================
-
-# Computer Vision & Real-time Pose Estimation
-mediapipe==1.1.1
-opencv-python==5.0.0.93
-numpy==2.5.4
-
-# Audio & Text-to-Speech (TTS) Feedback
-pyttsx3==2.99
-pywin32==312; sys_platform == 'win32'
-
-# Presentation Deck & Clinical Chart Generation
-python-pptx==1.0.2
-pillow==13.0.0
-matplotlib==3.11.2
-
+numpy>=1.24.0,<3.0.0
+opencv-python-headless>=4.8.0.76,<5.0.0.0

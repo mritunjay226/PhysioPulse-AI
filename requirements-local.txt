@@ -1,0 +1,18 @@
+# ==============================================================================
+# PhysioPulse AI - Local Desktop & Pitch Presentation Requirements
+# Use: pip install -r requirements-local.txt
+# ==============================================================================
+
+# Computer Vision & Real-time Pose Estimation (Local Webcam)
+mediapipe==1.1.1
+opencv-python==5.0.0.93
+numpy==2.5.4
+
+# Audio & Text-to-Speech (TTS) Feedback
+pyttsx3==2.99
+pywin32==312; sys_platform == 'win32'
+
+# Presentation Deck & Clinical Chart Generation
+python-pptx==1.0.2
+pillow==13.0.0
+matplotlib==3.11.2

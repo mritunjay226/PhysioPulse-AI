@@ -4,7 +4,12 @@
     "app": {
       "root": ".",
       "runtime": "python",
-      "entrypoint": "physiopulse/server.py"
+      "entrypoint": "physiopulse/server.py",
+      "functions": {
+        "physiopulse/server.py": {
+          "excludeFiles": "{web_app/**,ppt/**,scripts/**,models/**,*.task,*.pptx,*.json,*.md,venv/**}"
+        }
+      }
     },
     "web_app": {
       "root": "web_app",
@@ -28,4 +33,3 @@
     }
   ]
 }
-
