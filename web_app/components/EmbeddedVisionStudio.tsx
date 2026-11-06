@@ -504,7 +504,7 @@ export function EmbeddedVisionStudio({
   const [telemetry, setTelemetry] = useState<any>(null);
   const [streamConnected, setStreamConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(true);
-  const [useDirectFeed, setUseDirectFeed] = useState(true);
+  const [useDirectFeed, setUseDirectFeed] = useState(false);
   const [retryNonce, setRetryNonce] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);

@@ -5,9 +5,11 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const isSnapshot = searchParams.get('snapshot') === '1' || searchParams.get('snapshot') === 'true';
-    const pythonStreamUrl = isSnapshot ? 'http://127.0.0.1:8000/frame.jpg' : 'http://127.0.0.1:8000/video_feed';
+    const appBaseUrl = (process.env.APP_URL || 'http://127.0.0.1:8000').replace(/\/?$/, '/');
+    const endpoint = isSnapshot ? 'frame.jpg' : 'video_feed';
+    const upstreamUrl = new URL(endpoint, appBaseUrl);
 
-    const upstreamRes = await fetch(pythonStreamUrl, {
+    const upstreamRes = await fetch(upstreamUrl, {
       cache: 'no-store'
     });
 

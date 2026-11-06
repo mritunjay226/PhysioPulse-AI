@@ -18,26 +18,27 @@ export async function POST(req: NextRequest) {
   console.log(`   Working Dir: ${rootDir}`);
   console.log(`   Python Exec: ${pythonPath}`);
 
-  // 1. Check if an existing vision engine is already actively running on port 8000
-  let isPort8000Alive = false;
+  // 1. Check if an existing vision engine service is already actively running
+  let isEngineAlive = false;
+  const appBaseUrl = (process.env.APP_URL || 'http://127.0.0.1:8000').replace(/\/?$/, '/');
   try {
-    const probe = await fetch('http://127.0.0.1:8000/status', {
+    const probe = await fetch(new URL('status', appBaseUrl), {
       cache: 'no-store',
       signal: AbortSignal.timeout(600)
     });
     if (probe.ok) {
-      isPort8000Alive = true;
-      console.log('📡 Port 8000 vision stream is already active and healthy. Reusing active engine.');
+      isEngineAlive = true;
+      console.log('📡 Vision engine service is already active and healthy. Reusing active engine.');
     }
   } catch {
-    isPort8000Alive = false;
+    isEngineAlive = false;
   }
 
-  // 2. If port 8000 is NOT active and an old process handle is dead, reset file state
+  // 2. If vision engine is NOT active and an old process handle is dead, reset file state
   const sessionStartTime = Date.now();
   activeSessionStartTime = sessionStartTime;
 
-  if (!isPort8000Alive) {
+  if (!isEngineAlive) {
     try {
       if (fs.existsSync(reportPath)) {
         fs.writeFileSync(
@@ -50,31 +51,33 @@ export async function POST(req: NextRequest) {
       console.warn('⚠️ Could not reset report file marker:', err);
     }
 
-    // Spawn new Python engine only if not already running
-    console.log(`🎬 Spawning new Python vision engine process...`);
-    const child = spawn(pythonPath, ['physiopulse.py', '--embedded'], {
-      cwd: rootDir,
-      env: {
-        ...process.env,
-        PYTHONUNBUFFERED: '1'
-      },
-      windowsHide: false
-    });
+    // Spawn new Python engine locally only if not bound as a remote/service deployment
+    if (!process.env.APP_URL) {
+      console.log(`🎬 Spawning new local Python vision engine process...`);
+      const child = spawn(pythonPath, ['physiopulse.py', '--embedded'], {
+        cwd: rootDir,
+        env: {
+          ...process.env,
+          PYTHONUNBUFFERED: '1'
+        },
+        windowsHide: false
+      });
 
-    activeChildProcess = child;
+      activeChildProcess = child;
 
-    child.stdout.on('data', (data) => {
-      console.log(`[physiopulse]: ${data.toString().trim()}`);
-    });
+      child.stdout.on('data', (data) => {
+        console.log(`[physiopulse]: ${data.toString().trim()}`);
+      });
 
-    child.stderr.on('data', (data) => {
-      console.error(`[physiopulse err]: ${data.toString().trim()}`);
-    });
+      child.stderr.on('data', (data) => {
+        console.error(`[physiopulse err]: ${data.toString().trim()}`);
+      });
 
-    child.on('close', (code) => {
-      console.log(`[physiopulse] Process closed with exit code ${code}`);
-      activeChildProcess = null;
-    });
+      child.on('close', (code) => {
+        console.log(`[physiopulse] Process closed with exit code ${code}`);
+        activeChildProcess = null;
+      });
+    }
   }
 
   // 3. Wait for the session to legitimately complete (either by user clicking Save & Finish or completing all reps)

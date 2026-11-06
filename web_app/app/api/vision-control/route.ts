@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const action = searchParams.get('action') || 'status';
+  const rawAction = searchParams.get('action') || 'status';
+  const action = rawAction.replace(/^\//, '');
 
   try {
-    const targetUrl = `http://127.0.0.1:8000/${action}`;
+    const appBaseUrl = (process.env.APP_URL || 'http://127.0.0.1:8000').replace(/\/?$/, '/');
+    const targetUrl = new URL(action, appBaseUrl);
     const res = await fetch(targetUrl, {
       cache: 'no-store'
     });
@@ -30,8 +32,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const action = body.action || 'status';
-    const targetUrl = `http://127.0.0.1:8000/${action}`;
+    const rawAction = body.action || 'status';
+    const action = rawAction.replace(/^\//, '');
+    const appBaseUrl = (process.env.APP_URL || 'http://127.0.0.1:8000').replace(/\/?$/, '/');
+    const targetUrl = new URL(action, appBaseUrl);
 
     const res = await fetch(targetUrl, {
       method: 'POST',

@@ -212,3 +212,7 @@ def start_embedded_server(port: int = 8000):
     except Exception as e:
         print(f"⚠️ Warning: Could not bind streaming server to port {port}: {e}")
         return None
+
+
+# Export handler for Vercel Python serverless runtime
+handler = VideoStreamHandler
