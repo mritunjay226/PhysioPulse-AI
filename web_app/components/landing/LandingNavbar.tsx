@@ -10,6 +10,7 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import { UserAuthNav } from '@/components/auth/UserAuthNav';
 
 export interface LandingNavbarProps {
   onOpenOcrModal?: () => void;
@@ -91,6 +92,8 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
               {/* <span>30 FPS Engine Ready</span> */}
             </div>
 
+            <UserAuthNav />
+
             {onOpenOcrModal && (
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -169,6 +172,10 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
             </nav>
 
             <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+              <div className="py-1">
+                <UserAuthNav />
+              </div>
+
               {onOpenOcrModal && (
                 <button
                   onClick={() => {

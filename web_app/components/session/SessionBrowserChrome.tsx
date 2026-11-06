@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ChevronLeft, Stethoscope } from 'lucide-react';
+import { UserAuthNav } from '@/components/auth/UserAuthNav';
 
 export function SessionBrowserChrome() {
   return (
@@ -30,12 +31,13 @@ export function SessionBrowserChrome() {
         <span className="text-slate-400 text-[10px] ml-1">· Clinical Motion Studio</span>
       </div>
 
-      {/* Attending Physician Pill */}
+      {/* Attending Physician Pill & Auth */}
       <div className="flex items-center gap-2">
-        <div className="hidden md:flex items-center gap-1.5 bg-white px-2.5 py-0.5 rounded-full border border-slate-200 text-[11px] text-slate-700 font-sans shadow-xs">
+        <div className="hidden lg:flex items-center gap-1.5 bg-white px-2.5 py-0.5 rounded-full border border-slate-200 text-[11px] text-slate-700 font-sans shadow-xs">
           <Stethoscope className="w-3 h-3 text-emerald-600" />
           <span className="font-medium">Dr. S. Smith, MD (Attending)</span>
         </div>
+        <UserAuthNav />
       </div>
     </div>
   );

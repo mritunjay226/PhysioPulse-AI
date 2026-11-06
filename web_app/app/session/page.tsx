@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import {
   PrescriptionOutput,
   SessionReport,
@@ -18,8 +20,14 @@ import { IntakeFormStage, IntakePreset } from '@/components/session/IntakeFormSt
 import { PrescriptionQueueStage } from '@/components/session/PrescriptionQueueStage';
 import { ClinicalReportStage } from '@/components/session/ClinicalReportStage';
 import { DoctorReportScannerModal } from '@/components/session/DoctorReportScannerModal';
+import { ConvexTelemetryLedger } from '@/components/session/ConvexTelemetryLedger';
 
 export default function PhysioPulseApp() {
+  // Convex Cloud Database Mutations
+  const saveSessionToConvex = useMutation(api.sessions.saveSession);
+  const savePrescriptionToConvex = useMutation(api.prescriptions.savePrescription);
+  const saveDoctorReportToConvex = useMutation(api.doctorReports.saveDoctorReport);
+
   // 1 = Intake & Triage, 2 = Prescription & Session, 3 = Post-Session Report
   const [activeStage, setActiveStage] = useState<1 | 2 | 3>(1);
 
@@ -67,6 +75,31 @@ export default function PhysioPulseApp() {
 
     setPrescription(formulatedPrescription);
     setActiveProtocols(formulatedPrescription.exercises.map((e) => e.protocol_id));
+
+    // Persist deciphered OCR document to Convex DB
+    saveDoctorReportToConvex({
+      patientName: formulatedPrescription.patient_name,
+      doctorName: rep.doctor_details.doctor_name,
+      clinic: rep.doctor_details.hospital_or_clinic,
+      rawText: rep.raw_transcription || rep.clinical_findings.diagnosis,
+      diagnosis: rep.clinical_findings.diagnosis,
+      confidenceScore: rep.handwriting_audit?.decipher_confidence_percent,
+    }).catch((e) => console.warn('Convex OCR save notice:', e));
+
+    // Persist formulated prescription to Convex DB
+    savePrescriptionToConvex({
+      patientName: formulatedPrescription.patient_name,
+      age: rep.patient_details.age || 35,
+      affectedArea: rep.session_plan.affected_area || 'Shoulder & Neck',
+      painLevel: rep.session_plan.vas_pain_level || 6,
+      symptoms: rep.clinical_findings.diagnosis,
+      circuitMode: 'targeted',
+      clinicalDiagnosisSummary: formulatedPrescription.clinical_diagnosis_summary,
+      precautions: formulatedPrescription.precautions,
+      exercises: formulatedPrescription.exercises,
+      source: 'doctor_ocr',
+    }).catch((e) => console.warn('Convex prescription save notice:', e));
+
     setActiveStage(2);
   };
 
@@ -201,6 +234,27 @@ export default function PhysioPulseApp() {
         if (data.prescription.exercises) {
           setActiveProtocols(data.prescription.exercises.map((e: any) => e.protocol_id));
         }
+
+        // Persist formulated prescription to Convex DB
+        savePrescriptionToConvex({
+          patientName,
+          age,
+          affectedArea,
+          painLevel,
+          symptoms,
+          circuitMode,
+          clinicalDiagnosisSummary: data.prescription.clinical_diagnosis_summary || 'Custom Kinematic Regimen',
+          precautions: data.prescription.precautions || 'Maintain neutral spine',
+          exercises: data.prescription.exercises.map((e: any) => ({
+            protocol_id: e.protocol_id,
+            protocol_name: e.protocol_name,
+            target_reps: e.target_reps,
+            target_rom_degrees: e.target_rom_degrees,
+            clinical_rationale: e.clinical_rationale,
+          })),
+          source: 'intake',
+        }).catch((e) => console.warn('Convex prescription save notice:', e));
+
         setActiveStage(2);
       } else {
         setSessionError(data.error || 'Failed to synthesize prescription.');
@@ -249,6 +303,21 @@ export default function PhysioPulseApp() {
       if (data.success && data.evaluation) {
         setEvaluation(data.evaluation);
         setEvaluationSource(data.source);
+
+        // Persist completed session & kinematic evaluation to Convex DB
+        if (rep) {
+          saveSessionToConvex({
+            sessionId: rep.session_id,
+            patientName: rep.patient_name || patientName,
+            age,
+            affectedArea,
+            painLevel,
+            prescribedDiagnosis: rep.prescribed_diagnosis || 'Targeted Physical Therapy Session',
+            overallCompliancePercent: rep.overall_compliance_percent || 100,
+            exercisesPerformed: rep.exercises_performed || [],
+            evaluation: data.evaluation,
+          }).catch((e) => console.warn('Convex session save notice:', e));
+        }
       }
     } catch (err) {
       console.error('Error evaluating session:', err);
@@ -382,6 +451,9 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
               }}
             />
           )}
+
+          {/* Convex Real-Time Clinical Cloud Telemetry & History */}
+          <ConvexTelemetryLedger />
         </main>
       </div>
 
