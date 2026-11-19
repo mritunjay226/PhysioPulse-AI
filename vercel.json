@@ -1,31 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "app": {
-      "root": ".",
-      "runtime": "python",
-      "entrypoint": "physiopulse/server.py"
-    },
-    "web_app": {
-      "root": "web_app",
-      "framework": "nextjs",
-      "bindings": [
-        {
-          "type": "service",
-          "service": "app",
-          "format": "url",
-          "env": "APP_URL"
-        }
-      ]
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": {
-        "service": "web_app"
-      }
-    }
-  ]
+  "installCommand": "npm install --prefix web_app",
+  "buildCommand": "npm run build --prefix web_app",
+  "outputDirectory": "web_app/.next"
 }
-

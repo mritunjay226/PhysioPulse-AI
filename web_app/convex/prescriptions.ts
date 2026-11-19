@@ -27,7 +27,10 @@ export const savePrescription = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    const userId = identity?.tokenIdentifier ?? "anonymous";
+    if (!identity) {
+      throw new Error("Authentication required: Please sign in to save your prescription.");
+    }
+    const userId = identity.tokenIdentifier;
 
     return await ctx.db.insert("prescriptions", {
       userId,
@@ -47,28 +50,41 @@ export const savePrescription = mutation({
 });
 
 /**
- * Query recent prescriptions.
+ * Query recent prescriptions for the authenticated user only.
+ * Returns empty array if not logged in or no prescriptions found.
  */
 export const listPrescriptions = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    const limit = args.limit ?? 10;
     const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+    const limit = args.limit ?? 10;
 
-    if (identity) {
-      const userPrescriptions = await ctx.db
-        .query("prescriptions")
-        .withIndex("by_user", (q) => q.eq("userId", identity.tokenIdentifier))
-        .order("desc")
-        .take(limit);
+    return await ctx.db
+      .query("prescriptions")
+      .withIndex("by_user", (q) => q.eq("userId", identity.tokenIdentifier))
+      .order("desc")
+      .take(limit);
+  },
+});
 
-      if (userPrescriptions.length > 0) return userPrescriptions;
+/**
+ * Get the most recent active prescription for the current user.
+ */
+export const getLatestPrescription = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
     }
 
     return await ctx.db
       .query("prescriptions")
-      .withIndex("by_created_at")
+      .withIndex("by_user", (q) => q.eq("userId", identity.tokenIdentifier))
       .order("desc")
-      .take(limit);
+      .first();
   },
 });

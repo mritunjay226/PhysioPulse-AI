@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
         report = {
           session_id: `session_sub_${Date.now()}`,
           timestamp: new Date().toISOString(),
-          patient_name: prescription.patient_name || 'Sarah Jenkins',
+          patient_name: prescription.patient_name || 'Patient',
           prescribed_diagnosis: prescription.clinical_diagnosis_summary || 'Orthopedic Rehabilitation',
           overall_compliance_percent: 100,
           exercises_performed: prescription.exercises.map((ex) => ({

@@ -208,7 +208,7 @@ textarea:focus {
   }
 
   /* Compact publication card styling */
-  .theme-card, .print-card {
+  .theme-card, .print-card, .patient-report-container > div, .doctor-report-container > div {
     border: 1px solid #cbd5e1 !important;
     background: #ffffff !important;
     color: #0f172a !important;
@@ -218,6 +218,13 @@ textarea:focus {
     margin-bottom: 8px !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+  }
+
+  /* Ensure inputs and checkboxes look clear in print */
+  input[type="checkbox"] {
+    appearance: auto !important;
+    -webkit-appearance: checkbox !important;
+    accent-color: #059669 !important;
   }
 
   /* Tighten spacing */

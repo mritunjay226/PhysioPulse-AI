@@ -6,17 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "remotion:preview": "remotion preview remotion/index.ts",
+    "remotion:render": "remotion render remotion/index.ts PhysioPulsePromo out/physiopulse-concept-demo.mp4"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.23",
+    "@remotion/cli": "^4.0.543",
+    "@remotion/player": "^4.0.543",
     "convex": "^1.48.0",
     "framer-motion": "^14.8.0",
     "gsap": "^3.15.0",
     "lucide-react": "^1.61.0",
     "next": "16.4.3",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "remotion": "^4.0.543"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",

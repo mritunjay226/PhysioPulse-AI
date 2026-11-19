@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 
 export function getRootDir(): string {
   const cwd = process.cwd();
@@ -26,9 +27,15 @@ export function getPythonPath(rootDir: string): string {
 }
 
 export function getPrescriptionPath(): string {
+  if (process.env.VERCEL) {
+    return path.join(os.tmpdir(), 'prescribed_session.json');
+  }
   return path.join(getRootDir(), 'prescribed_session.json');
 }
 
 export function getReportPath(): string {
+  if (process.env.VERCEL) {
+    return path.join(os.tmpdir(), 'clinical_session_report.json');
+  }
   return path.join(getRootDir(), 'clinical_session_report.json');
 }

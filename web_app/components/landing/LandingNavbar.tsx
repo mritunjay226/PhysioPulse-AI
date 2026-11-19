@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,7 +8,10 @@ import {
   ArrowRight,
   FileText,
   Menu,
-  X
+  X,
+  Play,
+  Activity,
+  Sparkles
 } from 'lucide-react';
 import { UserAuthNav } from '@/components/auth/UserAuthNav';
 
@@ -18,18 +21,35 @@ export interface LandingNavbarProps {
 
 export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 12);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const closeMobile = () => setMobileMenuOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all">
+    <header
+      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
+        isScrolled
+          ? 'bg-white/95 backdrop-blur-md shadow-xs border-b border-slate-200/90'
+          : 'bg-white/80 backdrop-blur-sm border-b border-slate-200/60'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-18">
           
           {/* Logo & Clinical Brand */}
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
             <motion.div
-              whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}
-              transition={{ duration: 0.3 }}
-              className="w-10 h-10 rounded-xl bg-slate-900/5 border border-slate-200/80 p-1.5 flex items-center justify-center shrink-0 shadow-2xs group-hover:border-emerald-500/30 group-hover:bg-emerald-50/50 transition-colors"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900/5 border border-slate-200/80 p-1.5 flex items-center justify-center shrink-0 shadow-2xs group-hover:border-emerald-500/40 group-hover:bg-emerald-50/50 transition-all"
             >
               <Image
                 src="/logo.svg"
@@ -41,87 +61,84 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
               />
             </motion.div>
             <div className="flex flex-col">
-              <span className="text-slate-900 font-extrabold text-lg tracking-tight font-sans leading-none flex items-center gap-1.5">
-                PhysioPulse
-                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase">
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-900 font-extrabold text-base sm:text-lg tracking-tight font-sans leading-none">
+                  PhysioPulse
+                </span>
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/80 uppercase leading-none">
                   AI
                 </span>
-              </span>
-              <span className="text-[10px] font-mono text-slate-500 tracking-wider uppercase mt-0.5">
+              </div>
+              <span className="text-[10px] font-mono text-slate-400 tracking-wider uppercase mt-0.5 hidden xs:block">
                 Markerless Telerehab
               </span>
             </div>
           </Link>
 
-          {/* Streamlined Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600">
+          {/* Center Navigation Links (Desktop lg+) */}
+          <nav className="hidden lg:flex items-center gap-1 text-xs sm:text-sm font-medium text-slate-600">
             <a
               href="#flow-chart"
-              className="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all cursor-pointer font-sans"
+              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-colors font-sans"
             >
               Clinical Flow
             </a>
             <a
               href="#capabilities"
-              className="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all cursor-pointer font-sans"
+              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-colors font-sans"
             >
               Capabilities
             </a>
             <a
               href="#evidence"
-              className="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all cursor-pointer font-sans"
+              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-colors font-sans"
             >
               Validation Data
             </a>
             <a
               href="#faq"
-              className="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-all cursor-pointer font-sans"
+              className="px-3 py-1.5 rounded-lg hover:text-slate-900 hover:bg-slate-100/80 transition-colors font-sans"
             >
               FAQ
             </a>
+            <Link
+              href="/demo"
+              className="ml-1 px-2.5 py-1 rounded-lg text-emerald-800 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200/80 transition-all font-semibold text-xs flex items-center gap-1.5"
+              title="Watch Remotion 1080p Concept Video"
+            >
+              <Play className="w-3 h-3 fill-emerald-600 text-emerald-600" />
+              <span>Demo Video</span>
+            </Link>
           </nav>
 
           {/* Right Action Cluster */}
-          <div className="hidden sm:flex items-center gap-3">
-            {/* Live Status indicator */}
-            <div className="hidden xl:flex items-center gap-1.5 text-xs text-slate-500 font-mono pr-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              {/* <span>30 FPS Engine Ready</span> */}
-            </div>
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {onOpenOcrModal && (
+              <button
+                type="button"
+                onClick={onOpenOcrModal}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition cursor-pointer"
+                title="Scan Doctor Prescription (Medical OCR)"
+              >
+                <FileText className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Scan Prescription</span>
+              </button>
+            )}
 
             <UserAuthNav />
 
-            {onOpenOcrModal && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={onOpenOcrModal}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer shadow-2xs"
-              >
-                <FileText className="w-3.5 h-3.5 text-slate-500" />
-                <span>Scan Prescription</span>
-              </motion.button>
-            )}
+            <Link
+              href="/session"
+              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs hover:shadow transition cursor-pointer group"
+            >
+              <span>Launch Studio</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
 
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Link
-                href="/session"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm hover:shadow transition-all cursor-pointer group"
-              >
-                <span>Launch Studio</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </motion.div>
-          </div>
-
-          {/* Mobile menu toggle */}
-          <div className="flex md:hidden">
+            {/* Mobile menu toggle button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              className="lg:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer ml-0.5"
               aria-label="Toggle navigation"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -137,62 +154,74 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="md:hidden border-b border-slate-200 bg-white px-4 pt-3 pb-5 space-y-3 overflow-hidden"
+            transition={{ duration: 0.22, ease: 'easeInOut' }}
+            className="lg:hidden border-b border-slate-200 bg-white px-4 pt-3 pb-5 space-y-3 overflow-hidden shadow-lg"
           >
             <nav className="flex flex-col space-y-1 text-sm font-medium text-slate-700">
               <a
                 href="#flow-chart"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+                onClick={closeMobile}
+                className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-between"
               >
-                Clinical Flow
+                <span>Clinical Flow</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
               </a>
               <a
                 href="#capabilities"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+                onClick={closeMobile}
+                className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-between"
               >
-                Capabilities
+                <span>Capabilities</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
               </a>
               <a
                 href="#evidence"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+                onClick={closeMobile}
+                className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-between"
               >
-                Validation Data
+                <span>Validation Data</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
               </a>
               <a
                 href="#faq"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+                onClick={closeMobile}
+                className="px-3.5 py-2.5 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-between"
               >
-                FAQ
+                <span>FAQ</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
               </a>
+              <Link
+                href="/demo"
+                onClick={closeMobile}
+                className="px-3.5 py-2.5 rounded-xl bg-emerald-50 text-emerald-800 font-semibold hover:bg-emerald-100 transition-colors flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <Play className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600" />
+                  <span>Demo Video (Remotion 1080p)</span>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-emerald-600" />
+              </Link>
             </nav>
 
-            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
-              <div className="py-1">
-                <UserAuthNav />
-              </div>
-
+            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2.5">
               {onOpenOcrModal && (
                 <button
+                  type="button"
                   onClick={() => {
-                    setMobileMenuOpen(false);
+                    closeMobile();
                     onOpenOcrModal();
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer"
                 >
-                  <FileText className="w-4 h-4 text-slate-500" />
-                  <span>Scan Prescription (OCR)</span>
+                  <FileText className="w-4 h-4 text-emerald-600" />
+                  <span>Scan Prescription (Medical OCR)</span>
                 </button>
               )}
 
               <Link
                 href="/session"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs"
+                onClick={closeMobile}
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-xs cursor-pointer"
               >
                 <span>Launch Studio Session</span>
                 <ArrowRight className="w-4 h-4" />
@@ -204,3 +233,5 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
     </header>
   );
 }
+
+export default LandingNavbar;

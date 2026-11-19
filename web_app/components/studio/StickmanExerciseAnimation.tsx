@@ -270,7 +270,7 @@ export function StickmanExerciseAnimation({ protocolId, className = '' }: Stickm
             <line x1="90" y1="115" x2="88" y2="165" stroke="#475569" strokeWidth="3.5" strokeLinecap="round" />
             <line x1="110" y1="115" x2="112" y2="165" stroke="#475569" strokeWidth="3.5" strokeLinecap="round" />
 
-            <text x="68" y="16" fill="#059669" fontSize="9" fontWeight="bold" fontFamily="sans-serif">Overhead "V" Slide</text>
+            <text x="68" y="16" fill="#059669" fontSize="9" fontWeight="bold" fontFamily="sans-serif">Overhead &quot;V&quot; Slide</text>
           </svg>
         );
 

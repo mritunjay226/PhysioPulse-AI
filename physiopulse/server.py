@@ -5,7 +5,7 @@ import threading
 import time
 from . import state
 
-class VideoStreamHandler(http.server.BaseHTTPRequestHandler):
+class handler(http.server.BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
     def log_message(self, format, *args):
@@ -204,7 +204,7 @@ class VideoStreamHandler(http.server.BaseHTTPRequestHandler):
 def start_embedded_server(port: int = 8000):
     """Starts the HTTP and MJPEG streaming server on a dedicated background thread."""
     try:
-        server = http.server.ThreadingHTTPServer(('0.0.0.0', port), VideoStreamHandler)
+        server = http.server.ThreadingHTTPServer(('0.0.0.0', port), handler)
         server_thread = threading.Thread(target=server.serve_forever, daemon=True)
         server_thread.start()
         print(f"📡 Embedded Vision Streamer active on http://127.0.0.1:{port}/video_feed")
@@ -214,5 +214,7 @@ def start_embedded_server(port: int = 8000):
         return None
 
 
-# Export handler for Vercel Python serverless runtime
-handler = VideoStreamHandler
+# Backward-compatibility alias and top-level entrypoint exports for Vercel
+VideoStreamHandler = handler
+app = handler
+application = handler

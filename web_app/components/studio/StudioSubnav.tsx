@@ -3,6 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useUser } from '@clerk/nextjs';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import {
   Share2,
   Bookmark,
@@ -12,6 +15,10 @@ import {
 } from 'lucide-react';
 
 export function StudioSubnav() {
+  const { user } = useUser();
+  const convexUser = useQuery(api.users.currentUser);
+  const displayName = convexUser?.name || user?.fullName || user?.firstName || 'Active Patient';
+
   return (
     <div className="h-14 px-6 border-b border-slate-200/80 bg-white flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -34,7 +41,7 @@ export function StudioSubnav() {
           <span className="hover:text-slate-800 cursor-pointer">Patients</span>
           <span className="text-slate-300">/</span>
           <span className="text-slate-900 font-semibold flex items-center gap-1 cursor-pointer">
-            Curtis Valk
+            {displayName}
             <ChevronDown className="w-3 h-3 text-slate-400" />
           </span>
         </div>
@@ -45,7 +52,7 @@ export function StudioSubnav() {
           onClick={() => {
             if (navigator.share) {
               navigator.share({
-                title: 'Curtis Valk — PhysioPulse AI Bio-Kinematics Dossier',
+                title: `${displayName} — PhysioPulse AI Bio-Kinematics Dossier`,
                 url: window.location.href
               }).catch(() => {});
             } else {

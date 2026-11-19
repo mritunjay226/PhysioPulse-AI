@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { LandingHero } from '@/components/landing/LandingHero';
 import { InteractiveFlowChart } from '@/components/landing/InteractiveFlowChart';
@@ -12,6 +13,7 @@ import { DoctorReportScannerModal } from '@/components/session/DoctorReportScann
 import { DecipheredDoctorReport } from '@/lib/doctor-report-ocr';
 
 export default function LandingPage() {
+  const router = useRouter();
   const [isOcrModalOpen, setIsOcrModalOpen] = useState(false);
 
   const handleApplyDoctorReportFromLanding = (report: DecipheredDoctorReport) => {
@@ -20,7 +22,7 @@ export default function LandingPage() {
     } catch (e) {
       console.warn('Session storage write error', e);
     }
-    window.location.href = '/session';
+    router.push('/session');
   };
 
   return (

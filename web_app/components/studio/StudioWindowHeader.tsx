@@ -24,7 +24,7 @@ export function StudioWindowHeader() {
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-blue-600" />
           <span className="font-medium tracking-tight font-sans">physiopulse.ai</span>
-          <span className="text-slate-400 text-[10px]">· Curtis Valk (34)</span>
+          <span className="text-slate-400 text-[10px]">· Clinical Motion Studio</span>
         </div>
         <Search className="w-3 h-3 text-slate-400" />
       </div>

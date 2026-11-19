@@ -208,7 +208,7 @@ export function IntakeFormStage({
                 value={patientName}
                 onChange={(e) => setPatientName(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 transition-all font-sans"
-                placeholder="e.g. Sarah Jenkins"
+                placeholder="Enter patient full name"
               />
             </div>
             <div>

@@ -39,15 +39,16 @@ def run_engine(embedded: bool = False, port: int = config.DEFAULT_PORT, use_high
 
     if embedded:
         start_embedded_server(port=port)
+    state.start_encoder_thread(jpeg_quality=config.DEFAULT_JPEG_QUALITY)
 
     base_options = python.BaseOptions(model_asset_path=active_model)
     options = vision.PoseLandmarkerOptions(
         base_options=base_options,
         running_mode=vision.RunningMode.VIDEO,
         num_poses=1,
-        min_pose_detection_confidence=0.65,
-        min_pose_presence_confidence=0.65,
-        min_tracking_confidence=0.65
+        min_pose_detection_confidence=0.5,
+        min_pose_presence_confidence=0.5,
+        min_tracking_confidence=0.5
     )
 
     coach = VoiceCoach(cooldown=3.5)
@@ -221,8 +222,8 @@ def run_engine(embedded: bool = False, port: int = config.DEFAULT_PORT, use_high
                 shoulder_tilt_ratio = abs(l_shoulder[1] - r_shoulder[1]) / shoulder_width
 
                 needed_indices = REQ_LANDMARKS.get(mode, [11, 12])
-                tracking_visible = is_visible(needed_indices, threshold=0.38)
-                hips_clearly_visible = is_visible([23, 24], threshold=0.65)
+                tracking_visible = is_visible(needed_indices, threshold=0.35)
+                hips_clearly_visible = is_visible([23, 24], threshold=0.55)
 
                 # Neutral calibration routine (22 frames ~ 0.6s)
                 if not baseline_calibrated and tracking_visible:
@@ -337,13 +338,11 @@ def run_engine(embedded: bool = False, port: int = config.DEFAULT_PORT, use_high
                 "camera_view": "Front View"
             })
 
-            # Gated On-Demand JPEG Encoding
+            # Gated On-Demand Background JPEG Encoding (Zero-lag async worker)
             needs_jpeg = (embedded and (state.active_stream_clients > 0 or (now_wall - state.last_snapshot_time < 3.0))) or not embedded
             if needs_jpeg:
                 stream_out = frame if frame.shape[1] <= 854 else cv2.resize(frame, (config.DEFAULT_FRAME_WIDTH, config.DEFAULT_FRAME_HEIGHT))
-                ret_enc, buffer = cv2.imencode('.jpg', stream_out, [cv2.IMWRITE_JPEG_QUALITY, config.DEFAULT_JPEG_QUALITY])
-                if ret_enc:
-                    state.update_jpeg_frame(buffer.tobytes())
+                state.push_frame_for_encoding(stream_out)
 
             capture_latency_ms = round((time.monotonic() - frame_capture_time) * 1000, 1)
             telemetry_snapshot = {

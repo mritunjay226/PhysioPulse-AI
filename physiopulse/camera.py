@@ -109,6 +109,18 @@ class ZeroLatencyCamera:
                 time.sleep(0.03 if empty_streak > 60 else 0.002)
                 continue
             empty_streak = 0
+
+            # DirectShow Buffer Purging:
+            # Drain any backlogged frames sitting in Windows DirectShow's internal driver queue.
+            # If grab() returns in < 4ms, that frame was buffered in memory rather than fresh exposure.
+            for _ in range(3):
+                t_check = time.monotonic()
+                if not self.cap.grab():
+                    break
+                if time.monotonic() - t_check > 0.005:
+                    # Sensor wait detected: reached freshest live hardware frame
+                    break
+
             ret, frame = self.cap.retrieve()
             if not ret or frame is None:
                 continue
@@ -121,8 +133,8 @@ class ZeroLatencyCamera:
 
     def read_latest(self, wait_timeout=0.08):
         self.new_frame_event.wait(timeout=wait_timeout)
-        self.new_frame_event.clear()
         with self.lock:
+            self.new_frame_event.clear()
             if self.frame is None:
                 return False, None, 0.0
             return self.ret, self.frame.copy(), self.last_capture_time
