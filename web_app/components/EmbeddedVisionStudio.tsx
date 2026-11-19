@@ -422,99 +422,366 @@ function calculateAngleDegrees(
   return angle;
 }
 
-function drawMediaPipeSkeleton(
+function drawClinicalBone(
+  ctx: CanvasRenderingContext2D,
+  p1: { x: number; y: number },
+  p2: { x: number; y: number },
+  color: string = '#00f0c8',
+  thickness: number = 4,
+  glowColor?: string
+) {
+  const glow = glowColor || (color === '#ef4444' ? 'rgba(239, 68, 68, 0.4)' : color === '#10b981' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(0, 240, 200, 0.38)');
+
+  // 1. Wide Outer Glow Layer
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.strokeStyle = glow;
+  ctx.lineWidth = thickness * 2 + 4;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // 2. Main Clinical Colored Bone
+  ctx.beginPath();
+  ctx.moveTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = thickness;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // 3. Crisp White Center Laser Core
+  ctx.beginPath();
+  ctx.moveTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = Math.max(1.2, thickness - 2.2);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawClinicalJoint(
+  ctx: CanvasRenderingContext2D,
+  p: { x: number; y: number },
+  color: string = '#00f0c8',
+  radius: number = 7,
+  glowColor?: string
+) {
+  const glow = glowColor || (color === '#ef4444' ? 'rgba(239, 68, 68, 0.45)' : color === '#10b981' ? 'rgba(16, 185, 129, 0.45)' : 'rgba(0, 240, 200, 0.45)');
+
+  ctx.save();
+  // 1. Concentric Halo Ring
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, radius + 4.5, 0, 2 * Math.PI);
+  ctx.strokeStyle = glow;
+  ctx.lineWidth = 2.2;
+  ctx.stroke();
+
+  // 2. Solid Color Center Body
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, radius, 0, 2 * Math.PI);
+  ctx.fillStyle = color;
+  ctx.fill();
+
+  // 3. Crisp Center White Pinpoint
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, Math.max(2, radius - 3.5), 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawClinicalGoniometerArc(
+  ctx: CanvasRenderingContext2D,
+  center: { x: number; y: number },
+  pt1: { x: number; y: number },
+  pt2: { x: number; y: number },
+  currentAngle: number,
+  targetAngle: number,
+  isBadForm: boolean = false,
+  radius: number = 46
+) {
+  const v1 = { x: pt1.x - center.x, y: pt1.y - center.y };
+  const v2 = { x: pt2.x - center.x, y: pt2.y - center.y };
+  const n1 = Math.hypot(v1.x, v1.y);
+  const n2 = Math.hypot(v2.x, v2.y);
+  if (n1 === 0 || n2 === 0) return;
+
+  const ang1 = Math.atan2(v1.y, v1.x);
+  const ang2 = Math.atan2(v2.y, v2.x);
+
+  let startAng = Math.min(ang1, ang2);
+  let endAng = Math.max(ang1, ang2);
+  let diff = endAng - startAng;
+  if (diff > Math.PI) {
+    startAng = Math.max(ang1, ang2);
+    endAng = Math.min(ang1, ang2) + 2 * Math.PI;
+  }
+
+  const isHit = currentAngle >= targetAngle;
+  const color = isBadForm ? '#ef4444' : isHit ? '#10b981' : '#00f0c8';
+  const glow = isBadForm ? 'rgba(239, 68, 68, 0.4)' : isHit ? 'rgba(16, 185, 129, 0.4)' : 'rgba(0, 240, 200, 0.4)';
+
+  ctx.save();
+  // 1. Arc outer glow
+  ctx.beginPath();
+  ctx.arc(center.x, center.y, radius, startAng, endAng);
+  ctx.strokeStyle = glow;
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
+  // 2. Arc crisp line
+  ctx.beginPath();
+  ctx.arc(center.x, center.y, radius, startAng, endAng);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // 3. Double concentric celebration rings on target hit (matching Python visualizer.py lines 45-47)
+  if (isHit && !isBadForm) {
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, radius + 8, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, radius + 12, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // 4. Floating Angle Pill Badge (counter-mirrored to cancel parent CSS scale-x-[-1])
+  const midAng = (startAng + endAng) / 2;
+  const badgeX = center.x + Math.cos(midAng) * (radius + 20);
+  const badgeY = center.y + Math.sin(midAng) * (radius + 20);
+  const angleText = `${Math.round(currentAngle)}°`;
+
+  ctx.font = 'bold 12px monospace';
+  const tw = ctx.measureText(angleText).width;
+
+  ctx.save();
+  ctx.translate(badgeX, badgeY);
+  ctx.scale(-1, 1); // Flip horizontally to cancel parent mirror!
+
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(-tw / 2 - 7, -11, tw + 14, 22, 6);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = isHit ? '#34d399' : '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(angleText, 0, 0);
+  ctx.restore();
+
+  ctx.restore();
+}
+
+function drawGhostSkeleton(
   ctx: CanvasRenderingContext2D,
   landmarks: any[],
   width: number,
-  height: number,
-  isBadForm: boolean = false,
-  showSkeleton: boolean = true,
-  activeMode: number = 1
+  height: number
 ) {
-  ctx.clearRect(0, 0, width, height);
-  if (!showSkeleton || !landmarks || landmarks.length === 0) return;
+  const GHOST_CONNECTIONS = [
+    [11, 12], [11, 23], [12, 24], [23, 24],
+    [12, 14], [14, 16],
+    [11, 13], [13, 15],
+    [24, 26], [26, 28],
+    [23, 25], [25, 27]
+  ];
 
-  const strokeColor = isBadForm ? '#f43f5e' : '#10b981'; // rose or emerald
-  const glowColor = isBadForm ? 'rgba(244, 63, 94, 0.45)' : 'rgba(16, 185, 129, 0.45)';
-  const nodeFill = isBadForm ? '#ffe4e6' : '#ffffff';
-
-  // 1. Draw glowing connecting lines
   ctx.save();
-  ctx.lineWidth = 3.5;
+  ctx.strokeStyle = 'rgba(100, 116, 139, 0.38)';
+  ctx.lineWidth = 1.5;
   ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.strokeStyle = strokeColor;
-  ctx.shadowColor = glowColor;
-  ctx.shadowBlur = 10;
 
-  for (const [startIdx, endIdx] of POSE_CONNECTIONS) {
-    const p1 = landmarks[startIdx];
-    const p2 = landmarks[endIdx];
-    if (p1 && p2 && (p1.visibility ?? 1) > 0.35 && (p2.visibility ?? 1) > 0.35) {
+  for (const [i, j] of GHOST_CONNECTIONS) {
+    const p1 = landmarks[i];
+    const p2 = landmarks[j];
+    if (p1 && p2 && (p1.visibility ?? 1) > 0.32 && (p2.visibility ?? 1) > 0.32) {
       ctx.beginPath();
       ctx.moveTo(p1.x * width, p1.y * height);
       ctx.lineTo(p2.x * width, p2.y * height);
       ctx.stroke();
     }
   }
-  ctx.restore();
 
-  // 2. Draw Joint Nodes
-  for (let i = 0; i < landmarks.length; i++) {
+  for (let i = 11; i <= 28; i++) {
     const lm = landmarks[i];
-    if (!lm || (lm.visibility ?? 1) < 0.38) continue;
-
-    const x = lm.x * width;
-    const y = lm.y * height;
-    const isKeyJoint = KEY_JOINTS.includes(i);
-    const radius = isKeyJoint ? 5.5 : 3.5;
-
-    ctx.save();
-    // Halo glow
-    ctx.beginPath();
-    ctx.arc(x, y, radius + 2.5, 0, 2 * Math.PI);
-    ctx.fillStyle = glowColor;
-    ctx.fill();
-
-    // Solid core
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = isKeyJoint ? nodeFill : strokeColor;
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = 2;
-    ctx.fill();
-    ctx.stroke();
-
-    // Center pinpoint
-    if (isKeyJoint) {
+    if (lm && (lm.visibility ?? 1) > 0.32) {
       ctx.beginPath();
-      ctx.arc(x, y, 1.8, 0, 2 * Math.PI);
-      ctx.fillStyle = strokeColor;
+      ctx.arc(lm.x * width, lm.y * height, 2.5, 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.45)';
       ctx.fill();
     }
-    ctx.restore();
   }
+  ctx.restore();
+}
 
-  // 3. Highlight the Active Exercise Joint (e.g. shoulders for P1, knees for P2, elbows for P4)
-  let focalJointIndices: number[] = [11, 12]; // default shoulders
-  if (activeMode === 2) focalJointIndices = [25, 26]; // knees
-  else if (activeMode === 4) focalJointIndices = [13, 14]; // elbows
-  else if (activeMode === 6) focalJointIndices = [23, 24]; // hips
-  else if (activeMode === 8) focalJointIndices = [15, 16]; // wrists
+function drawClinicalVisionMesh(
+  ctx: CanvasRenderingContext2D,
+  landmarks: any[],
+  width: number,
+  height: number,
+  isBadForm: boolean = false,
+  showSkeleton: boolean = true,
+  activeMode: number = 1,
+  primaryAngle: number = 0,
+  targetRom: number = 90
+) {
+  ctx.clearRect(0, 0, width, height);
+  if (!showSkeleton || !landmarks || landmarks.length === 0) return;
 
-  for (const idx of focalJointIndices) {
-    const j = landmarks[idx];
-    if (j && (j.visibility ?? 1) > 0.4) {
-      const x = j.x * width;
-      const y = j.y * height;
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(x, y, 12, 0, 2 * Math.PI);
-      ctx.strokeStyle = '#38bdf8'; // sky blue target ring
-      ctx.lineWidth = 2.5;
-      ctx.setLineDash([4, 3]);
-      ctx.stroke();
-      ctx.restore();
+  // 1. Subtle background ghost skeleton for body awareness
+  drawGhostSkeleton(ctx, landmarks, width, height);
+
+  const getPt = (idx: number) => {
+    const lm = landmarks[idx];
+    if (!lm || (lm.visibility ?? 1) < 0.25) return null;
+    return { x: lm.x * width, y: lm.y * height };
+  };
+
+  const isHit = primaryAngle >= targetRom;
+  const activeColor = isBadForm ? '#ef4444' : isHit ? '#10b981' : '#00f0c8';
+
+  // 2. Active kinetic chain rendering
+  if (activeMode === 1) {
+    // Mode 1: Shoulder Abduction
+    const rSh = getPt(11);
+    const lSh = getPt(12);
+    const rEl = getPt(13);
+    const lEl = getPt(14);
+    const rWr = getPt(15);
+    const lWr = getPt(16);
+    const rHip = getPt(23);
+    const lHip = getPt(24);
+
+    const rAng = (rHip && rSh && rEl) ? calculateAngleDegrees(rHip, rSh, rEl) : 0;
+    const lAng = (lHip && lSh && lEl) ? calculateAngleDegrees(lHip, lSh, lEl) : 0;
+
+    const useLeft = lAng >= rAng - 5 && lSh && lEl && lWr;
+    const sh = useLeft ? lSh : rSh;
+    const el = useLeft ? lEl : rEl;
+    const wr = useLeft ? lWr : rWr;
+    const hip = useLeft ? lHip : rHip;
+
+    if (sh && el && wr) {
+      if (hip) drawClinicalBone(ctx, hip, sh, 'rgba(0, 240, 200, 0.45)', 2.5);
+      drawClinicalBone(ctx, sh, el, activeColor, 4.5);
+      drawClinicalBone(ctx, el, wr, activeColor, 4.0);
+
+      if (hip) drawClinicalJoint(ctx, hip, 'rgba(0, 240, 200, 0.5)', 5.5);
+      drawClinicalJoint(ctx, sh, activeColor, 8.5);
+      drawClinicalJoint(ctx, el, activeColor, 7.5);
+      drawClinicalJoint(ctx, wr, activeColor, 6.0);
+
+      const refPt = hip || { x: sh.x, y: sh.y + 120 };
+      drawClinicalGoniometerArc(ctx, sh, refPt, el, primaryAngle, targetRom, isBadForm, 48);
+    }
+  } else if (activeMode === 2) {
+    // Mode 2: Knee Squat & Extension
+    const rHip = getPt(23);
+    const lHip = getPt(24);
+    const rKnee = getPt(25);
+    const lKnee = getPt(26);
+    const rAnkle = getPt(27);
+    const lAnkle = getPt(28);
+
+    if (lHip && lKnee && lAnkle) {
+      drawClinicalBone(ctx, lHip, lKnee, activeColor, 4.5);
+      drawClinicalBone(ctx, lKnee, lAnkle, activeColor, 4.0);
+      drawClinicalJoint(ctx, lHip, activeColor, 7.0);
+      drawClinicalJoint(ctx, lKnee, activeColor, 8.5);
+      drawClinicalJoint(ctx, lAnkle, activeColor, 6.0);
+      drawClinicalGoniometerArc(ctx, lKnee, lHip, lAnkle, primaryAngle, targetRom, isBadForm, 46);
+    }
+    if (rHip && rKnee && rAnkle) {
+      drawClinicalBone(ctx, rHip, rKnee, activeColor, 4.5);
+      drawClinicalBone(ctx, rKnee, rAnkle, activeColor, 4.0);
+      drawClinicalJoint(ctx, rHip, activeColor, 7.0);
+      drawClinicalJoint(ctx, rKnee, activeColor, 8.5);
+      drawClinicalJoint(ctx, rAnkle, activeColor, 6.0);
+      if (!lKnee) {
+        drawClinicalGoniometerArc(ctx, rKnee, rHip, rAnkle, primaryAngle, targetRom, isBadForm, 46);
+      }
+    }
+  } else if (activeMode === 4) {
+    // Mode 4: Bicep Curl / Elbow Flexion
+    const rSh = getPt(11);
+    const lSh = getPt(12);
+    const rEl = getPt(13);
+    const lEl = getPt(14);
+    const rWr = getPt(15);
+    const lWr = getPt(16);
+    const rHip = getPt(23);
+    const lHip = getPt(24);
+
+    const rAng = (rSh && rEl && rWr) ? calculateAngleDegrees(rSh, rEl, rWr) : 0;
+    const lAng = (lSh && lEl && lWr) ? calculateAngleDegrees(lSh, lEl, lWr) : 0;
+
+    const useLeft = lAng >= rAng - 5 && lSh && lEl && lWr;
+    const sh = useLeft ? lSh : rSh;
+    const el = useLeft ? lEl : rEl;
+    const wr = useLeft ? lWr : rWr;
+    const hip = useLeft ? lHip : rHip;
+
+    if (sh && el && wr) {
+      if (hip) drawClinicalBone(ctx, hip, sh, 'rgba(0, 240, 200, 0.45)', 2.5);
+      drawClinicalBone(ctx, sh, el, activeColor, 4.5);
+      drawClinicalBone(ctx, el, wr, activeColor, 4.0);
+
+      drawClinicalJoint(ctx, sh, activeColor, 7.5);
+      drawClinicalJoint(ctx, el, activeColor, 8.5);
+      drawClinicalJoint(ctx, wr, activeColor, 6.0);
+
+      drawClinicalGoniometerArc(ctx, el, sh, wr, primaryAngle, targetRom, isBadForm, 46);
+    }
+  } else if (activeMode === 6) {
+    // Mode 6: Hip Abduction
+    const rSh = getPt(11);
+    const lSh = getPt(12);
+    const rHip = getPt(23);
+    const lHip = getPt(24);
+    const rKnee = getPt(25);
+    const lKnee = getPt(26);
+
+    const hip = lHip || rHip;
+    const sh = lSh || rSh;
+    const knee = lKnee || rKnee;
+
+    if (hip && sh && knee) {
+      drawClinicalBone(ctx, sh, hip, activeColor, 4.0);
+      drawClinicalBone(ctx, hip, knee, activeColor, 4.5);
+
+      drawClinicalJoint(ctx, sh, activeColor, 7.0);
+      drawClinicalJoint(ctx, hip, activeColor, 8.5);
+      drawClinicalJoint(ctx, knee, activeColor, 7.5);
+
+      drawClinicalGoniometerArc(ctx, hip, sh, knee, primaryAngle, targetRom, isBadForm, 48);
+    }
+  } else {
+    // Default chain
+    const lSh = getPt(12);
+    const lEl = getPt(14);
+    const lWr = getPt(16);
+    if (lSh && lEl && lWr) {
+      drawClinicalBone(ctx, lSh, lEl, activeColor, 4.0);
+      drawClinicalBone(ctx, lEl, lWr, activeColor, 3.5);
+      drawClinicalJoint(ctx, lSh, activeColor, 7.0);
+      drawClinicalJoint(ctx, lEl, activeColor, 7.5);
+      drawClinicalJoint(ctx, lWr, activeColor, 6.0);
+      drawClinicalGoniometerArc(ctx, lEl, lSh, lWr, primaryAngle, targetRom, isBadForm, 44);
     }
   }
 }
@@ -722,6 +989,104 @@ export function EmbeddedVisionStudio({
   const connectedRef = useRef(false);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Dynamic state refs for zero-reinitialization in frame loops
+  const activeModeRef = useRef(activeMode);
+  activeModeRef.current = activeMode;
+  const activeExerciseRef = useRef(activeExercise);
+  activeExerciseRef.current = activeExercise;
+  const activeGuideRef = useRef(activeGuide);
+  activeGuideRef.current = activeGuide;
+  const targetRomRef = useRef(targetRom);
+  targetRomRef.current = targetRom;
+  const targetRepsRef = useRef(targetReps);
+  targetRepsRef.current = targetReps;
+  const currentRepsRef = useRef(currentReps);
+  currentRepsRef.current = currentReps;
+  const isAdvancingRef = useRef(isAdvancing);
+  isAdvancingRef.current = isAdvancing;
+  const showSkeletonRef = useRef(showSkeleton);
+  showSkeletonRef.current = showSkeleton;
+  const queueIndexRef = useRef(queueIndex);
+  queueIndexRef.current = queueIndex;
+  const exerciseQueueRef = useRef(exerciseQueue);
+  exerciseQueueRef.current = exerciseQueue;
+
+  // Voice Coach persistent references (protects against Chromium GC mid-speech cutoff)
+  const activeUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const lastSpokenTimeRef = useRef<number>(0);
+  const lastSpokenTextRef = useRef<string>('');
+
+  const speakCoach = useCallback(
+    (text: string, force: boolean = false, cooldownSec: number = 2.5) => {
+      if (!audioEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
+      const now = Date.now();
+      if (!force && (now - lastSpokenTimeRef.current < cooldownSec * 1000 || lastSpokenTextRef.current === text)) {
+        return;
+      }
+
+      try {
+        if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+          window.speechSynthesis.cancel();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.05;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice =
+          voices.find(
+            (v) =>
+              v.lang.startsWith('en') &&
+              (v.name.includes('Natural') ||
+                v.name.includes('Google') ||
+                v.name.includes('Samantha') ||
+                v.name.includes('Neural'))
+          ) || voices.find((v) => v.lang.startsWith('en'));
+
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+        }
+
+        // Vital: retain reference in ref to prevent Chromium garbage collection cutoff
+        activeUtteranceRef.current = utterance;
+        lastSpokenTimeRef.current = now;
+        lastSpokenTextRef.current = text;
+
+        utterance.onend = () => {
+          if (activeUtteranceRef.current === utterance) {
+            activeUtteranceRef.current = null;
+          }
+        };
+        utterance.onerror = () => {
+          if (activeUtteranceRef.current === utterance) {
+            activeUtteranceRef.current = null;
+          }
+        };
+
+        window.speechSynthesis.speak(utterance);
+      } catch (err) {
+        console.warn('SpeechSynthesis warning:', err);
+      }
+    },
+    [audioEnabled]
+  );
+
+  // Announce newly active exercise via Voice Coach
+  useEffect(() => {
+    if (!isRunning) return;
+    const curEx = exerciseQueue[queueIndex] || exerciseQueue[0];
+    const curGuide = EXERCISE_GUIDES[Number(curEx?.protocol_id)] || EXERCISE_GUIDES[1];
+    const curName = curEx?.protocol_name || curGuide.title;
+    const curReps = curEx?.target_reps || curGuide.targetReps || 8;
+    speakCoach(
+      `Exercise ${queueIndex + 1} of ${exerciseQueue.length}: ${curName}. Target is ${curReps} repetitions.`,
+      true
+    );
+  }, [queueIndex, isRunning, exerciseQueue, speakCoach]);
+
   // Smooth Angle via GSAP
   const [smoothAngle, setSmoothAngle] = useState<number>(0);
   const angleRef = useRef({ val: 0 });
@@ -762,7 +1127,7 @@ export function EmbeddedVisionStudio({
     } catch {}
   }, [audioEnabled]);
 
-  // 1. Load MediaPipe Pose from CDN and instantiate
+  // 1. Load MediaPipe Pose from CDN and instantiate (Singleton lifecycle per webcam session)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -827,6 +1192,12 @@ export function EmbeddedVisionStudio({
           const ctx = canvas.getContext('2d');
           if (!ctx) return;
 
+          const curMode = activeModeRef.current;
+          const curTargetRom = targetRomRef.current;
+          const curTargetReps = targetRepsRef.current;
+          const curEx = activeExerciseRef.current;
+          const curGuide = activeGuideRef.current;
+
           if (results.poseLandmarks && results.poseLandmarks.length > 0) {
             if (!hasLandmarksRef.current) {
               hasLandmarksRef.current = true;
@@ -835,27 +1206,40 @@ export function EmbeddedVisionStudio({
 
             const lms = results.poseLandmarks;
 
-            // Draw full 3D Skeletal Mesh directly on user
-            drawMediaPipeSkeleton(ctx, lms, w, h, false, showSkeleton, activeMode);
+            // If in auto-advance countdown, continue drawing mesh but do not count reps
+            if (isAdvancingRef.current) {
+              drawClinicalVisionMesh(
+                ctx,
+                lms,
+                w,
+                h,
+                false,
+                showSkeletonRef.current,
+                curMode,
+                repStateRef.current.lastAngle,
+                curTargetRom
+              );
+              return;
+            }
 
             // Calculate live joint angle from real body
             let detectedAngle = 0;
-            if (activeMode === 1) {
+            if (curMode === 1) {
               // Shoulder Abduction: Hip (23/24) -> Shoulder (11/12) -> Elbow (13/14)
               const leftArm = calculateAngleDegrees(lms[23], lms[11], lms[13]);
               const rightArm = calculateAngleDegrees(lms[24], lms[12], lms[14]);
               detectedAngle = Math.max(leftArm, rightArm);
-            } else if (activeMode === 2) {
+            } else if (curMode === 2) {
               // Knee Squat: Hip -> Knee -> Ankle
               const leftKnee = calculateAngleDegrees(lms[23], lms[25], lms[27]);
               const rightKnee = calculateAngleDegrees(lms[24], lms[26], lms[28]);
               detectedAngle = Math.max(180 - leftKnee, 180 - rightKnee);
-            } else if (activeMode === 4) {
+            } else if (curMode === 4) {
               // Elbow Flexion: Shoulder -> Elbow -> Wrist
               const leftElbow = calculateAngleDegrees(lms[11], lms[13], lms[15]);
               const rightElbow = calculateAngleDegrees(lms[12], lms[14], lms[16]);
               detectedAngle = Math.max(leftElbow, rightElbow);
-            } else if (activeMode === 6) {
+            } else if (curMode === 6) {
               // Hip Abduction: Shoulder -> Hip -> Knee
               const leftHip = calculateAngleDegrees(lms[11], lms[23], lms[25]);
               const rightHip = calculateAngleDegrees(lms[12], lms[24], lms[26]);
@@ -868,54 +1252,73 @@ export function EmbeddedVisionStudio({
               const roundedAngle = Math.min(180, Math.max(0, Math.round(detectedAngle)));
 
               // Real repetition detection from real movement
-              const isPeak = roundedAngle >= targetRom * 0.82;
+              const isPeak = roundedAngle >= curTargetRom * 0.82;
               if (isPeak && !repStateRef.current.hasHitPeak) {
                 repStateRef.current.hasHitPeak = true;
+                if (roundedAngle >= curTargetRom) {
+                  speakCoach('Target range reached. Return with control.', false, 3.5);
+                }
               }
 
-              if (repStateRef.current.hasHitPeak && roundedAngle <= Math.max(25, targetRom * 0.35)) {
+              if (repStateRef.current.hasHitPeak && roundedAngle <= Math.max(25, curTargetRom * 0.35)) {
                 repStateRef.current.hasHitPeak = false;
                 setCurrentReps((prev) => {
                   const next = prev + 1;
+                  currentRepsRef.current = next;
                   playRepChime();
+                  speakCoach(`Rep ${next}. Good form!`, true);
                   return next;
                 });
               }
 
               repStateRef.current.lastAngle = roundedAngle;
 
+              // Draw high-precision clinical vision mesh
+              drawClinicalVisionMesh(
+                ctx,
+                lms,
+                w,
+                h,
+                false,
+                showSkeletonRef.current,
+                curMode,
+                roundedAngle,
+                curTargetRom
+              );
+
+              const curReps = currentRepsRef.current;
               setTelemetry((prev: any) => ({
                 ...(prev || {}),
-                mode: activeMode,
-                protocol_name: activeExercise.protocol_name || activeGuide.title,
-                exercise_title: activeGuide.title,
-                exercise_short_name: activeGuide.short_name,
-                target_joint: activeGuide.targetJoint,
-                setup_instruction: activeGuide.actionSummary,
-                action_instruction: activeGuide.actionSummary,
-                form_tip: activeGuide.avoidSummary,
-                camera_view: activeGuide.recommendedView,
-                reps: currentReps,
-                target_reps: targetReps,
+                mode: curMode,
+                protocol_name: curEx.protocol_name || curGuide.title,
+                exercise_title: curGuide.title,
+                exercise_short_name: curGuide.short_name,
+                target_joint: curGuide.targetJoint,
+                setup_instruction: curGuide.actionSummary,
+                action_instruction: curGuide.actionSummary,
+                form_tip: curGuide.avoidSummary,
+                camera_view: curGuide.recommendedView,
+                reps: curReps,
+                target_reps: curTargetReps,
                 primary_angle: roundedAngle,
-                max_rom: Math.max(targetRom, roundedAngle),
-                target_rom: targetRom,
+                max_rom: Math.max(curTargetRom, roundedAngle),
+                target_rom: curTargetRom,
                 symmetry_score: 96,
-                form_status: roundedAngle >= targetRom ? 'OPTIMAL BIOMECHANICS' : 'SMOOTH MOTION',
+                form_status: roundedAngle >= curTargetRom ? 'OPTIMAL BIOMECHANICS' : 'SMOOTH MOTION',
                 is_bad_form: false,
                 feedback_text:
-                  currentReps >= targetReps
+                  curReps >= curTargetReps
                     ? 'Target reps reached! Preparing next protocol.'
                     : isPeak
                     ? 'Peak ROM reached — smoothly return to rest.'
                     : 'Real-time 3D landmark tracking active.',
                 fps: 30,
                 latency_ms: 14.5,
-                advancing: isAdvancing,
+                advancing: isAdvancingRef.current,
                 remaining_advance_sec: advanceCountdown,
-                show_skeleton: showSkeleton,
-                queue_idx: queueIndex,
-                total_queue: exerciseQueue.length
+                show_skeleton: showSkeletonRef.current,
+                queue_idx: queueIndexRef.current,
+                total_queue: exerciseQueueRef.current.length
               }));
             }
           } else {
@@ -950,22 +1353,7 @@ export function EmbeddedVisionStudio({
       hasLandmarksRef.current = false;
       setHasLandmarks(false);
     };
-  }, [
-    isRunning,
-    cameraMode,
-    activeMode,
-    activeExercise,
-    activeGuide,
-    targetRom,
-    targetReps,
-    currentReps,
-    isAdvancing,
-    advanceCountdown,
-    showSkeleton,
-    queueIndex,
-    exerciseQueue.length,
-    playRepChime
-  ]);
+  }, [isRunning, cameraMode, playRepChime, speakCoach, advanceCountdown]);
 
   // 2. Video Frame Processing Loop (passes webcam frames to MediaPipe)
   useEffect(() => {
@@ -1079,12 +1467,18 @@ export function EmbeddedVisionStudio({
     let holdTicks = 0;
 
     const cadenceTimer = setInterval(() => {
-      if (isAdvancing || (cameraMode === 'webcam' && hasLandmarksRef.current)) return;
+      if (isAdvancingRef.current || (cameraMode === 'webcam' && hasLandmarksRef.current)) return;
+
+      const tRom = targetRomRef.current;
+      const tReps = targetRepsRef.current;
+      const cMode = activeModeRef.current;
+      const guide = activeGuideRef.current;
+      const ex = activeExerciseRef.current;
 
       if (increasing) {
         angle += 4;
-        if (angle >= targetRom + 4) {
-          angle = targetRom + 4;
+        if (angle >= tRom + 4) {
+          angle = tRom + 4;
           holdTicks += 1;
           if (holdTicks > 3) {
             increasing = false;
@@ -1098,63 +1492,51 @@ export function EmbeddedVisionStudio({
           increasing = true;
           setCurrentReps((prev) => {
             const next = prev + 1;
+            currentRepsRef.current = next;
             playRepChime();
+            speakCoach(`Rep ${next}. Good form!`, true);
             return next;
           });
         }
       }
 
+      const curR = currentRepsRef.current;
       setTelemetry({
-        mode: activeMode,
-        protocol_name: activeExercise.protocol_name || activeGuide.title,
-        exercise_title: activeGuide.title,
-        exercise_short_name: activeGuide.short_name,
-        target_joint: activeGuide.targetJoint,
-        setup_instruction: activeGuide.actionSummary,
-        action_instruction: activeGuide.actionSummary,
-        form_tip: activeGuide.avoidSummary,
-        camera_view: activeGuide.recommendedView,
-        reps: currentReps,
-        target_reps: targetReps,
+        mode: cMode,
+        protocol_name: ex.protocol_name || guide.title,
+        exercise_title: guide.title,
+        exercise_short_name: guide.short_name,
+        target_joint: guide.targetJoint,
+        setup_instruction: guide.actionSummary,
+        action_instruction: guide.actionSummary,
+        form_tip: guide.avoidSummary,
+        camera_view: guide.recommendedView,
+        reps: curR,
+        target_reps: tReps,
         primary_angle: Math.min(180, Math.max(0, angle)),
-        max_rom: Math.max(targetRom, angle),
-        target_rom: targetRom,
+        max_rom: Math.max(tRom, angle),
+        target_rom: tRom,
         symmetry_score: 95,
-        form_status: angle >= targetRom ? 'OPTIMAL BIOMECHANICS' : 'SMOOTH MOTION',
+        form_status: angle >= tRom ? 'OPTIMAL BIOMECHANICS' : 'SMOOTH MOTION',
         is_bad_form: false,
         feedback_text:
-          currentReps >= targetReps
+          curR >= tReps
             ? 'Prescribed reps reached! Great cadence.'
-            : angle >= targetRom
+            : angle >= tRom
             ? 'Peak ROM achieved — maintain control as you lower.'
             : 'Keep cadence steady and aligned with the movement guide.',
         fps: 60,
         latency_ms: 8.2,
-        advancing: isAdvancing,
+        advancing: isAdvancingRef.current,
         remaining_advance_sec: advanceCountdown,
-        show_skeleton: showSkeleton,
-        queue_idx: queueIndex,
-        total_queue: exerciseQueue.length
+        show_skeleton: showSkeletonRef.current,
+        queue_idx: queueIndexRef.current,
+        total_queue: exerciseQueueRef.current.length
       });
     }, 120);
 
     return () => clearInterval(cadenceTimer);
-  }, [
-    cameraMode,
-    isRunning,
-    isAdvancing,
-    targetRom,
-    targetReps,
-    currentReps,
-    activeMode,
-    activeExercise,
-    activeGuide,
-    showSkeleton,
-    queueIndex,
-    exerciseQueue.length,
-    advanceCountdown,
-    playRepChime
-  ]);
+  }, [cameraMode, isRunning, advanceCountdown, playRepChime, speakCoach]);
 
   const handleFinishEarly = useCallback(async () => {
     stopWebcam();
@@ -1178,22 +1560,63 @@ export function EmbeddedVisionStudio({
 
     if (currentReps >= targetReps && !isAdvancing) {
       setIsAdvancing(true);
+      isAdvancingRef.current = true;
       setAdvanceCountdown(2);
 
+      const isLastExercise = queueIndex + 1 >= exerciseQueue.length;
+      if (isLastExercise) {
+        speakCoach("Outstanding work! All prescribed exercises completed. Compiling your clinical report.", true);
+      } else {
+        const nextEx = exerciseQueue[queueIndex + 1];
+        const nextGuide = EXERCISE_GUIDES[Number(nextEx?.protocol_id)] || EXERCISE_GUIDES[1];
+        const nextName = nextEx?.protocol_name || nextGuide.title;
+        speakCoach(`Protocol completed! Great job. Next up: ${nextName} in two seconds.`, true);
+      }
+
+      let remaining = 2;
+      const countInterval = setInterval(() => {
+        remaining -= 1;
+        setAdvanceCountdown(Math.max(0, remaining));
+        if (remaining <= 0) {
+          clearInterval(countInterval);
+        }
+      }, 1000);
+
       const timer = setTimeout(() => {
+        clearInterval(countInterval);
         if (queueIndex + 1 < exerciseQueue.length) {
           setQueueIndex((prev) => prev + 1);
+          queueIndexRef.current = queueIndex + 1;
           setCurrentReps(0);
+          currentRepsRef.current = 0;
+          repStateRef.current = { hasHitPeak: false, lastAngle: 0 };
           setIsAdvancing(false);
+          isAdvancingRef.current = false;
           setAdvanceCountdown(0);
         } else {
+          setIsAdvancing(false);
+          isAdvancingRef.current = false;
+          setAdvanceCountdown(0);
           handleFinishEarly();
         }
       }, 2000);
 
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        clearInterval(countInterval);
+      };
     }
-  }, [currentReps, targetReps, queueIndex, exerciseQueue.length, isAdvancing, cameraMode, isRunning, handleFinishEarly]);
+  }, [
+    currentReps,
+    targetReps,
+    queueIndex,
+    exerciseQueue,
+    isAdvancing,
+    cameraMode,
+    isRunning,
+    handleFinishEarly,
+    speakCoach
+  ]);
 
   // 4. Telemetry Poller for Local Python Stream (ONLY runs when cameraMode === 'stream')
   useEffect(() => {
@@ -1217,15 +1640,34 @@ export function EmbeddedVisionStudio({
                 prev.reps === data.reps &&
                 prev.primary_angle === data.primary_angle &&
                 prev.form_status === data.form_status &&
-                prev.mode === data.mode
+                prev.mode === data.mode &&
+                prev.queue_idx === data.queue_idx &&
+                prev.advancing === data.advancing
               ) {
                 return prev;
               }
               return data;
             });
             setCurrentReps(data.reps ?? 0);
+            currentRepsRef.current = data.reps ?? 0;
+            if (data.queue_idx !== undefined && data.queue_idx !== queueIndexRef.current) {
+              setQueueIndex(data.queue_idx);
+              queueIndexRef.current = data.queue_idx;
+              repStateRef.current = { hasHitPeak: false, lastAngle: 0 };
+            }
+            if (data.advancing !== undefined) {
+              setIsAdvancing(!!data.advancing);
+              isAdvancingRef.current = !!data.advancing;
+            }
+            if (data.remaining_advance_sec !== undefined) {
+              setAdvanceCountdown(Math.round(data.remaining_advance_sec || 0));
+            }
+            if (data.completed) {
+              handleFinishEarly();
+            }
             if (typeof data.show_skeleton === 'boolean') {
               setShowSkeleton(data.show_skeleton);
+              showSkeletonRef.current = data.show_skeleton;
             }
             if (!connectedRef.current) {
               connectedRef.current = true;
@@ -1242,7 +1684,7 @@ export function EmbeddedVisionStudio({
     }, 280);
 
     return () => clearInterval(interval);
-  }, [isRunning, cameraMode]);
+  }, [isRunning, cameraMode, handleFinishEarly]);
 
   const handleToggleSkeleton = async () => {
     if (cameraMode === 'stream') {
@@ -1252,13 +1694,21 @@ export function EmbeddedVisionStudio({
         if (res.ok) {
           const json = await res.json();
           const data = json.data || json;
-          setShowSkeleton(typeof data.show_skeleton === 'boolean' ? data.show_skeleton : !showSkeleton);
+          const next = typeof data.show_skeleton === 'boolean' ? data.show_skeleton : !showSkeleton;
+          setShowSkeleton(next);
+          showSkeletonRef.current = next;
         }
       } catch {
-        setShowSkeleton((prev) => !prev);
+        setShowSkeleton((prev) => {
+          showSkeletonRef.current = !prev;
+          return !prev;
+        });
       }
     } else {
-      setShowSkeleton((prev) => !prev);
+      setShowSkeleton((prev) => {
+        showSkeletonRef.current = !prev;
+        return !prev;
+      });
     }
   };
 
@@ -1297,9 +1747,12 @@ export function EmbeddedVisionStudio({
   };
 
   const handleManualAddRep = () => {
+    if (isAdvancingRef.current) return;
     setCurrentReps((prev) => {
       const next = prev + 1;
+      currentRepsRef.current = next;
       playRepChime();
+      speakCoach(`Rep ${next}. Good form!`, true);
       return next;
     });
   };
@@ -1315,8 +1768,12 @@ export function EmbeddedVisionStudio({
     } else {
       if (queueIndex + 1 < exerciseQueue.length) {
         setQueueIndex((prev) => prev + 1);
+        queueIndexRef.current = queueIndex + 1;
         setCurrentReps(0);
+        currentRepsRef.current = 0;
+        repStateRef.current = { hasHitPeak: false, lastAngle: 0 };
         setIsAdvancing(false);
+        isAdvancingRef.current = false;
       } else {
         handleFinishEarly();
       }
@@ -1544,7 +2001,7 @@ export function EmbeddedVisionStudio({
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 : 'bg-slate-100 text-slate-400 border-slate-200'
             }`}
-            title={audioEnabled ? 'Mute Kinetic Chimes' : 'Unmute Kinetic Chimes'}
+            title={audioEnabled ? 'Mute AI Voice Coach & Chimes' : 'Unmute AI Voice Coach & Chimes'}
           >
             {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
@@ -1643,7 +2100,7 @@ export function EmbeddedVisionStudio({
           )}
 
           {/* Auto-Advance Banner */}
-          {telemetry?.advancing && (
+          {(telemetry?.advancing || isAdvancing) && (
             <div className="mb-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-300 shadow-md flex items-center justify-between gap-4 animate-in fade-in duration-200">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shrink-0 animate-bounce">
@@ -1660,7 +2117,11 @@ export function EmbeddedVisionStudio({
               </div>
               <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 bg-white px-3.5 py-1.5 rounded-xl border border-emerald-200 shadow-xs">
                 <Sparkles className="w-4 h-4 text-emerald-600 animate-spin" />
-                <span>Next exercise in {telemetry?.remaining_advance_sec || 3}s...</span>
+                <span>
+                  {queueIndex + 1 < exerciseQueue.length
+                    ? `Next exercise in ${advanceCountdown || telemetry?.remaining_advance_sec || 2}s...`
+                    : 'Finalizing session report...'}
+                </span>
               </div>
             </div>
           )}

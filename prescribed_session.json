@@ -1,28 +1,28 @@
 {
   "patient_name": "mritunjay mishra",
-  "clinical_diagnosis_summary": "Comprehensive kinetic chain circuit (3 protocols) prescribed for mritunjay mishra (30 yo) addressing Shoulder & Neck with visual EMA compensation monitoring and axial stability.",
-  "precautions": "Moderate symptom threshold (5/10). Maintain neutral spinal alignment and eliminate compensatory shrug or trunk lateral flexion.",
+  "clinical_diagnosis_summary": "Peroneal Tendinitis (Left Ankle) requires targeted lateral compartment rehabilitation combined with proximal kinetic chain optimization. To address the lateral ankle strain without inducing compensatory gait patterns, the circuit integrates scapulohumeral and core-stabilizing upper body protocols along with cervical posture stabilization to maintain optimal axial alignment during lower extremity loading.",
+  "precautions": "Maintain pain-free range of motion (VAS <= 3). Avoid sudden changes in movement velocity, excessive ankle eversion strain, and lateral trunk lean during kinetic chain integration.",
   "exercises": [
-    {
-      "protocol_id": 1,
-      "protocol_name": "P1: Frozen Shoulder Abduction",
-      "target_reps": 4,
-      "target_rom_degrees": 81,
-      "clinical_rationale": "Restores lateral glenohumeral abduction without compensatory scapular elevation."
-    },
     {
       "protocol_id": 5,
       "protocol_name": "P5: Bilateral Overhead Wall-Slide Sync",
-      "target_reps": 4,
-      "target_rom_degrees": 108,
-      "clinical_rationale": "Retrains bilateral serratus anterior activation and symmetric scapulohumeral rhythm."
+      "target_reps": 10,
+      "target_rom_degrees": 120,
+      "clinical_rationale": "Establishes proximal scapulohumeral rhythm and thoracic extension to support overall kinetic chain upright alignment."
+    },
+    {
+      "protocol_id": 1,
+      "protocol_name": "P1: Frozen Shoulder Abduction",
+      "target_reps": 8,
+      "target_rom_degrees": 90,
+      "clinical_rationale": "Engages functional synergists of the upper quadrant to promote balanced bilateral upper body posture during gait and balance tasks."
     },
     {
       "protocol_id": 3,
       "protocol_name": "P3: Cervical & Ergonomic Posture Guard",
-      "target_reps": 2,
-      "target_rom_degrees": 77,
-      "clinical_rationale": "Strengthens deep cervical flexors and retrains neutral craniovertebral alignment."
+      "target_reps": 10,
+      "target_rom_degrees": 45,
+      "clinical_rationale": "Acts as the axial postural anchor, ensuring head-neck-trunk alignment which optimizes center of gravity control and reduces distal lower extremity compensation."
     }
   ]
 }
