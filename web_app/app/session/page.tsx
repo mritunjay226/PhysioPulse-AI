@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AlertTriangle, UserCheck, ShieldCheck, Sparkles, User, Settings2 } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
 import { useMutation, useQuery } from 'convex/react';
@@ -21,11 +22,11 @@ import { SessionBrowserChrome } from '@/components/session/SessionBrowserChrome'
 import { SessionWorkflowStepper } from '@/components/session/SessionWorkflowStepper';
 import { IntakeFormStage, IntakePreset } from '@/components/session/IntakeFormStage';
 import { PrescriptionQueueStage } from '@/components/session/PrescriptionQueueStage';
-import { ClinicalReportStage } from '@/components/session/ClinicalReportStage';
 import { DoctorReportScannerModal } from '@/components/session/DoctorReportScannerModal';
 import { ConvexTelemetryLedger } from '@/components/session/ConvexTelemetryLedger';
 
 export default function PhysioPulseApp() {
+  const router = useRouter();
   // Clerk Authentication State
   const { isLoaded, isSignedIn, user } = useUser();
 
@@ -309,27 +310,40 @@ export default function PhysioPulseApp() {
   const handleConcludeSession = async (directReport?: any) => {
     setIsRunningSession(false);
     try {
-      if (directReport && directReport.exercises_performed) {
-        setSessionReport(directReport);
-        await handleTriggerEvaluation(prescription, directReport);
-        setActiveStage(3);
-        return;
+      let rep = directReport;
+      if (!rep || !rep.exercises_performed) {
+        const res = await fetch('/api/run-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'conclude', prescription })
+        });
+        const data = await res.json();
+        if (data.success && data.report) {
+          rep = data.report;
+        }
       }
 
-      const res = await fetch('/api/run-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'conclude', prescription })
-      });
-      const data = await res.json();
-      if (data.success && data.report) {
-        setSessionReport(data.report);
-        await handleTriggerEvaluation(prescription, data.report);
-        setActiveStage(3);
+      if (rep) {
+        setSessionReport(rep);
+        // Trigger evaluation in background
+        handleTriggerEvaluation(prescription, rep);
+
+        // Store latest generated report in sessionStorage for /report page
+        try {
+          sessionStorage.setItem('latest_generated_report', JSON.stringify(rep));
+        } catch (e) {
+          console.warn('SessionStorage write error', e);
+        }
+
+        // Redirect immediately to /report (never show report on /session)
+        router.push('/report');
+        return;
       }
     } catch (err: any) {
       console.error('Error concluding vision session:', err);
     }
+    // Fallback: navigate directly to /report
+    router.push('/report');
   };
 
   const handleTriggerEvaluation = async (
@@ -477,7 +491,13 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
         {/* 3. Top Header Stepper */}
         <SessionWorkflowStepper
           activeStage={activeStage}
-          setActiveStage={setActiveStage}
+          setActiveStage={(stg) => {
+            if (stg === 3) {
+              router.push('/report');
+            } else {
+              setActiveStage(stg);
+            }
+          }}
           canAccessStage2={!!prescription}
           canAccessStage3={true}
         />
@@ -528,26 +548,6 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
               onConcludeSession={handleConcludeSession}
               doctorReport={doctorReport}
               onViewDoctorReport={() => setIsOcrModalOpen(true)}
-            />
-          )}
-
-          {/* Stage 3: Clinical Report */}
-          {activeStage === 3 && (
-            <ClinicalReportStage
-              evaluation={evaluation}
-              sessionReport={sessionReport}
-              patientName={patientName || user?.fullName || 'Patient'}
-              painLevel={painLevel}
-              evaluationSource={evaluationSource}
-              onCopySummary={handleCopySummary}
-              copiedSummary={copiedSummary}
-              onCopyTips={handleCopyTips}
-              copiedTips={copiedTips}
-              onNewSession={() => {
-                setSessionReport(null);
-                setEvaluation(null);
-                setActiveStage(1);
-              }}
             />
           )}
 

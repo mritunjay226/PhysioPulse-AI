@@ -143,7 +143,7 @@ export default function DashboardPage() {
             <span>Start Live Session</span>
           </Link>
           <Link
-            href="/dashboard/report"
+            href="/report"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white hover:bg-slate-50 border border-[#184E34] text-[#184E34] text-xs font-semibold shadow-2xs transition-all cursor-pointer"
           >
             <FileText className="w-3.5 h-3.5" />
@@ -167,7 +167,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <Link
-              href="/dashboard/report"
+              href="/report"
               className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-white"
               title="View Report"
             >
@@ -446,7 +446,7 @@ export default function DashboardPage() {
               Dr. S. Smith, MD (Attending)
             </span>
             <Link
-              href="/dashboard/report"
+              href="/report"
               className="inline-flex items-center gap-1 text-xs font-bold text-[#184E34] hover:underline"
             >
               <span>View Full Diagnosis</span>

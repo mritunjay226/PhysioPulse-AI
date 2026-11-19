@@ -50,11 +50,10 @@ export function Sidebar({ isOpen = false, onClose, onOpenHelp }: SidebarProps) {
       active: pathname === '/dashboard',
     },
     {
-      label: 'Tasks',
-      href: '/dashboard/sessions',
-      icon: CheckSquare,
-      badge: '12+',
-      active: pathname === '/dashboard/sessions',
+      label: 'Report',
+      href: '/report',
+      icon: FileText,
+      active: pathname === '/report' || pathname === '/dashboard/report' || pathname === '/dashboard/sessions',
     },
     {
       label: 'Calendar',

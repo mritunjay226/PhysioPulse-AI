@@ -66,9 +66,9 @@ export function GlobalAppShell({ children }: GlobalAppShellProps) {
     },
     {
       label: 'Report',
-      href: '/dashboard/report',
+      href: '/report',
       icon: FileText,
-      active: pathname === '/dashboard/report' || pathname === '/dashboard/sessions',
+      active: pathname === '/report' || pathname === '/dashboard/report' || pathname === '/dashboard/sessions',
     },
     {
       label: 'Studio',
@@ -339,7 +339,7 @@ export function GlobalAppShell({ children }: GlobalAppShellProps) {
             </Link>
 
             <Link
-              href="/dashboard/report"
+              href="/report"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs transition-colors"
             >
               <FileText className="w-3.5 h-3.5 text-slate-600" />
