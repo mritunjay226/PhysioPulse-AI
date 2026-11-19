@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   CheckSquare,
+  FileText,
   Calendar,
   BarChart3,
   Users,
@@ -42,7 +43,15 @@ export function Sidebar({ isOpen = false, onClose, onOpenHelp }: SidebarProps) {
     }
   };
 
-  const menuItems = [
+  interface MenuItem {
+    label: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+    active: boolean;
+    badge?: string;
+  }
+
+  const menuItems: MenuItem[] = [
     {
       label: 'Dashboard',
       href: '/dashboard',
