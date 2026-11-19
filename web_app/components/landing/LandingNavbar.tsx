@@ -102,6 +102,13 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
               FAQ
             </a>
             <Link
+              href="/dashboard"
+              className="px-3 py-1.5 rounded-lg text-[#184E34] hover:bg-emerald-50 transition-colors font-sans font-bold flex items-center gap-1.5"
+            >
+              <Activity className="w-3.5 h-3.5 text-[#184E34]" />
+              <span>Dashboard</span>
+            </Link>
+            <Link
               href="/demo"
               className="ml-1 px-2.5 py-1 rounded-lg text-emerald-800 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200/80 transition-all font-semibold text-xs flex items-center gap-1.5"
               title="Watch Remotion 1080p Concept Video"
@@ -191,6 +198,17 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
                 <span>FAQ</span>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
               </a>
+              <Link
+                href="/dashboard"
+                onClick={closeMobile}
+                className="px-3.5 py-2.5 rounded-xl bg-emerald-100/70 text-[#184E34] font-bold hover:bg-emerald-200/70 transition-colors flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-[#184E34]" />
+                  <span>Dashboard (Reports & Progress)</span>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-[#184E34]" />
+              </Link>
               <Link
                 href="/demo"
                 onClick={closeMobile}

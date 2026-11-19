@@ -26,6 +26,13 @@ export function SessionBrowserChrome({ onOpenProfile }: SessionBrowserChromeProp
           <ChevronLeft className="w-3.5 h-3.5 text-emerald-600" />
           <span>Home</span>
         </Link>
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#184E34] hover:bg-[#123E28] text-white text-[11px] font-semibold transition-colors shadow-xs"
+          title="Open Dashboard"
+        >
+          <span>Dashboard</span>
+        </Link>
       </div>
 
       {/* Clinical Telemetry Address Pill */}
