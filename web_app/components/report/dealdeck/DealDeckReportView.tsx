@@ -12,11 +12,13 @@ import { CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 interface DealDeckReportViewProps {
   sessionReport?: SessionReport | null;
   patientName?: string;
+  onPrint?: () => void;
 }
 
 export function DealDeckReportView({
   sessionReport,
   patientName,
+  onPrint,
 }: DealDeckReportViewProps) {
   const [showDetails, setShowDetails] = useState(false);
 
@@ -40,6 +42,7 @@ export function DealDeckReportView({
       {/* 1. Header (Title, Date, Search, Notifications & User Badge) */}
       <DealDeckReportHeader
         title="Recovery Report"
+        onPrint={onPrint}
       />
 
       {/* 2. Main Two-Column Asymmetric Grid */}

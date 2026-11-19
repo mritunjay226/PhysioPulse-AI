@@ -10,11 +10,13 @@ import { api } from '@/convex/_generated/api';
 interface DealDeckReportHeaderProps {
   title?: string;
   subtitleDate?: string;
+  onPrint?: () => void;
 }
 
 export function DealDeckReportHeader({
   title = 'Recovery Report',
   subtitleDate,
+  onPrint,
 }: DealDeckReportHeaderProps) {
   const { user } = useUser();
   const convexUser = useQuery(api.users.currentUser);
@@ -55,7 +57,10 @@ export function DealDeckReportHeader({
         {/* Print Report Button */}
         <button
           type="button"
-          onClick={() => window.print()}
+          onClick={() => {
+            if (onPrint) onPrint();
+            else window.print();
+          }}
           className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#184E34] hover:bg-[#123E28] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
           title="Print or Save PDF"
         >
