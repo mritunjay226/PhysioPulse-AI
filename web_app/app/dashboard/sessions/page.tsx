@@ -3,32 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  FileText,
   Activity,
-  CheckCircle2,
-  Calendar,
-  Clock,
-  ArrowUpRight,
   Printer,
   Download,
-  AlertTriangle,
-  RotateCcw,
-  Sparkles,
-  ChevronRight,
-  ShieldCheck,
-  Stethoscope,
-  HeartPulse
+  ChevronRight
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { SessionReport, ClinicalEvaluationOutput } from '@/lib/clinical-engine';
-import { PatientReportView } from '@/components/report/PatientReportView';
+import { SessionReport } from '@/lib/clinical-engine';
+import { DealDeckReportView } from '@/components/report/dealdeck/DealDeckReportView';
 import { DoctorReportView } from '@/components/report/DoctorReportView';
 
 export default function PreviousSessionsReportPage() {
   const convexSessions = useQuery(api.sessions.listSessions, { limit: 10 });
   const [localReport, setLocalReport] = useState<SessionReport | null>(null);
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'patient' | 'doctor'>('patient');
   const [copiedSummary, setCopiedSummary] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -91,7 +79,7 @@ export default function PreviousSessionsReportPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-12">
+    <div className="flex flex-col gap-6 pb-12 w-full max-w-7xl mx-auto">
       {/* Top Breadcrumb & Action Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -127,7 +115,7 @@ export default function PreviousSessionsReportPage() {
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#E5EAE7] hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>Print Clinical Note</span>
+            <span>Print Report</span>
           </button>
           <Link
             href="/session"
@@ -139,7 +127,7 @@ export default function PreviousSessionsReportPage() {
         </div>
       </div>
 
-      {/* View Mode Switcher: Patient vs Orthopedic Doctor */}
+      {/* View Mode Switcher: Patient View (DealDeck Style) vs Orthopedic Doctor View */}
       <div className="flex items-center justify-between bg-white rounded-2xl border border-[#E5EAE7] p-2 shadow-2xs">
         <div className="flex items-center gap-1.5">
           <button
@@ -174,123 +162,26 @@ export default function PreviousSessionsReportPage() {
         )}
       </div>
 
-      {/* Main Content: Session Report Card */}
-      {activeReport ? (
-        <div className="flex flex-col gap-6">
-          {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-white rounded-2xl border border-[#E5EAE7] p-4 shadow-2xs">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase">Patient</span>
-              <p className="text-base font-bold text-slate-900 mt-0.5 capitalize">
-                {activeReport.patient_name}
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl border border-[#E5EAE7] p-4 shadow-2xs">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase">Compliance</span>
-              <p className="text-base font-bold text-emerald-700 mt-0.5">
-                {activeReport.overall_compliance_percent}%
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl border border-[#E5EAE7] p-4 shadow-2xs">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase">Exercises Performed</span>
-              <p className="text-base font-bold text-slate-900 mt-0.5">
-                {activeReport.exercises_performed.length} Protocols
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl border border-[#E5EAE7] p-4 shadow-2xs">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase">Recorded Timestamp</span>
-              <p className="text-xs font-medium text-slate-600 mt-1">
-                {new Date(activeReport.timestamp).toLocaleString()}
-              </p>
-            </div>
-          </div>
-
-          {/* Detailed Exercise Breakdown Table */}
-          <div className="bg-white rounded-3xl border border-[#E5EAE7] p-5.5 shadow-2xs">
-            <h3 className="font-bold text-slate-900 text-base mb-4 font-sans">
-              Kinematic Protocol Performance
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider">
-                    <th className="pb-3 pl-2">Protocol</th>
-                    <th className="pb-3 text-center">Reps (Done/Target)</th>
-                    <th className="pb-3 text-center">Peak ROM vs Target</th>
-                    <th className="pb-3 text-center">Bilateral Symmetry</th>
-                    <th className="pb-3 text-center">Compensations</th>
-                    <th className="pb-3 text-right pr-2">Duration</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                  {activeReport.exercises_performed.map((ex, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-3.5 pl-2 font-bold text-slate-900">
-                        {ex.protocol_name}
-                      </td>
-                      <td className="py-3.5 text-center">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold font-mono">
-                          {ex.completed_reps} / {ex.prescribed_reps}
-                        </span>
-                      </td>
-                      <td className="py-3.5 text-center font-mono">
-                        <span className="text-emerald-700 font-bold">{ex.achieved_peak_rom_degrees}°</span>
-                        <span className="text-slate-400 text-[11px] ml-1">/ {ex.target_rom_degrees}°</span>
-                      </td>
-                      <td className="py-3.5 text-center font-mono font-bold text-slate-800">
-                        {ex.mean_symmetry_percent}%
-                      </td>
-                      <td className="py-3.5 text-center">
-                        {ex.compensation_frames_detected > 0 ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[11px] font-semibold">
-                            <AlertTriangle className="w-3 h-3 text-amber-600" />
-                            <span>{ex.compensation_frames_detected} frames</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-semibold">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            <span>Clean</span>
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 text-right pr-2 font-mono text-slate-500">
-                        {ex.duration_seconds}s
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Render Full Dedicated Report View */}
-          <div className="bg-white rounded-3xl border border-[#E5EAE7] p-6 shadow-2xs">
-            {viewMode === 'patient' ? (
-              <PatientReportView
-                evaluation={null}
-                sessionReport={activeReport}
-                patientName={activeReport.patient_name}
-                painLevel={4}
-                onPrint={handlePrint}
-                onCopyPatientSummary={handleCopySummary}
-                copiedSummary={copiedSummary}
-              />
-            ) : (
-              <DoctorReportView
-                evaluation={null}
-                sessionReport={activeReport}
-                patientName={activeReport.patient_name}
-                painLevel={4}
-                evaluationSource="deterministic_engine"
-                onPrint={handlePrint}
-                onCopySoap={handleCopySummary}
-                copiedSoap={copiedSummary}
-              />
-            )}
-          </div>
+      {/* Main Content: Render DealDeck Report View for Patients */}
+      {viewMode === 'patient' ? (
+        <DealDeckReportView
+          sessionReport={activeReport}
+          patientName={activeReport?.patient_name}
+        />
+      ) : activeReport ? (
+        <div className="bg-white rounded-3xl border border-[#E5EAE7] p-6 shadow-2xs">
+          <DoctorReportView
+            evaluation={null}
+            sessionReport={activeReport}
+            patientName={activeReport.patient_name}
+            painLevel={4}
+            evaluationSource="deterministic_engine"
+            onPrint={handlePrint}
+            onCopySoap={handleCopySummary}
+            copiedSoap={copiedSummary}
+          />
         </div>
       ) : (
-        /* Empty State */
         <div className="rounded-3xl bg-white border border-[#E5EAE7] p-12 text-center shadow-2xs flex flex-col items-center max-w-lg mx-auto">
           <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
             <Activity className="w-7 h-7" />

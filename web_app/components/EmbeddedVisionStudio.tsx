@@ -368,6 +368,12 @@ export interface EmbeddedVisionStudioProps {
  * Standard MediaPipe 33-point Pose Connections & Key Joints
  */
 const POSE_CONNECTIONS: [number, number][] = [
+  // Head & Facial alignment
+  [0, 1], [1, 2], [2, 3], [3, 7], // nose to left eye and ear
+  [0, 4], [4, 5], [5, 6], [6, 8], // nose to right eye and ear
+  [9, 10],                        // mouth
+  [11, 0], [12, 0],               // collarbone/neck to nose
+
   // Torso
   [11, 12], // shoulders
   [11, 23], // left shoulder to hip
@@ -380,6 +386,7 @@ const POSE_CONNECTIONS: [number, number][] = [
   [15, 17], // wrist to pinky
   [15, 19], // wrist to index
   [15, 21], // wrist to thumb
+  [17, 19], // hand contour
 
   // Right Arm
   [12, 14], // right shoulder to elbow
@@ -387,23 +394,21 @@ const POSE_CONNECTIONS: [number, number][] = [
   [16, 18], // wrist to pinky
   [16, 20], // wrist to index
   [16, 22], // wrist to thumb
+  [18, 20], // hand contour
 
   // Left Leg
   [23, 25], // left hip to knee
   [25, 27], // left knee to ankle
   [27, 29], // left ankle to heel
   [27, 31], // left ankle to foot index
+  [29, 31], // foot base
 
   // Right Leg
   [24, 26], // right hip to knee
   [26, 28], // right knee to ankle
   [28, 30], // right ankle to heel
   [28, 32], // right ankle to foot index
-
-  // Head & Facial alignment
-  [0, 1], [1, 2], [2, 3], [3, 7],
-  [0, 4], [4, 5], [5, 6], [6, 8],
-  [9, 10]
+  [30, 32]  // foot base
 ];
 
 const KEY_JOINTS = [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
@@ -427,10 +432,10 @@ function drawClinicalBone(
   p1: { x: number; y: number },
   p2: { x: number; y: number },
   color: string = '#00f0c8',
-  thickness: number = 4,
+  thickness: number = 6,
   glowColor?: string
 ) {
-  const glow = glowColor || (color === '#ef4444' ? 'rgba(239, 68, 68, 0.4)' : color === '#10b981' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(0, 240, 200, 0.38)');
+  const glow = glowColor || (color === '#ef4444' ? 'rgba(239, 68, 68, 0.45)' : color === '#10b981' ? 'rgba(16, 185, 129, 0.45)' : 'rgba(0, 240, 200, 0.45)');
 
   // 1. Wide Outer Glow Layer
   ctx.save();
@@ -443,7 +448,7 @@ function drawClinicalBone(
   ctx.lineJoin = 'round';
   ctx.stroke();
 
-  // 2. Main Clinical Colored Bone
+  // 2. Main Thick Clinical Bone
   ctx.beginPath();
   ctx.moveTo(p1.x, p1.y);
   ctx.lineTo(p2.x, p2.y);
@@ -458,7 +463,7 @@ function drawClinicalBone(
   ctx.moveTo(p1.x, p1.y);
   ctx.lineTo(p2.x, p2.y);
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = Math.max(1.2, thickness - 2.2);
+  ctx.lineWidth = Math.max(1.5, thickness - 3.2);
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.stroke();
@@ -469,7 +474,7 @@ function drawClinicalJoint(
   ctx: CanvasRenderingContext2D,
   p: { x: number; y: number },
   color: string = '#00f0c8',
-  radius: number = 7,
+  radius: number = 9,
   glowColor?: string
 ) {
   const glow = glowColor || (color === '#ef4444' ? 'rgba(239, 68, 68, 0.45)' : color === '#10b981' ? 'rgba(16, 185, 129, 0.45)' : 'rgba(0, 240, 200, 0.45)');
@@ -479,7 +484,7 @@ function drawClinicalJoint(
   ctx.beginPath();
   ctx.arc(p.x, p.y, radius + 4.5, 0, 2 * Math.PI);
   ctx.strokeStyle = glow;
-  ctx.lineWidth = 2.2;
+  ctx.lineWidth = 2.5;
   ctx.stroke();
 
   // 2. Solid Color Center Body
@@ -490,7 +495,7 @@ function drawClinicalJoint(
 
   // 3. Crisp Center White Pinpoint
   ctx.beginPath();
-  ctx.arc(p.x, p.y, Math.max(2, radius - 3.5), 0, 2 * Math.PI);
+  ctx.arc(p.x, p.y, Math.max(2, radius - 4.5), 0, 2 * Math.PI);
   ctx.fillStyle = '#ffffff';
   ctx.fill();
   ctx.restore();
@@ -504,7 +509,7 @@ function drawClinicalGoniometerArc(
   currentAngle: number,
   targetAngle: number,
   isBadForm: boolean = false,
-  radius: number = 46
+  radius: number = 48
 ) {
   const v1 = { x: pt1.x - center.x, y: pt1.y - center.y };
   const v2 = { x: pt2.x - center.x, y: pt2.y - center.y };
@@ -541,7 +546,7 @@ function drawClinicalGoniometerArc(
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
-  // 3. Double concentric celebration rings on target hit (matching Python visualizer.py lines 45-47)
+  // 3. Double concentric celebration rings on target hit
   if (isHit && !isBadForm) {
     ctx.beginPath();
     ctx.arc(center.x, center.y, radius + 8, 0, 2 * Math.PI);
@@ -586,29 +591,27 @@ function drawClinicalGoniometerArc(
   ctx.restore();
 }
 
-function drawGhostSkeleton(
+/**
+ * Default Thin Landmark Skeleton:
+ * Draws all 33 full-body MediaPipe landmarks with thin crisp lines (1.8px) and small node dots.
+ */
+function drawDefaultThinSkeleton(
   ctx: CanvasRenderingContext2D,
   landmarks: any[],
   width: number,
   height: number
 ) {
-  const GHOST_CONNECTIONS = [
-    [11, 12], [11, 23], [12, 24], [23, 24],
-    [12, 14], [14, 16],
-    [11, 13], [13, 15],
-    [24, 26], [26, 28],
-    [23, 25], [25, 27]
-  ];
-
   ctx.save();
-  ctx.strokeStyle = 'rgba(100, 116, 139, 0.38)';
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 1.8;
   ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(0, 240, 200, 0.65)'; // crisp luminous cyan
 
-  for (const [i, j] of GHOST_CONNECTIONS) {
-    const p1 = landmarks[i];
-    const p2 = landmarks[j];
-    if (p1 && p2 && (p1.visibility ?? 1) > 0.32 && (p2.visibility ?? 1) > 0.32) {
+  // 1. Thin connection lines across entire body
+  for (const [startIdx, endIdx] of POSE_CONNECTIONS) {
+    const p1 = landmarks[startIdx];
+    const p2 = landmarks[endIdx];
+    if (p1 && p2 && (p1.visibility ?? 1) > 0.18 && (p2.visibility ?? 1) > 0.18) {
       ctx.beginPath();
       ctx.moveTo(p1.x * width, p1.y * height);
       ctx.lineTo(p2.x * width, p2.y * height);
@@ -616,18 +619,32 @@ function drawGhostSkeleton(
     }
   }
 
-  for (let i = 11; i <= 28; i++) {
+  // 2. Small joint node dots
+  for (let i = 0; i < landmarks.length; i++) {
     const lm = landmarks[i];
-    if (lm && (lm.visibility ?? 1) > 0.32) {
-      ctx.beginPath();
-      ctx.arc(lm.x * width, lm.y * height, 2.5, 0, 2 * Math.PI);
-      ctx.fillStyle = 'rgba(148, 163, 184, 0.45)';
-      ctx.fill();
-    }
+    if (!lm || (lm.visibility ?? 1) < 0.20) continue;
+
+    const x = lm.x * width;
+    const y = lm.y * height;
+    const isFace = i <= 10;
+    const radius = isFace ? 2.5 : 3.5;
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#00f0c8';
+    ctx.lineWidth = 1.2;
+    ctx.fill();
+    ctx.stroke();
   }
   ctx.restore();
 }
 
+/**
+ * Full Clinical Vision Mesh:
+ * 1. Default: thin landmarks across the entire body.
+ * 2. Targeted: thick glowing clinical bones + enlarged joint nodes on targeted body parts for the active exercise.
+ */
 function drawClinicalVisionMesh(
   ctx: CanvasRenderingContext2D,
   landmarks: any[],
@@ -642,21 +659,21 @@ function drawClinicalVisionMesh(
   ctx.clearRect(0, 0, width, height);
   if (!showSkeleton || !landmarks || landmarks.length === 0) return;
 
-  // 1. Subtle background ghost skeleton for body awareness
-  drawGhostSkeleton(ctx, landmarks, width, height);
+  // 1. DEFAULT: Draw full-body THIN landmarks by default
+  drawDefaultThinSkeleton(ctx, landmarks, width, height);
 
   const getPt = (idx: number) => {
     const lm = landmarks[idx];
-    if (!lm || (lm.visibility ?? 1) < 0.25) return null;
+    if (!lm || (lm.visibility ?? 1) < 0.18) return null;
     return { x: lm.x * width, y: lm.y * height };
   };
 
   const isHit = primaryAngle >= targetRom;
   const activeColor = isBadForm ? '#ef4444' : isHit ? '#10b981' : '#00f0c8';
 
-  // 2. Active kinetic chain rendering
+  // 2. TARGETED: Draw THICK glowing clinical bones and enlarged joint nodes on targeted body parts
   if (activeMode === 1) {
-    // Mode 1: Shoulder Abduction
+    // Mode 1: Shoulder Abduction (Target: Shoulder, Upper Arm, Forearm, Torso)
     const rSh = getPt(11);
     const lSh = getPt(12);
     const rEl = getPt(13);
@@ -666,30 +683,40 @@ function drawClinicalVisionMesh(
     const rHip = getPt(23);
     const lHip = getPt(24);
 
-    const rAng = (rHip && rSh && rEl) ? calculateAngleDegrees(rHip, rSh, rEl) : 0;
-    const lAng = (lHip && lSh && lEl) ? calculateAngleDegrees(lHip, lSh, lEl) : 0;
+    // Seated / desk-safe vertical hip reference if hips are below camera view
+    const refL = lHip || (lSh ? { x: lSh.x, y: lSh.y + 160 } : null);
+    const refR = rHip || (rSh ? { x: rSh.x, y: rSh.y + 160 } : null);
 
-    const useLeft = lAng >= rAng - 5 && lSh && lEl && lWr;
+    const lAng = (refL && lSh && lEl) ? calculateAngleDegrees(refL, lSh, lEl) : 0;
+    const rAng = (refR && rSh && rEl) ? calculateAngleDegrees(refR, rSh, rEl) : 0;
+
+    const useLeft = lAng >= rAng - 5 && lSh && lEl;
     const sh = useLeft ? lSh : rSh;
     const el = useLeft ? lEl : rEl;
     const wr = useLeft ? lWr : rWr;
-    const hip = useLeft ? lHip : rHip;
+    const refPt = useLeft ? refL : refR;
 
-    if (sh && el && wr) {
-      if (hip) drawClinicalBone(ctx, hip, sh, 'rgba(0, 240, 200, 0.45)', 2.5);
-      drawClinicalBone(ctx, sh, el, activeColor, 4.5);
-      drawClinicalBone(ctx, el, wr, activeColor, 4.0);
+    if (sh && el) {
+      if (refPt) {
+        drawClinicalBone(ctx, refPt, sh, 'rgba(0, 240, 200, 0.45)', 3.2);
+        drawClinicalJoint(ctx, refPt, 'rgba(0, 240, 200, 0.6)', 6.5);
+      }
+      // Thick targeted arm bones
+      drawClinicalBone(ctx, sh, el, activeColor, 6.0);
+      drawClinicalJoint(ctx, sh, activeColor, 9.5);
+      drawClinicalJoint(ctx, el, activeColor, 8.5);
 
-      if (hip) drawClinicalJoint(ctx, hip, 'rgba(0, 240, 200, 0.5)', 5.5);
-      drawClinicalJoint(ctx, sh, activeColor, 8.5);
-      drawClinicalJoint(ctx, el, activeColor, 7.5);
-      drawClinicalJoint(ctx, wr, activeColor, 6.0);
+      if (wr) {
+        drawClinicalBone(ctx, el, wr, activeColor, 5.0);
+        drawClinicalJoint(ctx, wr, activeColor, 7.0);
+      }
 
-      const refPt = hip || { x: sh.x, y: sh.y + 120 };
-      drawClinicalGoniometerArc(ctx, sh, refPt, el, primaryAngle, targetRom, isBadForm, 48);
+      if (refPt) {
+        drawClinicalGoniometerArc(ctx, sh, refPt, el, primaryAngle, targetRom, isBadForm, 50);
+      }
     }
   } else if (activeMode === 2) {
-    // Mode 2: Knee Squat & Extension
+    // Mode 2: Knee Squat & Extension (Target: Hips, Knees, Ankles)
     const rHip = getPt(23);
     const lHip = getPt(24);
     const rKnee = getPt(25);
@@ -697,26 +724,30 @@ function drawClinicalVisionMesh(
     const rAnkle = getPt(27);
     const lAnkle = getPt(28);
 
-    if (lHip && lKnee && lAnkle) {
-      drawClinicalBone(ctx, lHip, lKnee, activeColor, 4.5);
-      drawClinicalBone(ctx, lKnee, lAnkle, activeColor, 4.0);
-      drawClinicalJoint(ctx, lHip, activeColor, 7.0);
-      drawClinicalJoint(ctx, lKnee, activeColor, 8.5);
-      drawClinicalJoint(ctx, lAnkle, activeColor, 6.0);
-      drawClinicalGoniometerArc(ctx, lKnee, lHip, lAnkle, primaryAngle, targetRom, isBadForm, 46);
+    if (lHip && lKnee) {
+      drawClinicalBone(ctx, lHip, lKnee, activeColor, 6.0);
+      drawClinicalJoint(ctx, lHip, activeColor, 8.0);
+      drawClinicalJoint(ctx, lKnee, activeColor, 9.5);
+      if (lAnkle) {
+        drawClinicalBone(ctx, lKnee, lAnkle, activeColor, 5.0);
+        drawClinicalJoint(ctx, lAnkle, activeColor, 7.0);
+        drawClinicalGoniometerArc(ctx, lKnee, lHip, lAnkle, primaryAngle, targetRom, isBadForm, 50);
+      }
     }
-    if (rHip && rKnee && rAnkle) {
-      drawClinicalBone(ctx, rHip, rKnee, activeColor, 4.5);
-      drawClinicalBone(ctx, rKnee, rAnkle, activeColor, 4.0);
-      drawClinicalJoint(ctx, rHip, activeColor, 7.0);
-      drawClinicalJoint(ctx, rKnee, activeColor, 8.5);
-      drawClinicalJoint(ctx, rAnkle, activeColor, 6.0);
-      if (!lKnee) {
-        drawClinicalGoniometerArc(ctx, rKnee, rHip, rAnkle, primaryAngle, targetRom, isBadForm, 46);
+    if (rHip && rKnee) {
+      drawClinicalBone(ctx, rHip, rKnee, activeColor, 6.0);
+      drawClinicalJoint(ctx, rHip, activeColor, 8.0);
+      drawClinicalJoint(ctx, rKnee, activeColor, 9.5);
+      if (rAnkle) {
+        drawClinicalBone(ctx, rKnee, rAnkle, activeColor, 5.0);
+        drawClinicalJoint(ctx, rAnkle, activeColor, 7.0);
+        if (!lKnee) {
+          drawClinicalGoniometerArc(ctx, rKnee, rHip, rAnkle, primaryAngle, targetRom, isBadForm, 50);
+        }
       }
     }
   } else if (activeMode === 4) {
-    // Mode 4: Bicep Curl / Elbow Flexion
+    // Mode 4: Bicep Curl / Elbow Flexion (Target: Elbow, Shoulder, Wrist)
     const rSh = getPt(11);
     const lSh = getPt(12);
     const rEl = getPt(13);
@@ -726,28 +757,32 @@ function drawClinicalVisionMesh(
     const rHip = getPt(23);
     const lHip = getPt(24);
 
-    const rAng = (rSh && rEl && rWr) ? calculateAngleDegrees(rSh, rEl, rWr) : 0;
     const lAng = (lSh && lEl && lWr) ? calculateAngleDegrees(lSh, lEl, lWr) : 0;
+    const rAng = (rSh && rEl && rWr) ? calculateAngleDegrees(rSh, rEl, rWr) : 0;
 
-    const useLeft = lAng >= rAng - 5 && lSh && lEl && lWr;
+    const useLeft = lAng >= rAng - 5 && lSh && lEl;
     const sh = useLeft ? lSh : rSh;
     const el = useLeft ? lEl : rEl;
     const wr = useLeft ? lWr : rWr;
-    const hip = useLeft ? lHip : rHip;
 
-    if (sh && el && wr) {
-      if (hip) drawClinicalBone(ctx, hip, sh, 'rgba(0, 240, 200, 0.45)', 2.5);
-      drawClinicalBone(ctx, sh, el, activeColor, 4.5);
-      drawClinicalBone(ctx, el, wr, activeColor, 4.0);
+    if (sh && el) {
+      const hip = useLeft ? (lHip || { x: sh.x, y: sh.y + 160 }) : (rHip || { x: sh.x, y: sh.y + 160 });
+      if (hip) {
+        drawClinicalBone(ctx, hip, sh, 'rgba(0, 240, 200, 0.45)', 3.2);
+        drawClinicalJoint(ctx, hip, 'rgba(0, 240, 200, 0.6)', 6.5);
+      }
+      drawClinicalBone(ctx, sh, el, activeColor, 6.0);
+      drawClinicalJoint(ctx, sh, activeColor, 8.5);
+      drawClinicalJoint(ctx, el, activeColor, 9.5);
 
-      drawClinicalJoint(ctx, sh, activeColor, 7.5);
-      drawClinicalJoint(ctx, el, activeColor, 8.5);
-      drawClinicalJoint(ctx, wr, activeColor, 6.0);
-
-      drawClinicalGoniometerArc(ctx, el, sh, wr, primaryAngle, targetRom, isBadForm, 46);
+      if (wr) {
+        drawClinicalBone(ctx, el, wr, activeColor, 5.0);
+        drawClinicalJoint(ctx, wr, activeColor, 7.0);
+        drawClinicalGoniometerArc(ctx, el, sh, wr, primaryAngle, targetRom, isBadForm, 48);
+      }
     }
   } else if (activeMode === 6) {
-    // Mode 6: Hip Abduction
+    // Mode 6: Hip Abduction (Target: Hip, Thigh, Knee)
     const rSh = getPt(11);
     const lSh = getPt(12);
     const rHip = getPt(23);
@@ -760,27 +795,39 @@ function drawClinicalVisionMesh(
     const knee = lKnee || rKnee;
 
     if (hip && sh && knee) {
-      drawClinicalBone(ctx, sh, hip, activeColor, 4.0);
-      drawClinicalBone(ctx, hip, knee, activeColor, 4.5);
-
-      drawClinicalJoint(ctx, sh, activeColor, 7.0);
-      drawClinicalJoint(ctx, hip, activeColor, 8.5);
-      drawClinicalJoint(ctx, knee, activeColor, 7.5);
-
-      drawClinicalGoniometerArc(ctx, hip, sh, knee, primaryAngle, targetRom, isBadForm, 48);
+      drawClinicalBone(ctx, sh, hip, activeColor, 5.0);
+      drawClinicalBone(ctx, hip, knee, activeColor, 6.0);
+      drawClinicalJoint(ctx, sh, activeColor, 7.5);
+      drawClinicalJoint(ctx, hip, activeColor, 9.5);
+      drawClinicalJoint(ctx, knee, activeColor, 8.5);
+      drawClinicalGoniometerArc(ctx, hip, sh, knee, primaryAngle, targetRom, isBadForm, 50);
+    }
+  } else if (activeMode === 3) {
+    // Mode 3: Cervical Spine (Target: Neck, Head)
+    const nose = getPt(0);
+    const lSh = getPt(12);
+    const rSh = getPt(11);
+    if (nose && lSh && rSh) {
+      const midSh = { x: (lSh.x + rSh.x) / 2, y: (lSh.y + rSh.y) / 2 };
+      drawClinicalBone(ctx, midSh, nose, activeColor, 5.5);
+      drawClinicalJoint(ctx, midSh, activeColor, 9.0);
+      drawClinicalJoint(ctx, nose, activeColor, 8.0);
+      drawClinicalGoniometerArc(ctx, midSh, { x: midSh.x, y: midSh.y - 120 }, nose, primaryAngle, targetRom, isBadForm, 46);
     }
   } else {
-    // Default chain
+    // Default targeted arm
     const lSh = getPt(12);
     const lEl = getPt(14);
     const lWr = getPt(16);
-    if (lSh && lEl && lWr) {
-      drawClinicalBone(ctx, lSh, lEl, activeColor, 4.0);
-      drawClinicalBone(ctx, lEl, lWr, activeColor, 3.5);
-      drawClinicalJoint(ctx, lSh, activeColor, 7.0);
-      drawClinicalJoint(ctx, lEl, activeColor, 7.5);
-      drawClinicalJoint(ctx, lWr, activeColor, 6.0);
-      drawClinicalGoniometerArc(ctx, lEl, lSh, lWr, primaryAngle, targetRom, isBadForm, 44);
+    if (lSh && lEl) {
+      drawClinicalBone(ctx, lSh, lEl, activeColor, 5.5);
+      drawClinicalJoint(ctx, lSh, activeColor, 8.5);
+      drawClinicalJoint(ctx, lEl, activeColor, 9.0);
+      if (lWr) {
+        drawClinicalBone(ctx, lEl, lWr, activeColor, 4.5);
+        drawClinicalJoint(ctx, lWr, activeColor, 7.0);
+        drawClinicalGoniometerArc(ctx, lEl, lSh, lWr, primaryAngle, targetRom, isBadForm, 46);
+      }
     }
   }
 }
@@ -1181,11 +1228,11 @@ export function EmbeddedVisionStudio({
         });
 
         pose.setOptions({
-          modelComplexity: 0, // Lite mode: 30+ FPS in browser
+          modelComplexity: 1, // Full mode: superior accuracy for upper body & seated poses
           smoothLandmarks: true,
           enableSegmentation: false,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5
+          minDetectionConfidence: 0.35,
+          minTrackingConfidence: 0.35
         });
 
         pose.onResults((results: any) => {
@@ -1239,8 +1286,11 @@ export function EmbeddedVisionStudio({
             let detectedAngle = 0;
             if (curMode === 1) {
               // Shoulder Abduction: Hip (23/24) -> Shoulder (11/12) -> Elbow (13/14)
-              const leftArm = calculateAngleDegrees(lms[23], lms[11], lms[13]);
-              const rightArm = calculateAngleDegrees(lms[24], lms[12], lms[14]);
+              // Seated / desk-safe fallback: if hips are hidden under table, synthesize downward vertical reference
+              const refL = (lms[23] && (lms[23].visibility ?? 1) > 0.25) ? lms[23] : (lms[11] ? { x: lms[11].x, y: lms[11].y + 0.35 } : null);
+              const refR = (lms[24] && (lms[24].visibility ?? 1) > 0.25) ? lms[24] : (lms[12] ? { x: lms[12].x, y: lms[12].y + 0.35 } : null);
+              const leftArm = (refL && lms[11] && lms[13]) ? calculateAngleDegrees(refL, lms[11], lms[13]) : 0;
+              const rightArm = (refR && lms[12] && lms[14]) ? calculateAngleDegrees(refR, lms[12], lms[14]) : 0;
               detectedAngle = Math.max(leftArm, rightArm);
             } else if (curMode === 2) {
               // Knee Squat: Hip -> Knee -> Ankle

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
+import { GlobalAppShell } from "@/components/layout/GlobalAppShell";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -48,7 +49,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans bg-[#EFF2F6] text-slate-900 selection:bg-emerald-600 selection:text-white">
         <ConvexClientProvider>
-          {children}
+          <GlobalAppShell>
+            {children}
+          </GlobalAppShell>
         </ConvexClientProvider>
       </body>
     </html>
