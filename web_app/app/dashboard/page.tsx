@@ -10,11 +10,8 @@ import {
   Clock,
   Sparkles,
   Flame,
-  ShieldCheck,
-  Award,
   Video,
   FileText,
-  Calendar,
   ChevronRight,
   ArrowUpRight
 } from 'lucide-react';

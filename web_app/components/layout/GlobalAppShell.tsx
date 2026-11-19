@@ -165,15 +165,15 @@ export function GlobalAppShell({ children }: GlobalAppShellProps) {
                 </svg>
               </div>
               <div className="flex flex-col">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <span className="font-extrabold text-slate-900 text-lg tracking-tight font-sans">
-                    Donezo
+                    PhysioPulse
                   </span>
-                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-emerald-100 text-[#184E34] leading-tight">
+                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-[#184E34] leading-tight">
                     AI
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-medium">PhysioPulse Telerehab</span>
+                <span className="text-[10px] text-slate-400 font-medium">Telerehabilitation & Biomechanics</span>
               </div>
             </Link>
 
