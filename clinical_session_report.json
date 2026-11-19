@@ -1,1 +1,21 @@
-{"pending":true,"start_time":1795113208061}
+{
+    "session_id": "session_sub_1795113226",
+    "timestamp": "2026-11-20T00:03:46.783068",
+    "patient_name": "Mritunjay Mishra",
+    "prescribed_diagnosis": "Post-ACL reconstruction rehabilitation utilizing a lower extremity kinetic chain approach. The circuit addresses quadriceps strengthening (Tibiofemoral joint) while integrating lateral pelvic stabilization (Coxofemoral joint) to prevent dynamic knee valgus, anchored by lumbar core stabilization to ensure proper force distribution across the axial skeleton.",
+    "overall_compliance_percent": 0,
+    "exercises_performed": [
+        {
+            "protocol_id": 7,
+            "protocol_name": "P7: Lumbar Spine Flexion / Slip-Disc Rehab (Torso)",
+            "prescribed_reps": 10,
+            "completed_reps": 0,
+            "target_rom_degrees": 30,
+            "achieved_peak_rom_degrees": 15,
+            "mean_symmetry_percent": 100,
+            "compensation_frames_detected": 0,
+            "primary_compensation_issue": "None (Clean Biomechanics)",
+            "duration_seconds": 13.0
+        }
+    ]
+}
