@@ -1444,38 +1444,38 @@ export function EmbeddedVisionStudio({
       )}
 
       {/* 1. TOP HEADER & STUDIO CONTROLS */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 mb-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-3.5 sm:pb-4 border-b border-slate-200 mb-3.5 sm:mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
             <Activity className="w-5 h-5 animate-pulse" />
           </div>
 
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              <span className="text-[11px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase tracking-wider">
                 Exercise {(telemetry?.queue_idx || 0) + 1} of {telemetry?.total_queue || 1}
               </span>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+              <span className="text-[11px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
                 {activeGuide.targetJoint}
               </span>
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-[11px] sm:text-xs text-slate-500 font-medium">
                 Goal: <strong className="text-slate-900 font-bold">{targetReps} Reps</strong> • Target ROM: <strong className="text-emerald-700 font-bold">{telemetry?.target_rom || activeGuide.targetRom}°</strong>
               </span>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-sans mt-0.5">
+            <h2 className="text-lg sm:text-2xl font-extrabold text-slate-900 tracking-tight font-sans mt-0.5">
               {activeGuide.title}
             </h2>
           </div>
         </div>
 
         {/* Studio Top Control Buttons */}
-        <div className="flex items-center gap-2 flex-wrap self-start sm:self-center">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap self-start sm:self-center w-full sm:w-auto">
           {/* Camera Source Selector Tabs */}
-          <div className="inline-flex items-center p-0.5 rounded-xl bg-slate-100 border border-slate-200 text-xs">
+          <div className="inline-flex items-center p-0.5 rounded-xl bg-slate-100 border border-slate-200 text-xs overflow-x-auto no-scrollbar max-w-full">
             <button
               onClick={() => setCameraMode('webcam')}
-              className={`px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-2 sm:px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 shrink-0 ${
                 cameraMode === 'webcam'
                   ? 'bg-white text-emerald-800 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -1488,7 +1488,7 @@ export function EmbeddedVisionStudio({
 
             <button
               onClick={() => setCameraMode('simulation')}
-              className={`px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-2 sm:px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 shrink-0 ${
                 cameraMode === 'simulation'
                   ? 'bg-white text-emerald-800 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -1502,7 +1502,7 @@ export function EmbeddedVisionStudio({
             {isLocalHost && (
               <button
                 onClick={() => setCameraMode('stream')}
-                className={`px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-2 sm:px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1 sm:gap-1.5 shrink-0 ${
                   cameraMode === 'stream'
                     ? 'bg-white text-emerald-800 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -1517,7 +1517,7 @@ export function EmbeddedVisionStudio({
 
           <button
             onClick={() => setIsGuideOpen(true)}
-            className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+            className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs shrink-0"
             title="Open Exercise Technique & Posture Guide"
           >
             <BookOpen className="w-3.5 h-3.5 text-emerald-700" />
@@ -1526,7 +1526,7 @@ export function EmbeddedVisionStudio({
 
           <button
             onClick={handleToggleSkeleton}
-            className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5 ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 ${
               showSkeleton
                 ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                 : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
@@ -1539,7 +1539,7 @@ export function EmbeddedVisionStudio({
 
           <button
             onClick={() => setAudioEnabled(!audioEnabled)}
-            className={`p-2 rounded-xl border text-xs transition-colors cursor-pointer ${
+            className={`p-1.5 sm:p-2 rounded-xl border text-xs transition-colors cursor-pointer shrink-0 ${
               audioEnabled
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 : 'bg-slate-100 text-slate-400 border-slate-200'
@@ -1551,7 +1551,7 @@ export function EmbeddedVisionStudio({
 
           <button
             onClick={handleManualReconnect}
-            className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs transition-colors cursor-pointer shadow-2xs"
+            className="p-1.5 sm:p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs transition-colors cursor-pointer shadow-2xs shrink-0"
             title="Refresh Camera Feed"
           >
             <RefreshCw className="w-4 h-4" />
@@ -1559,7 +1559,7 @@ export function EmbeddedVisionStudio({
 
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs transition-colors cursor-pointer shadow-2xs"
+            className="p-1.5 sm:p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs transition-colors cursor-pointer shadow-2xs shrink-0"
             title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -1568,7 +1568,7 @@ export function EmbeddedVisionStudio({
           {isModal && onCloseModal && (
             <button
               onClick={onCloseModal}
-              className="p-2 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-600 border border-slate-200 text-xs transition-colors cursor-pointer shadow-2xs"
+              className="p-1.5 sm:p-2 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-600 border border-slate-200 text-xs transition-colors cursor-pointer shadow-2xs shrink-0"
               title="Close Camera Window"
             >
               <X className="w-4 h-4" />
@@ -1578,11 +1578,11 @@ export function EmbeddedVisionStudio({
       </div>
 
       {/* 2. PROMINENT ACTIVE MOVEMENT DIRECTIVE BANNER (What to do vs What to avoid) */}
-      <div className="mb-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3.5">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 w-full">
+      <div className="mb-3.5 sm:mb-4 p-3 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 sm:gap-3 w-full">
           {/* Action Directive (What to do) */}
-          <div className="md:col-span-7 bg-white p-3.5 rounded-xl border border-emerald-200 flex items-start gap-3 shadow-2xs">
-            <span className="text-[11px] font-bold uppercase px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 shrink-0">
+          <div className="md:col-span-7 bg-white p-3 sm:p-3.5 rounded-xl border border-emerald-200 flex items-start gap-2.5 sm:gap-3 shadow-2xs">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-emerald-100 text-emerald-800 shrink-0">
               👉 What to do
             </span>
             <p className="text-xs sm:text-sm text-slate-900 font-semibold leading-relaxed">
@@ -1591,8 +1591,8 @@ export function EmbeddedVisionStudio({
           </div>
 
           {/* Avoid Directive (What to avoid) */}
-          <div className="md:col-span-5 bg-amber-50/80 p-3.5 rounded-xl border border-amber-200 flex items-start gap-3 shadow-2xs">
-            <span className="text-[11px] font-bold uppercase px-2.5 py-1 rounded-md bg-amber-100 text-amber-900 shrink-0">
+          <div className="md:col-span-5 bg-amber-50/80 p-3 sm:p-3.5 rounded-xl border border-amber-200 flex items-start gap-2.5 sm:gap-3 shadow-2xs">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-amber-100 text-amber-900 shrink-0">
               ⚠️ Avoid
             </span>
             <p className="text-xs sm:text-sm text-amber-950 font-medium leading-relaxed">
@@ -1764,22 +1764,24 @@ export function EmbeddedVisionStudio({
           </div>
 
           {/* Under-Camera Controls & Feedback Bar */}
-          <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs">
-            <div className="flex items-center gap-2 text-slate-700">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-bold text-xs text-slate-800">
-                AI Clinical Coach Active
-              </span>
-              <span className="text-slate-400">•</span>
-              <span className="text-xs text-slate-600 font-medium italic">
-                "{telemetry?.feedback_text || 'Perform the exercise smoothly and maintain clean alignment.'}"
-              </span>
+          <div className="mt-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50 p-3 sm:p-3.5 rounded-2xl border border-slate-200 text-xs">
+            <div className="flex items-center gap-2 text-slate-700 min-w-0">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <div className="min-w-0">
+                <span className="font-bold text-xs text-slate-800">
+                  AI Clinical Coach Active
+                </span>
+                <span className="text-slate-400 mx-1.5 hidden xs:inline">•</span>
+                <span className="text-xs text-slate-600 font-medium italic block xs:inline truncate">
+                  "{telemetry?.feedback_text || 'Perform the exercise smoothly and maintain clean alignment.'}"
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap justify-end sm:justify-start shrink-0">
               <button
                 onClick={handleManualAddRep}
-                className="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] sm:text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
                 title="Manually log a completed repetition"
               >
                 <Check className="w-3.5 h-3.5 text-emerald-600" />
@@ -1788,7 +1790,7 @@ export function EmbeddedVisionStudio({
 
               <button
                 onClick={handleSkipExercise}
-                className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-[11px] sm:text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
                 title="Skip this protocol and move to next"
               >
                 <SkipForward className="w-3.5 h-3.5 text-slate-500" />
@@ -1797,11 +1799,11 @@ export function EmbeddedVisionStudio({
 
               <button
                 onClick={handleFinishEarly}
-                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] sm:text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
                 title="Conclude session and generate clinical assessment"
               >
                 <StopCircle className="w-3.5 h-3.5 text-white" />
-                <span>Save &amp; Finish Session</span>
+                <span>Save &amp; Finish</span>
               </button>
             </div>
           </div>
@@ -1811,7 +1813,7 @@ export function EmbeddedVisionStudio({
         <div className="lg:col-span-4 space-y-4">
           
           {/* CARD 1: MASSIVE REP COUNTER (First priority - visible from 10 feet away!) */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
             <div className="flex items-center justify-between text-xs text-slate-500 mb-2 font-semibold">
               <span className="uppercase tracking-wider text-[11px] font-bold">
                 REPETITION PROGRESS
@@ -1824,15 +1826,15 @@ export function EmbeddedVisionStudio({
             {/* Giant Rep Number */}
             <div className="flex items-baseline justify-between mb-3">
               <div className="flex items-baseline gap-2">
-                <span className="text-7xl font-black text-emerald-600 tracking-tight font-sans">
+                <span className="text-5xl xs:text-6xl sm:text-7xl font-black text-emerald-600 tracking-tight font-sans">
                   {currentReps}
                 </span>
-                <span className="text-base font-bold text-slate-400 uppercase tracking-wide">
+                <span className="text-sm sm:text-base font-bold text-slate-400 uppercase tracking-wide">
                   reps
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-base font-extrabold text-slate-900 block font-sans">
+                <span className="text-sm sm:text-base font-extrabold text-slate-900 block font-sans">
                   / {targetReps} Target
                 </span>
                 <span className="text-xs font-bold text-emerald-700">
@@ -1842,7 +1844,7 @@ export function EmbeddedVisionStudio({
             </div>
 
             {/* Thick Progress Bar */}
-            <div className="w-full bg-slate-100 h-3.5 rounded-full overflow-hidden p-0.5 border border-slate-200">
+            <div className="w-full bg-slate-100 h-3 sm:h-3.5 rounded-full overflow-hidden p-0.5 border border-slate-200">
               <div
                 className="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}

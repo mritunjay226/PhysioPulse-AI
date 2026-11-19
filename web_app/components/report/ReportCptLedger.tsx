@@ -22,10 +22,10 @@ export interface ReportCptLedgerProps {
 
 export function ReportCptLedger({ cptData }: ReportCptLedgerProps) {
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-7 shadow-sm theme-card">
+    <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 shadow-sm theme-card">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
             <DollarSign className="w-4 h-4 stroke-[2.5]" />
           </div>
           <div>
@@ -46,38 +46,38 @@ export function ReportCptLedger({ cptData }: ReportCptLedgerProps) {
       </div>
 
       {/* ICD-10 Diagnosis Summary */}
-      <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-100 mb-4 font-sans text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="bg-slate-50/70 p-3 sm:p-3.5 rounded-xl border border-slate-100 mb-4 font-sans text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <span className="text-[10px] text-slate-400 font-mono uppercase block">Primary Clinical ICD-10 Indication</span>
           <span className="font-bold text-slate-800 text-sm mt-0.5 block">{cptData.diagnosis_name}</span>
         </div>
-        <span className="font-mono font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 text-xs self-start sm:self-auto">
+        <span className="font-mono font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 text-xs self-start sm:self-auto shrink-0">
           {cptData.icd10_code}
         </span>
       </div>
 
       {/* CPT Codes Ledger Table */}
-      <div className="border border-slate-200 rounded-xl overflow-hidden font-sans">
-        <table className="w-full text-left text-xs">
+      <div className="border border-slate-200 rounded-xl overflow-x-auto font-sans">
+        <table className="w-full text-left text-xs min-w-[480px]">
           <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-[10px] uppercase">
             <tr>
-              <th className="py-2.5 px-4 font-bold">CPT Code</th>
-              <th className="py-2.5 px-4 font-bold">Service Description</th>
-              <th className="py-2.5 px-4 font-bold">Status</th>
-              <th className="py-2.5 px-4 font-bold text-right">Reimbursement</th>
+              <th className="py-2.5 px-3.5 sm:px-4 font-bold">CPT Code</th>
+              <th className="py-2.5 px-3.5 sm:px-4 font-bold">Service Description</th>
+              <th className="py-2.5 px-3.5 sm:px-4 font-bold">Status</th>
+              <th className="py-2.5 px-3.5 sm:px-4 font-bold text-right">Reimbursement</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {cptData.codes.map((item, idx) => (
               <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                <td className="py-3 px-4 font-mono font-bold text-emerald-700">{item.code}</td>
-                <td className="py-3 px-4 text-slate-700 leading-snug">{item.description}</td>
-                <td className="py-3 px-4">
+                <td className="py-3 px-3.5 sm:px-4 font-mono font-bold text-emerald-700">{item.code}</td>
+                <td className="py-3 px-3.5 sm:px-4 text-slate-700 leading-snug">{item.description}</td>
+                <td className="py-3 px-3.5 sm:px-4">
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-medium">
                     {item.status}
                   </span>
                 </td>
-                <td className="py-3 px-4 font-mono font-bold text-slate-900 text-right">
+                <td className="py-3 px-3.5 sm:px-4 font-mono font-bold text-slate-900 text-right">
                   ${item.reimbursement.toFixed(2)}
                 </td>
               </tr>

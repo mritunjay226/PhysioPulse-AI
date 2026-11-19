@@ -15,10 +15,10 @@ export interface ReportKinematicVitalsProps {
 
 export function ReportKinematicVitals({ vitals }: ReportKinematicVitalsProps) {
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-7 shadow-sm theme-card">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+    <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 shadow-sm theme-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3.5 sm:pb-4 border-b border-slate-100 mb-4 sm:mb-5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
             <Activity className="w-4 h-4 stroke-[2.5]" />
           </div>
           <div>
@@ -30,13 +30,13 @@ export function ReportKinematicVitals({ vitals }: ReportKinematicVitalsProps) {
             </p>
           </div>
         </div>
-        <span className="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+        <span className="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 self-start sm:self-auto shrink-0">
           Optimal Closed-Loop Trajectory
         </span>
       </div>
 
       {/* 6-box Vitals Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 font-sans">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3 font-sans">
         {/* Metric 1: Symmetry */}
         <div className="bg-slate-50/70 p-3.5 rounded-xl border border-slate-100 flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-400 mb-2">

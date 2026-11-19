@@ -112,11 +112,11 @@ export function DoctorReportView({
   return (
     <div className="space-y-6 doctor-report-container font-sans text-slate-900">
       {/* 1. Official Clinical Letterhead & Meta Header */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-sm">
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-sm">
         {/* Top Letterhead Bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-200">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-slate-900/5 border border-slate-200 p-2 flex items-center justify-center shrink-0 shadow-2xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-slate-200">
+          <div className="flex items-center gap-3 sm:gap-3.5">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-slate-900/5 border border-slate-200 p-2 flex items-center justify-center shrink-0 shadow-2xs">
               <Image
                 src="/logo.svg"
                 alt="PhysioPulse AI Logo"
@@ -126,8 +126,8 @@ export function DoctorReportView({
               />
             </div>
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-sans">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <h1 className="text-lg sm:text-2xl font-extrabold text-slate-900 tracking-tight font-sans">
                   Clinical Kinematic Evaluation & Discharge Report
                 </h1>
                 <span className="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold">
@@ -144,10 +144,10 @@ export function DoctorReportView({
           </div>
 
           {/* Action Toolbar */}
-          <div className="flex items-center gap-2 no-print flex-wrap">
+          <div className="flex items-center gap-2 no-print flex-wrap w-full sm:w-auto">
             <button
               onClick={() => setIsSoapModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-semibold transition-all shadow-xs cursor-pointer"
               title="View Formal Physical Therapy Clinical SOAP Note"
             >
               <FileText className="w-3.5 h-3.5 text-teal-600" />
@@ -156,7 +156,7 @@ export function DoctorReportView({
 
             <button
               onClick={onCopySoap}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold transition-all shadow-xs cursor-pointer"
               title="Copy formatted SOAP Note for EHR / EMR"
             >
               {copiedSoap ? (
@@ -167,14 +167,14 @@ export function DoctorReportView({
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Copy SOAP for EHR</span>
+                  <span>Copy SOAP</span>
                 </>
               )}
             </button>
 
             <button
               onClick={onPrint}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
+              className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
               title="Print official medical letterhead"
             >
               <Printer className="w-3.5 h-3.5" />
@@ -184,8 +184,8 @@ export function DoctorReportView({
         </div>
 
         {/* Clinical Patient & Diagnostic Meta Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 font-sans text-xs">
-          <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-4 sm:mt-5 font-sans text-xs">
+          <div className="bg-slate-50/80 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200/80">
             <span className="text-[10px] text-slate-400 block font-mono uppercase font-bold">Patient Record</span>
             <span className="font-extrabold text-slate-900 text-sm mt-0.5 block truncate">
               {pName}
@@ -193,7 +193,7 @@ export function DoctorReportView({
             <span className="text-[10px] text-slate-500 font-mono">PID #PP-88214 · Age 34</span>
           </div>
 
-          <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80">
+          <div className="bg-slate-50/80 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200/80">
             <span className="text-[10px] text-slate-400 block font-mono uppercase font-bold">Subjective VAS Pain</span>
             <div className="flex items-baseline gap-1 mt-0.5">
               <span className="font-extrabold text-slate-900 text-sm font-mono">{painLevel}/10</span>
@@ -202,25 +202,25 @@ export function DoctorReportView({
             <span className="text-[10px] text-amber-800 font-medium block truncate">{getPainLabel(painLevel)}</span>
           </div>
 
-          <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80">
+          <div className="bg-slate-50/80 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200/80">
             <span className="text-[10px] text-slate-400 block font-mono uppercase font-bold">Attending Clinician</span>
-            <span className="font-extrabold text-slate-900 text-sm mt-0.5 block">
+            <span className="font-extrabold text-slate-900 text-sm mt-0.5 block truncate">
               Dr. S. Smith, MD
             </span>
-            <span className="text-[10px] text-slate-500">Board-Certified Physiatrist · NPI #1982736410</span>
+            <span className="text-[10px] text-slate-500 block truncate">Board-Certified Physiatrist · NPI #1982736410</span>
           </div>
 
-          <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80">
+          <div className="bg-slate-50/80 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200/80">
             <span className="text-[10px] text-slate-400 block font-mono uppercase font-bold">Encounter Timestamp</span>
             <span className="font-extrabold text-slate-900 text-sm mt-0.5 block font-mono">
               {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
-            <span className="text-[10px] text-emerald-700 font-medium">Optical Telemetry Validated 100%</span>
+            <span className="text-[10px] text-emerald-700 font-medium block truncate">Optical Telemetry Validated 100%</span>
           </div>
         </div>
 
         {/* Primary ICD-10 Indication Banner */}
-        <div className="mt-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+        <div className="mt-3 sm:mt-4 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div>
             <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block">
               Primary Orthopedic Indication & Diagnostic Code
@@ -235,11 +235,11 @@ export function DoctorReportView({
         </div>
 
         {/* Executive Medical AI Synthesis Card */}
-        <div className="mt-5 p-5 rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white to-slate-50/80 border border-emerald-200 shadow-2xs relative overflow-hidden">
+        <div className="mt-4 sm:mt-5 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-50/70 via-white to-slate-50/80 border border-emerald-200 shadow-2xs relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-600" />
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 pb-3 border-b border-emerald-100">
-            <div className="flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 mb-3 pb-3 border-b border-emerald-100">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
               <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wider font-sans">
                 Physiatrist Clinical Synthesis & Kinetic Evaluation
               </h3>
@@ -263,7 +263,7 @@ export function DoctorReportView({
               <span className="text-[10px] font-bold uppercase text-slate-600 font-mono block mb-2">
                 Clinical Next-Session Directives & Kinetic Progression:
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5">
                 {evaluation.next_session_adjustments.map((adj, i) => (
                   <div key={i} className="flex items-start gap-2 text-xs text-slate-700 bg-white p-2.5 rounded-xl border border-emerald-100 shadow-2xs">
                     <span className="text-emerald-700 font-bold font-mono text-xs">0{i + 1}.</span>
@@ -289,10 +289,10 @@ export function DoctorReportView({
       <ReportCptLedger cptData={cptData} />
 
       {/* 6. Physician Attestation & Digital Sign-off Block */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 mb-4">
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-3.5 sm:pb-4 border-b border-slate-100 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700">
+            <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0">
               <Award className="w-4 h-4" />
             </div>
             <div>
@@ -304,25 +304,25 @@ export function DoctorReportView({
               </p>
             </div>
           </div>
-          <span className="text-[11px] font-mono font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
+          <span className="text-[11px] font-mono font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 self-start sm:self-auto shrink-0">
             Digitally Signed & Validated
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-sans">
-          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs font-sans">
+          <div className="p-3 sm:p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
             <span className="text-[10px] text-slate-400 font-mono uppercase block">Attending Physiatrist</span>
             <span className="font-bold text-slate-900 block mt-1">Dr. S. Smith, MD, FAAPMR</span>
             <span className="text-[11px] text-slate-500">Board-Certified Physical Medicine & Rehab</span>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
+          <div className="p-3 sm:p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
             <span className="text-[10px] text-slate-400 font-mono uppercase block">Licensing & Credentials</span>
             <span className="font-mono font-bold text-slate-900 block mt-1">NPI: 1982736410</span>
             <span className="text-[11px] text-slate-500">State Medical Board License #MD-44910</span>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
+          <div className="p-3 sm:p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
             <span className="text-[10px] text-slate-400 font-mono uppercase block">Sign-off Timestamp</span>
             <span className="font-mono font-bold text-emerald-700 block mt-1">
               {new Date().toISOString().replace('T', ' ').substring(0, 19)} UTC
@@ -334,9 +334,9 @@ export function DoctorReportView({
 
       {/* SOAP Note Modal */}
       {isSoapModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-          <div className="relative w-full max-w-4xl bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 text-slate-900 shadow-2xl my-auto font-sans max-h-[92vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200 mb-6">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 lg:p-6 overflow-y-auto">
+          <div className="relative w-full max-w-4xl bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-slate-900 shadow-2xl my-auto font-sans max-h-[88dvh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3.5 sm:pb-4 border-b border-slate-200 mb-4 sm:mb-6 gap-2">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
                   <FileText className="w-5 h-5" />

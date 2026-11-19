@@ -197,14 +197,14 @@ export function PatientReportView({
   return (
     <div className="space-y-6 patient-report-container font-sans text-slate-900">
       {/* 1. Welcoming Hero Celebration Card */}
-      <div className="bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-white border border-emerald-200/90 rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
+      <div className="bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-white border border-emerald-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm relative overflow-hidden">
         {/* Soft background glow decoration */}
         <div className="absolute -top-16 -right-16 w-64 h-64 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider font-mono">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                 Session Complete!
@@ -214,21 +214,21 @@ export function PatientReportView({
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
               Great work today, {pName.split(' ')[0]}! 🌟
             </h1>
 
-            <p className="text-slate-600 text-sm sm:text-base max-w-2xl leading-relaxed">
+            <p className="text-slate-600 text-xs sm:text-base max-w-2xl leading-relaxed">
               You completed all your prescribed physical therapy movements with outstanding form.
               Here is your easy-to-read summary showing how your body moved and simple steps for today.
             </p>
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex items-center gap-2.5 shrink-0 no-print flex-wrap">
+          <div className="flex items-center gap-2.5 shrink-0 no-print flex-wrap w-full sm:w-auto">
             <button
               onClick={onPrint}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer hover:border-slate-300"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer hover:border-slate-300"
               title="Print your patient take-home recovery sheet"
             >
               <Printer className="w-4 h-4 text-slate-600" />
@@ -237,7 +237,7 @@ export function PatientReportView({
 
             <button
               onClick={onCopyPatientSummary}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer shadow-emerald-600/20"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer shadow-emerald-600/20"
               title="Copy friendly recovery notes to clipboard"
             >
               {copiedSummary ? (
@@ -256,9 +256,9 @@ export function PatientReportView({
         </div>
 
         {/* 4 Visual Key Vital Badges */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-6 pt-6 border-t border-emerald-100">
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-emerald-100">
           {/* Card 1: Overall Movement Score */}
-          <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-emerald-200/70 shadow-2xs">
+          <div className="bg-white/90 backdrop-blur-xs p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-emerald-200/70 shadow-2xs">
             <div className="flex items-center justify-between text-slate-400 mb-1">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Movement Quality</span>
               <Trophy className="w-4 h-4 text-amber-500" />
@@ -275,7 +275,7 @@ export function PatientReportView({
           </div>
 
           {/* Card 2: Goal Completion */}
-          <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-emerald-200/70 shadow-2xs">
+          <div className="bg-white/90 backdrop-blur-xs p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-emerald-200/70 shadow-2xs">
             <div className="flex items-center justify-between text-slate-400 mb-1">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Exercises Finished</span>
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -291,7 +291,7 @@ export function PatientReportView({
           </div>
 
           {/* Card 3: Reach Progress */}
-          <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-emerald-200/70 shadow-2xs">
+          <div className="bg-white/90 backdrop-blur-xs p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-emerald-200/70 shadow-2xs">
             <div className="flex items-center justify-between text-slate-400 mb-1">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reach Progress</span>
               <TrendingUp className="w-4 h-4 text-teal-600" />
@@ -307,7 +307,7 @@ export function PatientReportView({
           </div>
 
           {/* Card 4: Left-Right Balance */}
-          <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-emerald-200/70 shadow-2xs">
+          <div className="bg-white/90 backdrop-blur-xs p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-emerald-200/70 shadow-2xs">
             <div className="flex items-center justify-between text-slate-400 mb-1">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Left-Right Balance</span>
               <Shield className="w-4 h-4 text-sky-600" />
@@ -325,7 +325,7 @@ export function PatientReportView({
       </div>
 
       {/* 2. Plain English Summary: "What This Means For You" */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-sm">
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 shadow-sm">
         <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
           <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
             <Heart className="w-5 h-5 stroke-[2.2]" />
@@ -374,7 +374,7 @@ export function PatientReportView({
       </div>
 
       {/* 3. Your Exercises Today (Plain-Language Visual Cards) */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-sm">
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5 pb-3 border-b border-slate-100">
           <div>
             <h2 className="text-lg font-bold text-slate-900 tracking-tight">
@@ -479,7 +479,7 @@ export function PatientReportView({
       </div>
 
       {/* 4. Interactive "My Daily Recovery Plan" (Patient Checklist) */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-sm">
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 shrink-0">
@@ -559,7 +559,7 @@ export function PatientReportView({
       </div>
 
       {/* 5. 14-Day Progress Journey Roadmap */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-sm">
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 shadow-sm">
         <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
           <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 shrink-0">
             <Calendar className="w-5 h-5 stroke-[2.2]" />
@@ -606,10 +606,10 @@ export function PatientReportView({
       </div>
 
       {/* 6. Care Team Support & When to Call Reassurance */}
-      <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-emerald-700" />
+            <Shield className="w-4 h-4 text-emerald-700 shrink-0" />
             <h3 className="text-sm font-bold text-slate-900">
               Questions About Your Physical Therapy?
             </h3>
@@ -619,10 +619,10 @@ export function PatientReportView({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0 no-print">
+        <div className="flex items-center gap-2.5 shrink-0 no-print w-full sm:w-auto">
           <button
             onClick={() => alert(`Message sent to Dr. S. Smith's physical medicine desk. You will receive an update in the patient portal within 2 hours.`)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
           >
             <MessageSquare className="w-3.5 h-3.5" />
             <span>Message Care Team</span>

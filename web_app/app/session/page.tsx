@@ -451,9 +451,9 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
         <SessionBrowserChrome onOpenProfile={() => setIsProfileModalOpen(true)} />
 
         {/* 2. Authenticated Patient Bar */}
-        <div className="px-6 py-2.5 bg-slate-50 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+        <div className="px-4 sm:px-6 py-2.5 bg-slate-50 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             <span className="font-semibold text-slate-700">Authenticated Patient:</span>
             <span className="font-bold text-slate-900 font-sans">
               {patientName || user?.fullName || 'Active Patient'}
@@ -463,7 +463,7 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-start sm:self-auto">
             <button
               onClick={() => setIsProfileModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold transition cursor-pointer shadow-2xs text-[11px]"
@@ -483,7 +483,7 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
         />
 
         {/* 4. Main Workbench Canvas */}
-        <main className="bg-slate-50 min-h-[calc(100vh-140px)] p-4 sm:p-6 lg:p-8">
+        <main className="bg-slate-50 min-h-[calc(100vh-140px)] p-3 sm:p-6 lg:p-8">
           {sessionError && (
             <div className="mb-6 p-4 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 flex items-center gap-3 shadow-md">
               <AlertTriangle className="w-5 h-5 flex-shrink-0 text-rose-400" />

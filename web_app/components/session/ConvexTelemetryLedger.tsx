@@ -21,14 +21,14 @@ export function ConvexTelemetryLedger() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-5 py-3.5 flex items-center justify-between bg-slate-50 hover:bg-slate-100/80 transition-colors text-left cursor-pointer border-b border-slate-200/70"
+        className="w-full px-3.5 sm:px-5 py-3 sm:py-3.5 flex items-center justify-between bg-slate-50 hover:bg-slate-100/80 transition-colors text-left cursor-pointer border-b border-slate-200/70"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center shrink-0">
+        <div className="flex items-start sm:items-center gap-2.5 sm:gap-3">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
             <Database className="w-4 h-4" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <span className="text-xs font-bold text-slate-800">Convex Real-Time Clinical Cloud</span>
               <span className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -41,7 +41,7 @@ export function ConvexTelemetryLedger() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-600 bg-white px-3 py-1 rounded-lg border border-slate-200">
             <span>{totalSessions} Sessions</span>
             <span className="text-slate-300">|</span>
@@ -62,7 +62,7 @@ export function ConvexTelemetryLedger() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="p-5 space-y-4 overflow-hidden"
+            className="p-3.5 sm:p-5 space-y-3.5 sm:space-y-4 overflow-hidden"
           >
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

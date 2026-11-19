@@ -210,13 +210,13 @@ ${(activeEvaluation?.next_session_adjustments || ['Maintain current range of mot
   return (
     <div className="space-y-6">
       {/* 1. REPORT AUDIENCE SWITCHER & GLOBAL CONTROL BAR */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm no-print">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-sm no-print">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
           {/* Accessible Tab Switcher */}
           <div
             role="tablist"
             aria-label="Report Audience Selection"
-            className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100 border border-slate-200/80 max-w-full overflow-x-auto"
+            className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100 border border-slate-200/80 max-w-full overflow-x-auto no-scrollbar"
           >
             {/* Tab 1: Patient Mode */}
             <button
@@ -226,14 +226,14 @@ ${(activeEvaluation?.next_session_adjustments || ['Maintain current range of mot
               aria-selected={reportView === 'patient'}
               aria-controls="patient-report-panel"
               onClick={() => setReportView('patient')}
-              className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer select-none relative ${
+              className={`flex items-center gap-2 sm:gap-2.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer select-none relative shrink-0 ${
                 reportView === 'patient'
                   ? 'bg-white text-emerald-950 shadow-sm border border-emerald-200/80'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50 border border-transparent'
               }`}
             >
               <div
-                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                   reportView === 'patient' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
                 }`}
               >
@@ -258,14 +258,14 @@ ${(activeEvaluation?.next_session_adjustments || ['Maintain current range of mot
               aria-selected={reportView === 'doctor'}
               aria-controls="doctor-report-panel"
               onClick={() => setReportView('doctor')}
-              className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer select-none relative ${
+              className={`flex items-center gap-2 sm:gap-2.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer select-none relative shrink-0 ${
                 reportView === 'doctor'
                   ? 'bg-white text-slate-950 shadow-sm border border-slate-300/80'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/50 border border-transparent'
               }`}
             >
               <div
-                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                   reportView === 'doctor' ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'
                 }`}
               >
@@ -284,15 +284,15 @@ ${(activeEvaluation?.next_session_adjustments || ['Maintain current range of mot
           </div>
 
           {/* Quick Controls & Real Database Session Switcher */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap w-full md:w-auto justify-start md:justify-end">
             {/* Real Convex Session Selector */}
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs">
-              <Database className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="text-slate-400 font-medium">Session:</span>
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs max-w-full">
+              <Database className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span className="text-slate-400 font-medium shrink-0">Session:</span>
               <select
                 value={selectedCase}
                 onChange={(e) => setSelectedCase(e.target.value)}
-                className="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer text-xs max-w-[200px] truncate"
+                className="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer text-xs max-w-[140px] xs:max-w-[180px] sm:max-w-[200px] truncate"
               >
                 {hasLiveSession && <option value="current">Current Live Session</option>}
                 {convexSessions && convexSessions.length > 0 ? (
@@ -310,17 +310,18 @@ ${(activeEvaluation?.next_session_adjustments || ['Maintain current range of mot
             {/* Print Button */}
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold transition-all shadow-xs cursor-pointer"
               title={reportView === 'patient' ? 'Print Patient Recovery Summary' : 'Print Official Medical Letterhead'}
             >
               <Printer className="w-3.5 h-3.5 text-slate-500" />
-              <span>Print {reportView === 'patient' ? 'Patient Guide' : 'Clinical Discharge'}</span>
+              <span className="hidden xs:inline">Print {reportView === 'patient' ? 'Patient Guide' : 'Clinical Discharge'}</span>
+              <span className="xs:hidden">Print</span>
             </button>
 
             {/* New Session Button */}
             <button
               onClick={onNewSession}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer shadow-emerald-600/20"
+              className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer shadow-emerald-600/20"
               title="Start a fresh physical therapy session"
             >
               <RotateCcw className="w-3.5 h-3.5" />

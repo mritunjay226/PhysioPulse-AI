@@ -58,13 +58,13 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
           return (
             <div
               key={idx}
-              className="bg-white border border-slate-200/90 hover:border-emerald-300/80 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between print-card theme-card"
+              className="bg-white border border-slate-200/90 hover:border-emerald-300/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between print-card theme-card"
             >
               <div>
                 {/* Header Badge */}
-                <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100 font-sans">
+                <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1.5 mb-3 pb-2.5 border-b border-slate-100 font-sans">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
                       EXERCISE #{idx + 1}
                     </span>
                     <h4 className="text-sm font-bold text-slate-900 font-sans">
@@ -211,7 +211,7 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
       </div>
 
       {/* 2. 14-Day Progressive Kinematic Recovery Trajectory */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-sm print-card theme-card">
+      <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 shadow-sm print-card theme-card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100 font-sans">
           <div>
             <div className="flex items-center gap-2">
@@ -238,101 +238,105 @@ export function TelemetryCharts({ exercises, sessionReport, report }: TelemetryC
         </div>
 
         {/* Responsive Interactive SVG Line Chart */}
-        <div className="h-64 w-full relative bg-slate-50/70 rounded-2xl p-4 border border-slate-200">
-          <svg viewBox="0 0 700 200" className="w-full h-full overflow-visible select-none">
-            {/* Horizontal Grid Lines */}
-            {[40, 80, 120, 160].map((yVal, i) => (
-              <g key={i}>
-                <line
-                  x1="40"
-                  y1={200 - yVal}
-                  x2="680"
-                  y2={200 - yVal}
-                  stroke="#E2E8F0"
-                  strokeWidth="1"
-                  strokeDasharray="3 3"
-                />
-                <text
-                  x="30"
-                  y={204 - yVal}
-                  fill="#94A3B8"
-                  fontSize="9"
-                  fontFamily="monospace"
-                  textAnchor="end"
-                >
-                  {Math.round((yVal / 200) * 180)}°
-                </text>
-              </g>
-            ))}
-
-            {/* Symmetry Curve (Teal) */}
-            <path
-              d={`M ${trajectory.map((d, i) => `${50 + i * 48},${200 - (d.symmetry / 100) * 160}`).join(' L ')}`}
-              fill="none"
-              stroke="#2DD4BF"
-              strokeWidth="2"
-              strokeDasharray="4 2"
-            />
-
-            {/* ROM Curve (Clinical Emerald) */}
-            <path
-              d={`M ${trajectory.map((d, i) => `${50 + i * 48},${200 - (d.rom / 180) * 180}`).join(' L ')}`}
-              fill="none"
-              stroke="#059669"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-
-            {/* Interactive Data Points */}
-            {trajectory.map((d, i) => {
-              const cx = 50 + i * 48;
-              const cyRom = 200 - (d.rom / 180) * 180;
-              const isSelected = selectedTrajectoryDay === i;
-
-              return (
-                <g
-                  key={i}
-                  className="cursor-pointer group"
-                  onClick={() => setSelectedTrajectoryDay(isSelected ? null : i)}
-                >
-                  <circle
-                    cx={cx}
-                    cy={cyRom}
-                    r={isSelected ? 6 : 4}
-                    fill={isSelected ? '#059669' : '#FFFFFF'}
-                    stroke="#059669"
-                    strokeWidth={isSelected ? 3 : 2}
-                    className="transition-all"
-                  />
-                  {d.milestone && (
-                    <circle
-                      cx={cx}
-                      cy={cyRom - 12}
-                      r="3"
-                      fill="#10B981"
-                      className="animate-pulse"
+        <div className="relative bg-slate-50/70 rounded-2xl p-3 sm:p-4 border border-slate-200">
+          <div className="overflow-x-auto no-scrollbar pb-1">
+            <div className="min-w-[540px] h-56 sm:h-64">
+              <svg viewBox="0 0 700 200" className="w-full h-full overflow-visible select-none">
+                {/* Horizontal Grid Lines */}
+                {[40, 80, 120, 160].map((yVal, i) => (
+                  <g key={i}>
+                    <line
+                      x1="40"
+                      y1={200 - yVal}
+                      x2="680"
+                      y2={200 - yVal}
+                      stroke="#E2E8F0"
+                      strokeWidth="1"
+                      strokeDasharray="3 3"
                     />
-                  )}
-                  {/* X-Axis Date Labels */}
-                  <text
-                    x={cx}
-                    y="195"
-                    fill={isSelected ? '#059669' : '#94A3B8'}
-                    fontSize="9"
-                    fontFamily="monospace"
-                    textAnchor="middle"
-                    fontWeight={isSelected ? 'bold' : 'normal'}
-                  >
-                    {d.date}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+                    <text
+                      x="30"
+                      y={204 - yVal}
+                      fill="#94A3B8"
+                      fontSize="9"
+                      fontFamily="monospace"
+                      textAnchor="end"
+                    >
+                      {Math.round((yVal / 200) * 180)}°
+                    </text>
+                  </g>
+                ))}
+
+                {/* Symmetry Curve (Teal) */}
+                <path
+                  d={`M ${trajectory.map((d, i) => `${50 + i * 48},${200 - (d.symmetry / 100) * 160}`).join(' L ')}`}
+                  fill="none"
+                  stroke="#2DD4BF"
+                  strokeWidth="2"
+                  strokeDasharray="4 2"
+                />
+
+                {/* ROM Curve (Clinical Emerald) */}
+                <path
+                  d={`M ${trajectory.map((d, i) => `${50 + i * 48},${200 - (d.rom / 180) * 180}`).join(' L ')}`}
+                  fill="none"
+                  stroke="#059669"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+
+                {/* Interactive Data Points */}
+                {trajectory.map((d, i) => {
+                  const cx = 50 + i * 48;
+                  const cyRom = 200 - (d.rom / 180) * 180;
+                  const isSelected = selectedTrajectoryDay === i;
+
+                  return (
+                    <g
+                      key={i}
+                      className="cursor-pointer group"
+                      onClick={() => setSelectedTrajectoryDay(isSelected ? null : i)}
+                    >
+                      <circle
+                        cx={cx}
+                        cy={cyRom}
+                        r={isSelected ? 6 : 4}
+                        fill={isSelected ? '#059669' : '#FFFFFF'}
+                        stroke="#059669"
+                        strokeWidth={isSelected ? 3 : 2}
+                        className="transition-all"
+                      />
+                      {d.milestone && (
+                        <circle
+                          cx={cx}
+                          cy={cyRom - 12}
+                          r="3"
+                          fill="#10B981"
+                          className="animate-pulse"
+                        />
+                      )}
+                      {/* X-Axis Date Labels */}
+                      <text
+                        x={cx}
+                        y="195"
+                        fill={isSelected ? '#059669' : '#94A3B8'}
+                        fontSize="9"
+                        fontFamily="monospace"
+                        textAnchor="middle"
+                        fontWeight={isSelected ? 'bold' : 'normal'}
+                      >
+                        {d.date}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
+            </div>
+          </div>
 
           {/* Interactive Inspection Card when clicking any day */}
           {selectedTrajectoryDay !== null && (
-            <div className="absolute top-4 right-4 bg-white/95 border border-slate-200 rounded-2xl p-3.5 backdrop-blur-md shadow-lg text-xs font-sans z-10 animate-in fade-in">
+            <div className="relative sm:absolute sm:top-4 sm:right-4 mt-3 sm:mt-0 bg-white/95 border border-slate-200 rounded-xl sm:rounded-2xl p-3 sm:p-3.5 backdrop-blur-md shadow-lg text-xs font-sans z-10 animate-in fade-in">
               <div className="flex items-center justify-between gap-4 font-bold text-slate-900 border-b border-slate-100 pb-1.5 mb-1.5 font-sans">
                 <span>{trajectory[selectedTrajectoryDay].day} ({trajectory[selectedTrajectoryDay].date})</span>
                 <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 text-[10px] font-mono">

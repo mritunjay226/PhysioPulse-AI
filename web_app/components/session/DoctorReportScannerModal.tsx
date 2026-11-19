@@ -179,24 +179,24 @@ export function DoctorReportScannerModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
-      <div className="relative w-full max-w-6xl max-h-[94vh] bg-white border border-slate-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div className="relative w-full max-w-6xl max-h-[94dvh] bg-white border border-slate-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden my-auto">
         {/* Modal Window Header */}
-        <div className="px-6 py-4 border-b border-slate-200 bg-white flex items-center justify-between gap-4">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 bg-white flex items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
               <Stethoscope className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-slate-900 tracking-tight font-sans">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight font-sans">
                   Doctor Prescription & Clinical Referral Intake (OCR)
                 </h3>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800">
                   Medical Shorthand Parser
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-sans">
+              <p className="text-xs text-slate-500 font-sans mt-0.5 hidden xs:block">
                 Extracts clinical notes, Latin directions (OD/BD/TDS), precautions, and structures your therapy routine
               </p>
             </div>
@@ -204,16 +204,16 @@ export function DoctorReportScannerModal({
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 sm:p-7 overflow-y-auto max-h-[calc(94vh-140px)] space-y-6">
+        <div className="p-4 sm:p-6 lg:p-7 overflow-y-auto max-h-[calc(94dvh-130px)] space-y-5 sm:space-y-6">
           {error && (
-            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-3 text-xs">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-3 text-xs">
               <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
               <span>{error}</span>
             </div>
@@ -221,11 +221,11 @@ export function DoctorReportScannerModal({
 
           {/* SCREEN 1: Upload or Pick Demo Sample (If no report generated yet) */}
           {!report && !isScanning && (
-            <div className="space-y-6">
+            <div className="space-y-5 sm:space-y-6">
               {/* Top Banner Notice */}
-              <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
+              <div className="p-3.5 sm:p-4 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-start sm:items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0 mt-0.5 sm:mt-0">
                     <FileText className="w-4 h-4" />
                   </div>
                   <div>
@@ -237,17 +237,17 @@ export function DoctorReportScannerModal({
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] font-semibold text-emerald-800 bg-white px-2.5 py-1 rounded-full border border-emerald-200 whitespace-nowrap">
+                <span className="text-[10px] font-semibold text-emerald-800 bg-white px-2.5 py-1 rounded-full border border-emerald-200 whitespace-nowrap self-start sm:self-auto shrink-0">
                   Gemini Vision Active
                 </span>
               </div>
 
               {/* Modality Selector Switcher */}
-              <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-xl max-w-lg border border-slate-200/60">
+              <div className="flex items-center gap-1.5 sm:gap-2 p-1 bg-slate-100 rounded-xl max-w-lg border border-slate-200/60 overflow-x-auto no-scrollbar">
                 <button
                   type="button"
                   onClick={() => setScanModality('prescription')}
-                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`flex-1 py-1.5 px-2.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                     scanModality === 'prescription'
                       ? 'bg-white text-slate-900 shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
@@ -259,7 +259,7 @@ export function DoctorReportScannerModal({
                 <button
                   type="button"
                   onClick={() => setScanModality('xray')}
-                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`flex-1 py-1.5 px-2.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                     scanModality === 'xray'
                       ? 'bg-blue-600 text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
@@ -271,7 +271,7 @@ export function DoctorReportScannerModal({
                 <button
                   type="button"
                   onClick={() => setScanModality('mri')}
-                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`flex-1 py-1.5 px-2.5 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                     scanModality === 'mri'
                       ? 'bg-purple-600 text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
@@ -635,7 +635,7 @@ export function DoctorReportScannerModal({
               )}
 
               {/* Navigation Tabs */}
-              <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto text-xs font-sans">
+              <div className="flex items-center gap-1.5 sm:gap-2 border-b border-slate-200 pb-3 overflow-x-auto no-scrollbar text-xs font-sans">
                 <button
                   onClick={() => setActiveTab('decoder')}
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer whitespace-nowrap ${
@@ -1035,22 +1035,22 @@ export function DoctorReportScannerModal({
 
         {/* Modal Window Footer Actions */}
         {report && (
-          <div className="px-6 py-4 border-t border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="text-xs text-slate-600 font-sans">
               Apply patient prescription data to populate Stage 2 kinetic exercises.
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
               <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer transition-colors"
+                className="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer transition-colors text-center"
               >
                 Close
               </button>
 
               <button
                 onClick={handleApplyAndProceed}
-                className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer font-sans transition-colors"
+                className="flex-1 sm:flex-none px-4 sm:px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs cursor-pointer font-sans transition-colors"
               >
                 <Check className="w-4 h-4" />
                 <span>Apply Plan & Launch Session</span>
