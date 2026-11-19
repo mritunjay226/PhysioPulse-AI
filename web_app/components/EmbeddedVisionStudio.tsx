@@ -515,11 +515,10 @@ function drawClinicalGoniometerArc(
   const ang1 = Math.atan2(v1.y, v1.x);
   const ang2 = Math.atan2(v2.y, v2.x);
 
-  let startAng = Math.min(ang1, ang2);
+  const startAng = Math.min(ang1, ang2);
   let endAng = Math.max(ang1, ang2);
-  let diff = endAng - startAng;
+  const diff = endAng - startAng;
   if (diff > Math.PI) {
-    startAng = Math.max(ang1, ang2);
     endAng = Math.min(ang1, ang2) + 2 * Math.PI;
   }
 
@@ -991,25 +990,39 @@ export function EmbeddedVisionStudio({
 
   // Dynamic state refs for zero-reinitialization in frame loops
   const activeModeRef = useRef(activeMode);
-  activeModeRef.current = activeMode;
   const activeExerciseRef = useRef(activeExercise);
-  activeExerciseRef.current = activeExercise;
   const activeGuideRef = useRef(activeGuide);
-  activeGuideRef.current = activeGuide;
   const targetRomRef = useRef(targetRom);
-  targetRomRef.current = targetRom;
   const targetRepsRef = useRef(targetReps);
-  targetRepsRef.current = targetReps;
   const currentRepsRef = useRef(currentReps);
-  currentRepsRef.current = currentReps;
   const isAdvancingRef = useRef(isAdvancing);
-  isAdvancingRef.current = isAdvancing;
   const showSkeletonRef = useRef(showSkeleton);
-  showSkeletonRef.current = showSkeleton;
   const queueIndexRef = useRef(queueIndex);
-  queueIndexRef.current = queueIndex;
   const exerciseQueueRef = useRef(exerciseQueue);
-  exerciseQueueRef.current = exerciseQueue;
+
+  useEffect(() => {
+    activeModeRef.current = activeMode;
+    activeExerciseRef.current = activeExercise;
+    activeGuideRef.current = activeGuide;
+    targetRomRef.current = targetRom;
+    targetRepsRef.current = targetReps;
+    currentRepsRef.current = currentReps;
+    isAdvancingRef.current = isAdvancing;
+    showSkeletonRef.current = showSkeleton;
+    queueIndexRef.current = queueIndex;
+    exerciseQueueRef.current = exerciseQueue;
+  }, [
+    activeMode,
+    activeExercise,
+    activeGuide,
+    targetRom,
+    targetReps,
+    currentReps,
+    isAdvancing,
+    showSkeleton,
+    queueIndex,
+    exerciseQueue
+  ]);
 
   // Voice Coach persistent references (protects against Chromium GC mid-speech cutoff)
   const activeUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
