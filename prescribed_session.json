@@ -1,28 +1,28 @@
 {
-  "patient_name": "mritunjay mishra",
-  "clinical_diagnosis_summary": "Peroneal Tendinitis (Left Ankle) requires targeted lateral compartment rehabilitation combined with proximal kinetic chain optimization. To address the lateral ankle strain without inducing compensatory gait patterns, the circuit integrates scapulohumeral and core-stabilizing upper body protocols along with cervical posture stabilization to maintain optimal axial alignment during lower extremity loading.",
-  "precautions": "Maintain pain-free range of motion (VAS <= 3). Avoid sudden changes in movement velocity, excessive ankle eversion strain, and lateral trunk lean during kinetic chain integration.",
+  "patient_name": "Mritunjay Mishra",
+  "clinical_diagnosis_summary": "Post-ACL reconstruction rehabilitation utilizing a lower extremity kinetic chain approach. The circuit addresses quadriceps strengthening (Tibiofemoral joint) while integrating lateral pelvic stabilization (Coxofemoral joint) to prevent dynamic knee valgus, anchored by lumbar core stabilization to ensure proper force distribution across the axial skeleton.",
+  "precautions": "Monitor for knee valgus during squats; avoid rapid terminal knee extension; maintain neutral pelvic alignment during hip abduction; ensure pain does not exceed 5/10 during weight-bearing phases.",
   "exercises": [
     {
-      "protocol_id": 5,
-      "protocol_name": "P5: Bilateral Overhead Wall-Slide Sync",
+      "protocol_id": 7,
+      "protocol_name": "P7: Lumbar Spine Flexion / Slip-Disc Rehab",
       "target_reps": 10,
-      "target_rom_degrees": 120,
-      "clinical_rationale": "Establishes proximal scapulohumeral rhythm and thoracic extension to support overall kinetic chain upright alignment."
+      "target_rom_degrees": 30,
+      "clinical_rationale": "Establishes the axial postural anchor and lumbopelvic stability required to support distal limb movement without compensatory spinal strain."
     },
     {
-      "protocol_id": 1,
-      "protocol_name": "P1: Frozen Shoulder Abduction",
-      "target_reps": 8,
+      "protocol_id": 6,
+      "protocol_name": "P6: Total Hip Replacement Side Abduction",
+      "target_reps": 12,
+      "target_rom_degrees": 40,
+      "clinical_rationale": "Strengthens the Gluteus Medius as a functional synergist to provide lateral pelvic stability, which is critical for protecting the ACL graft from rotational stress."
+    },
+    {
+      "protocol_id": 2,
+      "protocol_name": "P2: Post-ACL Knee Extension & Squat",
+      "target_reps": 10,
       "target_rom_degrees": 90,
-      "clinical_rationale": "Engages functional synergists of the upper quadrant to promote balanced bilateral upper body posture during gait and balance tasks."
-    },
-    {
-      "protocol_id": 3,
-      "protocol_name": "P3: Cervical & Ergonomic Posture Guard",
-      "target_reps": 10,
-      "target_rom_degrees": 45,
-      "clinical_rationale": "Acts as the axial postural anchor, ensuring head-neck-trunk alignment which optimizes center of gravity control and reduces distal lower extremity compensation."
+      "clinical_rationale": "Primary agonist protocol for quadriceps hypertrophy and functional restoration of the tibiofemoral joint post-reconstruction."
     }
   ]
 }
