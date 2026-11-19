@@ -119,9 +119,9 @@ export function IntakeFormStage({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
       {/* Left: Patient Intake Form */}
-      <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs">
+      <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
@@ -286,11 +286,11 @@ export function IntakeFormStage({
             <p className="text-xs text-slate-500 font-sans mb-3">
               Configure how many sequential kinetic protocols to assemble into this session:
             </p>
-            <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
               <button
                 type="button"
                 onClick={() => setCircuitMode('targeted')}
-                className={`py-2 px-3 rounded-lg border transition-all text-center cursor-pointer font-medium ${
+                className={`py-2 px-1.5 sm:px-3 rounded-lg border transition-all text-center cursor-pointer font-medium ${
                   circuitMode === 'targeted'
                     ? 'bg-white border-emerald-600 text-emerald-800 font-bold shadow-xs'
                     : 'bg-white/60 border-slate-200 text-slate-600 hover:bg-white'
@@ -301,7 +301,7 @@ export function IntakeFormStage({
               <button
                 type="button"
                 onClick={() => setCircuitMode('standard')}
-                className={`py-2 px-3 rounded-lg border transition-all text-center cursor-pointer font-medium ${
+                className={`py-2 px-1.5 sm:px-3 rounded-lg border transition-all text-center cursor-pointer font-medium ${
                   circuitMode === 'standard'
                     ? 'bg-white border-emerald-600 text-emerald-800 font-bold shadow-xs'
                     : 'bg-white/60 border-slate-200 text-slate-600 hover:bg-white'
@@ -312,7 +312,7 @@ export function IntakeFormStage({
               <button
                 type="button"
                 onClick={() => setCircuitMode('comprehensive')}
-                className={`py-2 px-3 rounded-lg border transition-all text-center cursor-pointer font-medium ${
+                className={`py-2 px-1.5 sm:px-3 rounded-lg border transition-all text-center cursor-pointer font-medium ${
                   circuitMode === 'comprehensive'
                     ? 'bg-white border-emerald-600 text-emerald-800 font-bold shadow-xs'
                     : 'bg-white/60 border-slate-200 text-slate-600 hover:bg-white'

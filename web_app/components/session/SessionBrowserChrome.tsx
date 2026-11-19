@@ -29,10 +29,10 @@ export function SessionBrowserChrome({ onOpenProfile }: SessionBrowserChromeProp
       </div>
 
       {/* Clinical Telemetry Address Pill */}
-      <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-3.5 py-0.5 text-[11px] text-slate-600 shadow-xs max-w-sm w-full justify-center font-mono">
+      <div className="hidden sm:flex items-center gap-2 bg-white border border-slate-200 rounded-full px-3.5 py-0.5 text-[11px] text-slate-600 shadow-xs max-w-xs md:max-w-sm w-full justify-center font-mono">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
         <span className="text-emerald-700 font-bold">physiopulse.ai/session</span>
-        <span className="text-slate-400 text-[10px] ml-1">· Clinical Motion Studio</span>
+        <span className="text-slate-400 text-[10px] ml-1 hidden md:inline">· Clinical Motion Studio</span>
       </div>
 
       {/* Attending Physician Pill & Auth */}

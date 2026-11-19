@@ -100,7 +100,7 @@ export function FaqAccordion({ onOpenOcrModal }: FaqAccordionProps) {
               >
                 <button
                   onClick={() => toggle(idx)}
-                  className="w-full py-5 px-6 flex items-center justify-between text-left cursor-pointer group"
+                  className="w-full py-4 px-4 sm:py-5 sm:px-6 flex items-center justify-between text-left cursor-pointer group"
                 >
                   <div className="pr-4">
                     <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-700 font-bold block mb-1">
@@ -133,7 +133,7 @@ export function FaqAccordion({ onOpenOcrModal }: FaqAccordionProps) {
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                       className="overflow-hidden"
                     >
-                      <div className="px-6 pb-6 pt-1 text-sm sm:text-base text-slate-600 font-sans leading-relaxed border-t border-slate-100">
+                      <div className="px-4 pb-5 pt-1 sm:px-6 sm:pb-6 text-sm sm:text-base text-slate-600 font-sans leading-relaxed border-t border-slate-100">
                         {faq.answer}
                       </div>
                     </motion.div>
@@ -150,7 +150,7 @@ export function FaqAccordion({ onOpenOcrModal }: FaqAccordionProps) {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mt-14 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 sm:p-10 text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+          className="mt-14 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-6 sm:p-10 text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
         >
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold border border-emerald-500/30 mb-2">

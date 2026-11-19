@@ -151,7 +151,7 @@ export function LandingHero({ onOpenOcrModal }: LandingHeroProps) {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] font-sans"
+              className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] font-sans"
             >
               Clinical motion tracking through{' '}
               <span className="text-emerald-700 underline decoration-emerald-200 decoration-wavy underline-offset-4">
@@ -216,7 +216,7 @@ export function LandingHero({ onOpenOcrModal }: LandingHeroProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.6 }}
-              className="mt-10 pt-6 border-t border-slate-200 w-full grid grid-cols-3 gap-3 sm:gap-6 text-slate-600"
+              className="mt-10 pt-6 border-t border-slate-200 w-full grid grid-cols-1 xs:grid-cols-3 gap-3 sm:gap-6 text-slate-600"
             >
               <div className="flex flex-col">
                 <span className="font-extrabold text-slate-900 text-sm font-sans flex items-center gap-1">
@@ -258,7 +258,7 @@ export function LandingHero({ onOpenOcrModal }: LandingHeroProps) {
           >
             
             {/* The 3D Anatomical Video Showcase */}
-            <div className="relative w-full max-w-[500px] lg:max-w-[560px] h-[480px] sm:h-[540px] lg:h-[600px] flex items-center justify-center">
+            <div className="relative w-full max-w-[500px] lg:max-w-[560px] h-[340px] xs:h-[420px] sm:h-[520px] lg:h-[600px] flex items-center justify-center">
               <EfficientMuscularVideo
                 className="w-full h-full object-contain filter drop-shadow-[0_20px_40px_rgba(15,23,42,0.12)]"
                 poster="/muscular_poster.jpg"
@@ -271,7 +271,7 @@ export function LandingHero({ onOpenOcrModal }: LandingHeroProps) {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="absolute top-3 right-2 sm:right-4 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-4 shadow-lg text-left z-20 min-w-[170px]"
+                className="absolute top-2 right-2 sm:top-3 sm:right-4 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 sm:p-4 shadow-lg text-left z-20 min-w-[130px] sm:min-w-[170px]"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] uppercase font-extrabold font-mono text-slate-400 tracking-wider">
@@ -280,16 +280,16 @@ export function LandingHero({ onOpenOcrModal }: LandingHeroProps) {
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 </div>
                 
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-3xl font-mono font-extrabold text-slate-900 tracking-tight">
+                <div className="flex items-baseline gap-1 mt-0.5 sm:mt-1">
+                  <span className="text-2xl sm:text-3xl font-mono font-extrabold text-slate-900 tracking-tight">
                     {displayAngle}°
                   </span>
-                  <span className="text-xs text-slate-500 font-mono font-semibold">
+                  <span className="text-[11px] sm:text-xs text-slate-500 font-mono font-semibold">
                     / {activeJoint.targetRom.split(' ')[0]}
                   </span>
                 </div>
                 
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-2.5 overflow-hidden">
+                <div className="w-full bg-slate-100 rounded-full h-1.5 sm:h-2 mt-2 sm:mt-2.5 overflow-hidden">
                   <motion.div
                     className="bg-emerald-600 h-full rounded-full"
                     initial={false}
@@ -298,8 +298,8 @@ export function LandingHero({ onOpenOcrModal }: LandingHeroProps) {
                   />
                 </div>
                 
-                <div className="mt-1.5 flex items-center justify-between text-[10px] font-mono text-slate-500">
-                  <span>Target: {activeJoint.targetRom.split(' ')[0]}</span>
+                <div className="mt-1 sm:mt-1.5 flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-slate-500">
+                  <span className="hidden xs:inline">Target: {activeJoint.targetRom.split(' ')[0]}</span>
                   <span className="font-bold text-emerald-700">{activeJoint.progressPct}% Reach</span>
                 </div>
               </motion.div>
@@ -309,11 +309,11 @@ export function LandingHero({ onOpenOcrModal }: LandingHeroProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="absolute bottom-4 left-2 sm:left-4 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-3.5 py-3 shadow-lg text-left z-20 max-w-[220px]"
+                className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-2.5 py-2 sm:px-3.5 sm:py-3 shadow-lg text-left z-20 max-w-[170px] xs:max-w-[200px] sm:max-w-[220px]"
               >
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-                  <span className="text-[10px] font-mono uppercase font-bold text-slate-400 tracking-wider">
+                  <span className="text-[9px] sm:text-[10px] font-mono uppercase font-bold text-slate-400 tracking-wider truncate">
                     {activeJoint.icdCode}
                   </span>
                 </div>
@@ -326,11 +326,11 @@ export function LandingHero({ onOpenOcrModal }: LandingHeroProps) {
                     exit={{ opacity: 0, y: -4 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="font-bold text-slate-900 text-xs truncate mt-1">
+                    <div className="font-bold text-slate-900 text-[11px] sm:text-xs truncate mt-0.5 sm:mt-1">
                       {activeJoint.joint}
                     </div>
                     
-                    <div className="text-[11px] text-emerald-700 font-semibold mt-0.5 font-mono">
+                    <div className="text-[10px] sm:text-[11px] text-emerald-700 font-semibold mt-0.5 font-mono truncate">
                       {activeJoint.symmetry}
                     </div>
                   </motion.div>
@@ -340,14 +340,14 @@ export function LandingHero({ onOpenOcrModal }: LandingHeroProps) {
 
             {/* Interactive Joint Switcher with Framer Motion layout pill animation */}
             <div className="w-full max-w-[480px] mt-2">
-              <div className="relative flex items-center justify-between gap-1 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 shadow-2xs">
+              <div className="relative flex items-center justify-between gap-1 p-1 sm:p-1.5 bg-slate-100 rounded-2xl border border-slate-200 shadow-2xs overflow-x-auto no-scrollbar">
                 {HERO_JOINTS.map((item) => {
                   const isSelected = activeJoint.id === item.id;
                   return (
                     <button
                       key={item.id}
                       onClick={() => setActiveJoint(item)}
-                      className={`relative flex-1 py-2 px-2 rounded-xl text-xs font-bold transition-colors cursor-pointer text-center z-10 ${
+                      className={`relative flex-1 whitespace-nowrap py-1.5 sm:py-2 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-colors cursor-pointer text-center z-10 ${
                         isSelected ? 'text-emerald-800' : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >

@@ -26,19 +26,20 @@ export default function RemotionDemoPage() {
   return (
     <div className="min-h-screen bg-[#090E1A] text-white flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
       {/* Top Navbar */}
-      <header className="h-18 px-6 sm:px-12 border-b border-white/10 bg-slate-900/60 backdrop-blur-md flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-4">
+      <header className="h-16 sm:h-18 px-4 sm:px-8 lg:px-12 border-b border-white/10 bg-slate-900/60 backdrop-blur-md flex items-center justify-between sticky top-0 z-50">
+        <div className="flex items-center gap-2.5 sm:gap-4">
           <Link
             href="/"
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 transition-colors flex items-center gap-2 text-xs font-semibold"
+            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 transition-colors flex items-center gap-1.5 sm:gap-2 text-xs font-semibold"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to App</span>
+            <span className="hidden xs:inline">Back to App</span>
+            <span className="xs:hidden">Back</span>
           </Link>
           <div className="h-4 w-px bg-white/10" />
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <h1 className="text-base font-extrabold tracking-tight text-white flex items-center gap-2">
+            <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-white flex items-center gap-1.5 sm:gap-2">
               PhysioPulse AI
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
                 Remotion 1080p
@@ -48,16 +49,16 @@ export default function RemotionDemoPage() {
         </div>
 
         {/* Concept Animation Pill Badge */}
-        <div className="flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider shadow-sm">
+        <div className="hidden sm:flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider shadow-sm">
           <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
           <span>Concept Animation • 20s @ 30 FPS</span>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 flex flex-col items-center justify-center">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 flex flex-col items-center justify-center">
         {/* Video Player Card */}
-        <div className="w-full max-w-5xl rounded-3xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl relative aspect-video flex items-center justify-center">
+        <div className="w-full max-w-5xl rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl relative aspect-video flex items-center justify-center">
           <Player
             ref={playerRef}
             component={PhysioPulsePromo}
@@ -77,9 +78,9 @@ export default function RemotionDemoPage() {
         </div>
 
         {/* Quick Chapter Scrubber Controls */}
-        <div className="w-full max-w-5xl mt-6 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono mr-2">
+        <div className="w-full max-w-5xl mt-6 p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono mr-1 sm:mr-2">
               Jump To Milestone:
             </span>
             <button
@@ -120,7 +121,7 @@ export default function RemotionDemoPage() {
             </button>
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-slate-400">
+          <div className="flex items-center gap-3 text-xs text-slate-400 self-start sm:self-center shrink-0">
             <span className="font-mono text-emerald-400 font-bold">1920 × 1080</span>
             <span>•</span>
             <span className="font-mono">30 FPS (600 frames)</span>

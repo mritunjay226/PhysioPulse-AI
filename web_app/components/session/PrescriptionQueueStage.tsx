@@ -55,7 +55,7 @@ export function PrescriptionQueueStage({
   return (
     <div className="space-y-6">
       {/* Session Header Card */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-xs">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 lg:p-7 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
           <div>
             <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -86,8 +86,8 @@ export function PrescriptionQueueStage({
 
         {/* Radiology Scan Guard Badge */}
         {doctorReport?.radiology_scan && (
-          <div className="mt-5 p-4 rounded-xl bg-blue-50/80 border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
-            <div className="flex items-center gap-3">
+          <div className="mt-5 p-3.5 sm:p-4 rounded-xl bg-blue-50/80 border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-start sm:items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0">
                 {doctorReport.radiology_scan.modality === 'xray' ? '🩻' : '🧲'}
               </div>
@@ -111,7 +111,7 @@ export function PrescriptionQueueStage({
             {onViewDoctorReport && (
               <button
                 onClick={onViewDoctorReport}
-                className="text-xs font-semibold text-blue-700 hover:text-blue-900 underline shrink-0 cursor-pointer"
+                className="text-xs font-semibold text-blue-700 hover:text-blue-900 underline shrink-0 cursor-pointer self-end sm:self-center"
               >
                 Inspect Imaging Study
               </button>
@@ -120,7 +120,7 @@ export function PrescriptionQueueStage({
         )}
 
         {/* Precautions Alert */}
-        <div className="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+        <div className="mt-5 p-3.5 sm:p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <div className="text-xs text-amber-900 leading-relaxed font-sans">
             <span className="font-bold">Clinical Precaution Notice: </span>
@@ -133,14 +133,14 @@ export function PrescriptionQueueStage({
           <div className="mt-5 border border-slate-200 rounded-xl bg-slate-50 overflow-hidden">
             <button
               onClick={() => setIsScheduleExpanded(!isScheduleExpanded)}
-              className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-100 transition-colors cursor-pointer"
+              className="w-full p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left hover:bg-slate-100 transition-colors cursor-pointer"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-emerald-600">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-emerald-600 shrink-0 mt-0.5 sm:mt-0">
                   <Stethoscope className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-bold text-slate-900 font-sans">
                       Prescribed Care Plan ({doctorReport.doctor_details.doctor_name})
                     </span>
@@ -148,13 +148,13 @@ export function PrescriptionQueueStage({
                       {doctorReport.treatment_plan.medications.length} Medications · 4 Daily Slots
                     </span>
                   </div>
-                  <span className="text-[11px] text-slate-500 font-sans">
+                  <span className="text-[11px] text-slate-500 font-sans block mt-0.5">
                     Hospital: {doctorReport.doctor_details.hospital_or_clinic} · Review in {doctorReport.schedule.follow_up.review_after_days} days
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60">
                 {onViewDoctorReport && (
                   <span
                     onClick={(e) => {
@@ -167,15 +167,15 @@ export function PrescriptionQueueStage({
                   </span>
                 )}
                 {isScheduleExpanded ? (
-                  <ChevronUp className="w-4 h-4 text-slate-400" />
+                  <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" />
                 ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                  <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
                 )}
               </div>
             </button>
 
             {isScheduleExpanded && (
-              <div className="p-5 border-t border-slate-200 bg-white space-y-5">
+              <div className="p-4 sm:p-5 border-t border-slate-200 bg-white space-y-5">
                 {/* Medications preview */}
                 <div>
                   <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">
@@ -282,7 +282,7 @@ export function PrescriptionQueueStage({
       </div>
 
       {/* Start CV Engine Banner Card */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5 p-4 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-emerald-600" />
@@ -290,7 +290,7 @@ export function PrescriptionQueueStage({
               Interactive Motion Capture
             </span>
           </div>
-          <h4 className="text-lg font-bold text-slate-900 font-sans tracking-tight">
+          <h4 className="text-base sm:text-lg font-bold text-slate-900 font-sans tracking-tight">
             Launch On-Device Webcam Motion Tracking
           </h4>
           <p className="text-xs text-slate-600 font-sans mt-1 max-w-xl leading-relaxed">
@@ -299,11 +299,11 @@ export function PrescriptionQueueStage({
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 shrink-0 w-full sm:w-auto">
           {isRunningSession && !isVisionModalOpen && (
             <button
               onClick={() => setIsVisionModalOpen(true)}
-              className="px-4 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs flex items-center gap-2 border border-slate-300 transition-colors cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs flex items-center justify-center gap-2 border border-slate-300 transition-colors cursor-pointer"
             >
               <Video className="w-4 h-4 text-emerald-600" />
               <span>Reopen Camera Window</span>
@@ -313,7 +313,7 @@ export function PrescriptionQueueStage({
           <button
             onClick={handleStartSession}
             disabled={isRunningSession && isVisionModalOpen}
-            className="px-5 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer disabled:opacity-50 font-sans"
+            className="w-full sm:w-auto px-5 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer disabled:opacity-50 font-sans"
           >
             {isRunningSession ? (
               <>
@@ -332,19 +332,19 @@ export function PrescriptionQueueStage({
 
       {/* Floating Active Session Banner (if user minimized modal while running) */}
       {isRunningSession && !isVisionModalOpen && (
-        <div className="fixed bottom-6 right-6 z-40 bg-white border border-slate-200 rounded-xl p-4 shadow-xl flex items-center gap-4">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
-          <div>
-            <div className="text-xs font-bold text-slate-900">
+        <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-40 bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-xl flex items-center gap-3 sm:gap-4 max-w-[calc(100vw-24px)]">
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 shrink-0" />
+          <div className="min-w-0">
+            <div className="text-xs font-bold text-slate-900 truncate">
               Session In Progress
             </div>
-            <div className="text-[11px] text-slate-500">
+            <div className="text-[11px] text-slate-500 truncate">
               Camera tracking active for {patientName || 'Patient'}
             </div>
           </div>
           <button
             onClick={() => setIsVisionModalOpen(true)}
-            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors cursor-pointer shrink-0"
           >
             View Camera
           </button>

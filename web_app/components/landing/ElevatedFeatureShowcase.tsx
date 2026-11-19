@@ -54,7 +54,7 @@ export function ElevatedFeatureShowcase() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
             whileHover={{ y: -4 }}
-            className="md:col-span-7 bg-slate-50 rounded-3xl p-8 border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all duration-200 group shadow-2xs hover:shadow-md"
+            className="md:col-span-7 bg-slate-50 rounded-3xl p-5 sm:p-8 border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all duration-200 group shadow-2xs hover:shadow-md"
           >
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -75,7 +75,7 @@ export function ElevatedFeatureShowcase() {
               </p>
 
               {/* Interactive Micro Tab bar with Framer Motion sliding pill */}
-              <div className="mt-6 p-1 bg-white rounded-xl border border-slate-200 flex items-center gap-1 max-w-md relative">
+              <div className="mt-6 p-1 bg-white rounded-xl border border-slate-200 flex items-center gap-1 max-w-md relative overflow-x-auto no-scrollbar">
                 {(['latency', 'accuracy', 'privacy'] as const).map((tabKey) => {
                   const isSelected = activeInteractiveTab === tabKey;
                   const label =
@@ -89,7 +89,7 @@ export function ElevatedFeatureShowcase() {
                     <button
                       key={tabKey}
                       onClick={() => setActiveInteractiveTab(tabKey)}
-                      className={`relative flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer z-10 ${
+                      className={`relative flex-1 whitespace-nowrap py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-colors cursor-pointer z-10 ${
                         isSelected ? 'text-white' : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
@@ -116,10 +116,10 @@ export function ElevatedFeatureShowcase() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -4 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full flex items-center justify-between"
+                      className="w-full flex flex-col xs:flex-row xs:items-center justify-between gap-2"
                     >
                       <span>Processes each frame in ~14ms inside browser WebAssembly heap. Zero frame drops.</span>
-                      <span className="font-mono font-bold text-emerald-700 ml-3 shrink-0">30 FPS</span>
+                      <span className="font-mono font-bold text-emerald-700 shrink-0">30 FPS</span>
                     </motion.div>
                   )}
                   {activeInteractiveTab === 'accuracy' && (
@@ -129,10 +129,10 @@ export function ElevatedFeatureShowcase() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -4 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full flex items-center justify-between"
+                      className="w-full flex flex-col xs:flex-row xs:items-center justify-between gap-2"
                     >
                       <span>Benchmarked side-by-side with 12-camera optoelectronic Vicon motion capture.</span>
-                      <span className="font-mono font-bold text-emerald-700 ml-3 shrink-0">&lt; 1.4° Error</span>
+                      <span className="font-mono font-bold text-emerald-700 shrink-0">&lt; 1.4° Error</span>
                     </motion.div>
                   )}
                   {activeInteractiveTab === 'privacy' && (
@@ -142,17 +142,17 @@ export function ElevatedFeatureShowcase() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -4 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full flex items-center justify-between"
+                      className="w-full flex flex-col xs:flex-row xs:items-center justify-between gap-2"
                     >
                       <span>Raw camera feed is held strictly in local GPU memory and discarded immediately.</span>
-                      <span className="font-mono font-bold text-emerald-700 ml-3 shrink-0">HIPAA Safe</span>
+                      <span className="font-mono font-bold text-emerald-700 shrink-0">HIPAA Safe</span>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             </div>
 
-            <div className="mt-8 pt-4 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-500 font-mono">
+            <div className="mt-8 pt-4 border-t border-slate-200/80 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-1 text-xs text-slate-500 font-mono">
               <span>Client Architecture: MediaPipe Vision</span>
               <span className="font-semibold text-emerald-700">Standard 720p/1080p Webcams</span>
             </div>
@@ -165,7 +165,7 @@ export function ElevatedFeatureShowcase() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
             whileHover={{ y: -4 }}
-            className="md:col-span-5 bg-slate-900 text-white rounded-3xl p-8 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all duration-200 group shadow-2xs hover:shadow-md"
+            className="md:col-span-5 bg-slate-900 text-white rounded-3xl p-5 sm:p-8 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all duration-200 group shadow-2xs hover:shadow-md"
           >
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -231,7 +231,7 @@ export function ElevatedFeatureShowcase() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.15 }}
             whileHover={{ y: -4 }}
-            className="md:col-span-4 bg-slate-50 rounded-3xl p-8 border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all duration-200 group shadow-2xs hover:shadow-md"
+            className="md:col-span-4 bg-slate-50 rounded-3xl p-5 sm:p-8 border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all duration-200 group shadow-2xs hover:shadow-md"
           >
             <div>
               <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-emerald-600 mb-6 shadow-2xs group-hover:scale-105 transition-transform duration-200">
@@ -260,7 +260,7 @@ export function ElevatedFeatureShowcase() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
             whileHover={{ y: -4 }}
-            className="md:col-span-4 bg-slate-50 rounded-3xl p-8 border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all duration-200 group shadow-2xs hover:shadow-md"
+            className="md:col-span-4 bg-slate-50 rounded-3xl p-5 sm:p-8 border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all duration-200 group shadow-2xs hover:shadow-md"
           >
             <div>
               <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-emerald-600 mb-6 shadow-2xs group-hover:scale-105 transition-transform duration-200">
@@ -289,7 +289,7 @@ export function ElevatedFeatureShowcase() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.25 }}
             whileHover={{ y: -4 }}
-            className="md:col-span-4 bg-slate-50 rounded-3xl p-8 border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all duration-200 group shadow-2xs hover:shadow-md"
+            className="md:col-span-4 bg-slate-50 rounded-3xl p-5 sm:p-8 border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all duration-200 group shadow-2xs hover:shadow-md"
           >
             <div>
               <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-emerald-600 mb-6 shadow-2xs group-hover:scale-105 transition-transform duration-200">

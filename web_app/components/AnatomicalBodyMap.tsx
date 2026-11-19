@@ -103,7 +103,7 @@ export function AnatomicalBodyMap({
   const isProtocolActive = (protocolId: number) => activeProtocols.includes(protocolId);
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm flex flex-col justify-between theme-card">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col justify-between theme-card">
       {/* Header */}
       <div>
         <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 mb-3">
@@ -120,7 +120,7 @@ export function AnatomicalBodyMap({
               </p>
             </div>
           </div>
-          <span className="text-[11px] font-mono font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+          <span className="text-[11px] font-mono font-bold text-emerald-800 bg-emerald-50 px-2.5 sm:px-3 py-1 rounded-full border border-emerald-200">
             {activeProtocols.length} Targeted Joint{activeProtocols.length === 1 ? '' : 's'}
           </span>
         </div>
@@ -130,13 +130,13 @@ export function AnatomicalBodyMap({
         </p>
 
         {/* 3D Muscular Model Canvas Container */}
-        <div className="relative flex items-center justify-center py-6 bg-slate-50 rounded-xl border border-slate-200 overflow-hidden min-h-[460px]">
+        <div className="relative flex items-center justify-center py-4 sm:py-6 bg-slate-50 rounded-xl border border-slate-200 overflow-hidden min-h-[360px] sm:min-h-[460px]">
           {/* Concentric telemetry rings */}
-          <div className="absolute w-[260px] h-[260px] rounded-full border border-slate-200/80 pointer-events-none" />
-          <div className="absolute w-[360px] h-[360px] rounded-full border border-dashed border-slate-200/50 pointer-events-none" />
+          <div className="absolute w-[240px] sm:w-[260px] h-[240px] sm:h-[260px] rounded-full border border-slate-200/80 pointer-events-none" />
+          <div className="absolute w-[320px] sm:w-[360px] h-[320px] sm:h-[360px] rounded-full border border-dashed border-slate-200/50 pointer-events-none" />
 
           {/* 3D Muscular Model Image */}
-          <div className="relative w-[240px] h-[420px] flex items-center justify-center select-none">
+          <div className="relative w-[200px] sm:w-[240px] h-[350px] sm:h-[420px] flex items-center justify-center select-none">
             <EfficientMuscularVideo
               className="w-full h-full object-contain filter drop-shadow-[0_15px_30px_rgba(15,23,42,0.12)]"
               poster="/muscular_poster.jpg"
@@ -181,14 +181,14 @@ export function AnatomicalBodyMap({
 
           {/* Hover Tooltip Overlay */}
           {hoveredPin && (
-            <div className="absolute bottom-3 left-4 right-4 z-30 p-3 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-xl text-xs text-slate-800 pointer-events-none transition-all">
+            <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-4 sm:right-4 z-30 p-2.5 sm:p-3 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-xl text-xs text-slate-800 pointer-events-none transition-all">
               <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-slate-900 font-sans">{hoveredPin.name}</span>
+                <span className="font-bold text-slate-900 font-sans text-xs sm:text-sm">{hoveredPin.name}</span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-bold border border-emerald-200">
                   Protocol {hoveredPin.protocolId}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 leading-snug font-sans">{hoveredPin.description}</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 leading-snug font-sans">{hoveredPin.description}</p>
             </div>
           )}
         </div>

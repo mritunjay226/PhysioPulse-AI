@@ -19,10 +19,10 @@ export function SessionWorkflowStepper({
   canAccessStage3
 }: SessionWorkflowStepperProps) {
   return (
-    <header className="px-6 py-4 border-b border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4 no-print select-none">
+    <header className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 no-print select-none">
       <div className="flex items-center gap-3.5">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-slate-900/5 border border-slate-200/80 p-1.5 flex items-center justify-center shrink-0 shadow-2xs group-hover:border-emerald-500/30 group-hover:bg-emerald-50/50 transition-colors">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900/5 border border-slate-200/80 p-1.5 flex items-center justify-center shrink-0 shadow-2xs group-hover:border-emerald-500/30 group-hover:bg-emerald-50/50 transition-colors">
             <Image
               src="/logo.svg"
               alt="PhysioPulse AI Logo"
@@ -34,7 +34,7 @@ export function SessionWorkflowStepper({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-slate-900 text-lg tracking-tight font-sans">
+              <span className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight font-sans">
                 PhysioPulse
               </span>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800">
@@ -61,11 +61,11 @@ export function SessionWorkflowStepper({
       </div>
 
       {/* Clinical 3-Stage Stepper */}
-      <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200 overflow-x-auto text-xs font-sans">
+      <div className="flex items-center gap-1 sm:gap-2 bg-slate-100 p-1 sm:p-1.5 rounded-xl border border-slate-200 overflow-x-auto no-scrollbar text-xs font-sans w-full md:w-auto justify-between md:justify-start">
         {/* Step 1 */}
         <button
           onClick={() => setActiveStage(1)}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
             activeStage === 1
               ? 'bg-white text-slate-900 shadow-xs'
               : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
@@ -78,7 +78,8 @@ export function SessionWorkflowStepper({
           >
             1
           </div>
-          <span>Intake & Triage</span>
+          <span className="hidden xs:inline">Intake & Triage</span>
+          <span className="xs:hidden">Intake</span>
         </button>
 
         <ChevronRight className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
@@ -87,7 +88,7 @@ export function SessionWorkflowStepper({
         <button
           onClick={() => canAccessStage2 && setActiveStage(2)}
           disabled={!canAccessStage2}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
             activeStage === 2
               ? 'bg-white text-slate-900 shadow-xs'
               : canAccessStage2
@@ -106,7 +107,8 @@ export function SessionWorkflowStepper({
           >
             2
           </div>
-          <span>Vision Queue</span>
+          <span className="hidden xs:inline">Vision Queue</span>
+          <span className="xs:hidden">Vision</span>
         </button>
 
         <ChevronRight className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
@@ -115,7 +117,7 @@ export function SessionWorkflowStepper({
         <button
           onClick={() => canAccessStage3 && setActiveStage(3)}
           disabled={!canAccessStage3}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
             activeStage === 3
               ? 'bg-white text-slate-900 shadow-xs'
               : canAccessStage3
@@ -134,7 +136,8 @@ export function SessionWorkflowStepper({
           >
             3
           </div>
-          <span>Clinical Report</span>
+          <span className="hidden xs:inline">Clinical Report</span>
+          <span className="xs:hidden">Report</span>
         </button>
       </div>
     </header>

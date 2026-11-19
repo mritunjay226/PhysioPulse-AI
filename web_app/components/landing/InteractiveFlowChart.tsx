@@ -242,7 +242,7 @@ export function InteractiveFlowChart() {
           <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
             
             {/* Left 7 Columns: Step Deep Dive with AnimatePresence */}
-            <div className="lg:col-span-7 p-6 sm:p-8 lg:p-10 flex flex-col justify-between">
+            <div className="lg:col-span-7 p-4 sm:p-8 lg:p-10 flex flex-col justify-between">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeStep.id}
@@ -296,7 +296,7 @@ export function InteractiveFlowChart() {
 
               {/* Action Bar */}
               <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                   <div>
                     <span className="block text-[11px] font-mono uppercase text-slate-400 font-semibold">
                       {activeStep.metricLabel}
@@ -305,7 +305,7 @@ export function InteractiveFlowChart() {
                       {activeStep.metricValue}
                     </span>
                   </div>
-                  <div className="h-8 w-px bg-slate-200" />
+                  <div className="h-8 w-px bg-slate-200 hidden xs:block" />
                   <div>
                     <span className="block text-[11px] font-mono uppercase text-slate-400 font-semibold">
                       HIPAA Architecture
@@ -320,7 +320,7 @@ export function InteractiveFlowChart() {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Link
                     href="/session"
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs cursor-pointer group"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs cursor-pointer group"
                   >
                     <span>Launch In Studio</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -330,7 +330,7 @@ export function InteractiveFlowChart() {
             </div>
 
             {/* Right 5 Columns: Interactive Micro-Preview with Silky Crossfades */}
-            <div className="lg:col-span-5 bg-slate-50/70 p-6 sm:p-8 flex flex-col justify-center">
+            <div className="lg:col-span-5 bg-slate-50/70 p-4 sm:p-8 flex flex-col justify-center">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeStep.previewType}
@@ -403,16 +403,16 @@ export function InteractiveFlowChart() {
                           <span>CLIENT BUFFER</span>
                           <span className="text-emerald-400">33 / 33 POINTS ACTIVE</span>
                         </div>
-                        <div className="space-y-1.5 font-mono text-[11px]">
-                          <div className="flex justify-between">
+                        <div className="space-y-1.5 font-mono text-[10px] sm:text-[11px]">
+                          <div className="flex flex-col xs:flex-row xs:justify-between gap-0.5">
                             <span className="text-slate-400">L_SHOULDER [11]:</span>
                             <span>x: 0.482, y: 0.312, z: -0.14</span>
                           </div>
-                          <div className="flex justify-between">
+                          <div className="flex flex-col xs:flex-row xs:justify-between gap-0.5">
                             <span className="text-slate-400">L_ELBOW [13]:</span>
                             <span>x: 0.514, y: 0.490, z: -0.22</span>
                           </div>
-                          <div className="flex justify-between">
+                          <div className="flex flex-col xs:flex-row xs:justify-between gap-0.5">
                             <span className="text-slate-400">L_WRIST [15]:</span>
                             <span>x: 0.540, y: 0.680, z: -0.19</span>
                           </div>

@@ -131,14 +131,14 @@ export function ClinicalEvidence() {
         </motion.div>
 
         {/* Tab Controls with Framer Motion sliding pill */}
-        <div className="flex flex-wrap items-center gap-2 mb-8 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 w-fit relative">
+        <div className="flex flex-wrap sm:flex-nowrap overflow-x-auto no-scrollbar items-center gap-1.5 sm:gap-2 mb-8 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 max-w-full w-fit relative">
           {EVIDENCE_TABS.map((tab) => {
             const isSelected = activeTab.id === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTabId(tab.id)}
-                className={`relative px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors cursor-pointer z-10 ${
+                className={`relative whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors cursor-pointer z-10 ${
                   isSelected ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -156,7 +156,7 @@ export function ClinicalEvidence() {
         </div>
 
         {/* Figure Canvas with AnimatePresence */}
-        <div className="bg-slate-50/70 rounded-3xl p-6 sm:p-8 border border-slate-200">
+        <div className="bg-slate-50/70 rounded-3xl p-4 sm:p-8 border border-slate-200">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab.id}
@@ -207,7 +207,7 @@ export function ClinicalEvidence() {
                 </div>
 
                 {/* Metric Row with Framer Motion Stagger */}
-                <div className="grid grid-cols-3 gap-3 p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <div className="grid grid-cols-1 xs:grid-cols-3 gap-2.5 sm:gap-3 p-3.5 sm:p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs">
                   {activeTab.metrics.map((m, idx) => (
                     <motion.div
                       key={idx}
@@ -216,10 +216,10 @@ export function ClinicalEvidence() {
                       transition={{ delay: idx * 0.08, duration: 0.3 }}
                       className="flex flex-col"
                     >
-                      <span className="text-xl sm:text-2xl font-extrabold font-mono text-slate-900 tracking-tight">
+                      <span className="text-lg xs:text-xl sm:text-2xl font-extrabold font-mono text-slate-900 tracking-tight">
                         {m.value}
                       </span>
-                      <span className="text-[11px] font-medium text-slate-500 leading-tight mt-1">
+                      <span className="text-[11px] font-medium text-slate-500 leading-tight mt-0.5 sm:mt-1">
                         {m.label}
                       </span>
                     </motion.div>
