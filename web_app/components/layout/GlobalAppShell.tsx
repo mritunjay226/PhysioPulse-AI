@@ -111,6 +111,11 @@ export function GlobalAppShell({ children }: GlobalAppShellProps) {
     convexUser?.imageUrl ||
     '/patient_curtis.png';
 
+  // Do NOT render sidebar or app shell on the public landing page
+  if (pathname === '/') {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-[#EFF2F0] flex font-sans text-slate-900 selection:bg-[#184E34] selection:text-white relative">
       {/* 1. Mobile Backdrop */}
