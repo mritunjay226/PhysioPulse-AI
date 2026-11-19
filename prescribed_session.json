@@ -1,7 +1,7 @@
 {
   "patient_name": "mritunjay mishra",
-  "clinical_diagnosis_summary": "Comprehensive kinetic chain circuit (4 protocols) prescribed for mritunjay mishra (30 yo) addressing Shoulder & Neck with visual EMA compensation monitoring and axial stability.",
-  "precautions": "Moderate symptom threshold (6/10). Maintain neutral spinal alignment and eliminate compensatory shrug or trunk lateral flexion.",
+  "clinical_diagnosis_summary": "Comprehensive kinetic chain circuit (3 protocols) prescribed for mritunjay mishra (30 yo) addressing Shoulder & Neck with visual EMA compensation monitoring and axial stability.",
+  "precautions": "Moderate symptom threshold (5/10). Maintain neutral spinal alignment and eliminate compensatory shrug or trunk lateral flexion.",
   "exercises": [
     {
       "protocol_id": 1,
@@ -23,13 +23,6 @@
       "target_reps": 2,
       "target_rom_degrees": 77,
       "clinical_rationale": "Strengthens deep cervical flexors and retrains neutral craniovertebral alignment."
-    },
-    {
-      "protocol_id": 4,
-      "protocol_name": "P4: Post-Fracture Elbow Flexion Rehab",
-      "target_reps": 4,
-      "target_rom_degrees": 113,
-      "clinical_rationale": "Restores humeroulnar flexion and avoids compensatory shoulder abduction swing."
     }
   ]
 }

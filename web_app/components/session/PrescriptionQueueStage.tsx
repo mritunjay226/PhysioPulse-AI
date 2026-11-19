@@ -42,13 +42,6 @@ export function PrescriptionQueueStage({
   const [isVisionModalOpen, setIsVisionModalOpen] = useState(false);
   const [isScheduleExpanded, setIsScheduleExpanded] = useState(false);
 
-  // Auto-open modal when session starts
-  useEffect(() => {
-    if (isRunningSession) {
-      setIsVisionModalOpen(true);
-    }
-  }, [isRunningSession]);
-
   const handleStartSession = () => {
     setIsVisionModalOpen(true);
     onLaunchVisionSession();
@@ -359,15 +352,21 @@ export function PrescriptionQueueStage({
       )}
 
       {/* Focused Camera Modal Dialog */}
-      {isVisionModalOpen && (
+      {(isVisionModalOpen || isRunningSession) && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md overflow-y-auto p-2 sm:p-4 lg:p-6 flex justify-center items-start animate-in fade-in duration-200">
           <div className="relative w-full max-w-7xl my-2 sm:my-4">
             <EmbeddedVisionStudio
               isRunning={isRunningSession}
               onConcludeSession={handleConcludeModalSession}
               patientName={patientName}
+              prescription={prescription}
               isModal={true}
-              onCloseModal={() => setIsVisionModalOpen(false)}
+              onCloseModal={() => {
+                setIsVisionModalOpen(false);
+                if (isRunningSession) {
+                  onConcludeSession();
+                }
+              }}
             />
           </div>
         </div>

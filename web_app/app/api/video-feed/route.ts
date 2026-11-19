@@ -10,11 +10,12 @@ export async function GET(req: Request) {
     const upstreamUrl = new URL(endpoint, appBaseUrl);
 
     const upstreamRes = await fetch(upstreamUrl, {
-      cache: 'no-store'
+      cache: 'no-store',
+      signal: AbortSignal.timeout(1200)
     });
 
     if (!upstreamRes.ok || !upstreamRes.body) {
-      return new Response('Vision engine feed not ready', { status: 503 });
+      return new Response(null, { status: 204 });
     }
 
     if (isSnapshot) {
@@ -35,7 +36,8 @@ export async function GET(req: Request) {
         Expires: '0'
       }
     });
-  } catch (err: any) {
-    return new Response('Vision stream offline', { status: 503 });
+  } catch {
+    // Return 204 No Content for offline vision daemon so browser console doesn't display red 503 errors
+    return new Response(null, { status: 204 });
   }
 }

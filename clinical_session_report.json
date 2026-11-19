@@ -1,8 +1,8 @@
 {
-    "session_id": "session_sub_1795094104",
-    "timestamp": "2026-11-19T18:45:04.887342",
+    "session_id": "session_sub_1795108914",
+    "timestamp": "2026-11-19T22:51:54.534353",
     "patient_name": "mritunjay mishra",
-    "prescribed_diagnosis": "Comprehensive kinetic chain circuit (4 protocols) prescribed for mritunjay mishra (30 yo) addressing Shoulder & Neck with visual EMA compensation monitoring and axial stability.",
+    "prescribed_diagnosis": "Comprehensive kinetic chain circuit (3 protocols) prescribed for mritunjay mishra (30 yo) addressing Shoulder & Neck with visual EMA compensation monitoring and axial stability.",
     "overall_compliance_percent": 0,
     "exercises_performed": [
         {
@@ -11,11 +11,11 @@
             "prescribed_reps": 4,
             "completed_reps": 0,
             "target_rom_degrees": 81,
-            "achieved_peak_rom_degrees": 38,
+            "achieved_peak_rom_degrees": 32,
             "mean_symmetry_percent": 100,
             "compensation_frames_detected": 0,
             "primary_compensation_issue": "None (Clean Biomechanics)",
-            "duration_seconds": 8.8
+            "duration_seconds": 7.9
         }
     ]
 }

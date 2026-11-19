@@ -16,9 +16,9 @@ export async function callLLM(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    // 1. Try Gemini models starting with ultra-fast gemini-2.5-flash-lite (<3s latency)
+    // 1. Try Gemini models starting with ultra-fast gemini-flash-lite-latest (<1s latency)
     if (geminiKey) {
-      const geminiModels = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-flash-latest'];
+      const geminiModels = ['gemini-flash-lite-latest', 'gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-2.5-flash-lite', 'gemini-2.5-flash'];
       for (const model of geminiModels) {
         try {
           const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
@@ -147,9 +147,9 @@ export async function callMultimodalLLM(
   const cleanBase64 = imageBase64.replace(/^data:[^;]+;base64,/, '');
 
   try {
-    // 1. Try Gemini Vision models (gemini-2.5-flash is top-tier for handwriting OCR)
+    // 1. Try Gemini Vision models (gemini-flash-lite-latest and gemini-3-flash-preview for handwriting OCR)
     if (geminiKey) {
-      const geminiModels = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest'];
+      const geminiModels = ['gemini-flash-lite-latest', 'gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-2.5-flash-lite', 'gemini-2.5-flash'];
       for (const model of geminiModels) {
         try {
           const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;

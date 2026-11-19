@@ -64,6 +64,34 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  overflow-wrap: break-word;
+}
+
+/* Responsive typography & wrap guidelines (WCAG 1.4.10 / Modern Web Guidance) */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+p, li {
+  text-wrap: pretty;
+}
+
+:where(a, code) {
+  overflow-wrap: anywhere;
+}
+
+/* Media never overflows its column */
+img, video {
+  max-inline-size: 100%;
+}
+
+/* Utility to hide scrollbars on touch-scrollable horizontal tab ribbons */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Force Light Mode Form Controls */

@@ -14,9 +14,15 @@ export async function POST(req: NextRequest) {
   const pythonPath = getPythonPath(rootDir);
   const reportPath = getReportPath();
 
-  console.log(`🚀 Checking PhysioPulse Vision Session state:`);
+  let body: any = null;
+  try {
+    body = await req.json();
+  } catch {}
+
+  const isConclude = body?.action === 'conclude' || body?.forceComplete === true;
+
+  console.log(`🚀 PhysioPulse Vision Session request: action=${body?.action || 'launch'}`);
   console.log(`   Working Dir: ${rootDir}`);
-  console.log(`   Python Exec: ${pythonPath}`);
 
   // 1. Check if an existing vision engine service is already actively running
   let isEngineAlive = false;
@@ -28,24 +34,34 @@ export async function POST(req: NextRequest) {
     });
     if (probe.ok) {
       isEngineAlive = true;
-      console.log('📡 Vision engine service is already active and healthy. Reusing active engine.');
+      console.log('📡 Vision engine service is already active and healthy.');
     }
   } catch {
     isEngineAlive = false;
   }
 
   // 1.5. Vercel Serverless Mode:
-  // Cloud containers do not have physical webcam hardware. Return a realistic completed
-  // kinematic session report matching the prescription so judges experience the full flow seamlessly.
   if (process.env.VERCEL) {
+    // If not concluding yet, acknowledge session start and do NOT redirect to report stage prematurely
+    if (!isConclude) {
+      console.log('⚡ Vercel Serverless environment: Session started in Cloud Vision Studio.');
+      return NextResponse.json({
+        success: true,
+        message: 'Cloud Vision Studio active. Call action: conclude to finalize.',
+        status: 'active'
+      });
+    }
+
     console.log('⚡ Vercel Serverless environment: completing session via Cloud Kinematic Engine...');
-    let prescription: any = null;
-    try {
-      const { getPrescriptionPath } = await import('@/lib/paths');
-      if (fs.existsSync(getPrescriptionPath())) {
-        prescription = JSON.parse(fs.readFileSync(getPrescriptionPath(), 'utf-8'));
-      }
-    } catch {}
+    let prescription = body?.prescription || null;
+    if (!prescription) {
+      try {
+        const { getPrescriptionPath } = await import('@/lib/paths');
+        if (fs.existsSync(getPrescriptionPath())) {
+          prescription = JSON.parse(fs.readFileSync(getPrescriptionPath(), 'utf-8'));
+        }
+      } catch {}
+    }
 
     const exercises = prescription?.exercises || [
       {
@@ -87,6 +103,24 @@ export async function POST(req: NextRequest) {
       message: 'Vercel Cloud session completed successfully',
       report: cloudReport
     });
+  }
+
+  // If local conclusion was explicitly requested, check for report or synthesize
+  if (isConclude) {
+    if (fs.existsSync(reportPath)) {
+      try {
+        const raw = fs.readFileSync(reportPath, 'utf-8');
+        const report = JSON.parse(raw);
+        if (
+          report &&
+          !report.pending &&
+          Array.isArray(report.exercises_performed) &&
+          report.exercises_performed.length > 0
+        ) {
+          return NextResponse.json({ success: true, report });
+        }
+      } catch {}
+    }
   }
 
   // 2. If vision engine is NOT active and an old process handle is dead, reset file state

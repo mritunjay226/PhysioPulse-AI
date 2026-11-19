@@ -275,19 +275,60 @@ export default function PhysioPulseApp() {
     setIsRunningSession(true);
     setSessionError(null);
     try {
-      const res = await fetch('/api/run-session', { method: 'POST' });
+      const isLocal =
+        typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+      if (isLocal) {
+        // In local development, trigger the local Python runner asynchronously
+        fetch('/api/run-session', { method: 'POST' })
+          .then((res) => res.json())
+          .then(async (data) => {
+            if (data.success && data.report) {
+              setSessionReport(data.report);
+              await handleTriggerEvaluation(prescription, data.report);
+              setActiveStage(3);
+            }
+          })
+          .catch((err) => {
+            console.warn('Local background vision session notice:', err);
+          });
+      } else {
+        // Cloud / Vercel: notify backend of session initialization without prematurely transitioning to report stage
+        await fetch('/api/run-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'launch', prescription })
+        });
+      }
+    } catch (err: any) {
+      console.warn('Vision session launch notice:', err);
+    }
+  };
+
+  const handleConcludeSession = async (directReport?: any) => {
+    setIsRunningSession(false);
+    try {
+      if (directReport && directReport.exercises_performed) {
+        setSessionReport(directReport);
+        await handleTriggerEvaluation(prescription, directReport);
+        setActiveStage(3);
+        return;
+      }
+
+      const res = await fetch('/api/run-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'conclude', prescription })
+      });
       const data = await res.json();
       if (data.success && data.report) {
         setSessionReport(data.report);
         await handleTriggerEvaluation(prescription, data.report);
         setActiveStage(3);
-      } else {
-        setSessionError(data.error || 'Vision session completed without report output.');
       }
     } catch (err: any) {
-      setSessionError(err.message || 'Error communicating with vision session engine.');
-    } finally {
-      setIsRunningSession(false);
+      console.error('Error concluding vision session:', err);
     }
   };
 
@@ -484,7 +525,7 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
               onEditIntake={() => setActiveStage(1)}
               isRunningSession={isRunningSession}
               onLaunchVisionSession={handleLaunchVisionSession}
-              onConcludeSession={() => setIsRunningSession(false)}
+              onConcludeSession={handleConcludeSession}
               doctorReport={doctorReport}
               onViewDoctorReport={() => setIsOcrModalOpen(true)}
             />

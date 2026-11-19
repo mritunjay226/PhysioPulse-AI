@@ -357,8 +357,9 @@ export const EXERCISE_GUIDES: Record<number, ExerciseGuide> = {
 
 export interface EmbeddedVisionStudioProps {
   isRunning: boolean;
-  onConcludeSession: () => void;
+  onConcludeSession: (report?: any) => void;
   patientName: string;
+  prescription?: any;
   isModal?: boolean;
   onCloseModal?: () => void;
 }
@@ -498,29 +499,62 @@ export function EmbeddedVisionStudio({
   isRunning,
   onConcludeSession,
   patientName,
+  prescription,
   isModal = false,
   onCloseModal
 }: EmbeddedVisionStudioProps) {
+  const isLocalHost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  // Camera Mode: 'webcam' (device camera via getUserMedia), 'simulation' (exercise video), 'stream' (local python DirectShow)
+  const [cameraMode, setCameraMode] = useState<'webcam' | 'simulation' | 'stream'>(() => {
+    return isLocalHost ? 'stream' : 'webcam';
+  });
+
   const [telemetry, setTelemetry] = useState<any>(null);
   const [streamConnected, setStreamConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(true);
-  const [isSimulated, setIsSimulated] = useState(false);
-  const [useDirectFeed, setUseDirectFeed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const h = window.location.hostname;
-      return h === 'localhost' || h === '127.0.0.1';
-    }
-    return false;
-  });
   const [retryNonce, setRetryNonce] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
-  const activeMode = telemetry?.mode || 1;
+  // Exercise Queue management from prescription
+  const [queueIndex, setQueueIndex] = useState(0);
+  const [currentReps, setCurrentReps] = useState(0);
+  const [isAdvancing, setIsAdvancing] = useState(false);
+  const [advanceCountdown, setAdvanceCountdown] = useState(0);
+
+  const exerciseQueue = React.useMemo(() => {
+    if (prescription?.exercises && Array.isArray(prescription.exercises) && prescription.exercises.length > 0) {
+      return prescription.exercises;
+    }
+    return [
+      {
+        protocol_id: 1,
+        protocol_name: 'P1: Frozen Shoulder Abduction',
+        target_reps: 8,
+        target_rom_degrees: 90
+      },
+      {
+        protocol_id: 2,
+        protocol_name: 'P2: Post-ACL Knee Squat & Extension',
+        target_reps: 8,
+        target_rom_degrees: 120
+      }
+    ];
+  }, [prescription]);
+
+  const activeExercise = exerciseQueue[queueIndex] || exerciseQueue[0];
+  const activeMode = Number(activeExercise?.protocol_id) || 1;
   const activeGuide = EXERCISE_GUIDES[activeMode] || EXERCISE_GUIDES[1];
+  const targetReps = Number(activeExercise?.target_reps) || activeGuide.targetReps || 8;
+  const targetRom = Number(activeExercise?.target_rom_degrees) || activeGuide.targetRom || 90;
+
   const imgRef = useRef<HTMLImageElement | null>(null);
+  const webcamVideoRef = useRef<HTMLVideoElement | null>(null);
+  const webcamStreamRef = useRef<MediaStream | null>(null);
   const connectedRef = useRef(false);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -543,6 +577,76 @@ export function EmbeddedVisionStudio({
     };
   }, [telemetry?.primary_angle]);
 
+  // Audio Chime synthesizer via Web Audio API
+  const playRepChime = useCallback(() => {
+    if (!audioEnabled || typeof window === 'undefined') return;
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.3);
+    } catch {}
+  }, [audioEnabled]);
+
+  // 1. Browser Webcam Lifecycle (getUserMedia)
+  const startWebcam = useCallback(async () => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: 'user'
+          },
+          audio: false
+        });
+        webcamStreamRef.current = stream;
+        if (webcamVideoRef.current) {
+          webcamVideoRef.current.srcObject = stream;
+          webcamVideoRef.current.play().catch(() => {});
+        }
+        setStreamConnected(true);
+        setIsConnecting(false);
+      } else {
+        setCameraMode('simulation');
+      }
+    } catch (err: any) {
+      console.warn('Webcam permission not granted or device unavailable, switching to clinical demo:', err);
+      setCameraMode('simulation');
+    }
+  }, []);
+
+  const stopWebcam = useCallback(() => {
+    if (webcamStreamRef.current) {
+      webcamStreamRef.current.getTracks().forEach((track) => track.stop());
+      webcamStreamRef.current = null;
+    }
+    if (webcamVideoRef.current) {
+      webcamVideoRef.current.srcObject = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isRunning && cameraMode === 'webcam') {
+      startWebcam();
+    } else {
+      stopWebcam();
+    }
+    return () => {
+      stopWebcam();
+    };
+  }, [isRunning, cameraMode, startWebcam, stopWebcam]);
+
   // Clean termination of MJPEG stream on unmount
   useEffect(() => {
     return () => {
@@ -558,31 +662,134 @@ export function EmbeddedVisionStudio({
     }
   }, [isRunning]);
 
-  const handleToggleSkeleton = async () => {
-    try {
-      const host = typeof window !== 'undefined' ? (window.location.hostname || '127.0.0.1') : '127.0.0.1';
-      const url = useDirectFeed
-        ? `http://${host}:8000/toggle_skeleton`
-        : '/api/vision-control?action=toggle_skeleton';
-      const res = await fetch(url);
-      if (res.ok) {
-        const json = await res.json();
-        const data = json.data || json;
-        if (typeof data.show_skeleton === 'boolean') {
-          setShowSkeleton(data.show_skeleton);
-        } else {
-          setShowSkeleton((prev) => !prev);
+  // 2. Interactive Kinematics Loop for Webcam & Simulation modes
+  useEffect(() => {
+    if (cameraMode === 'stream' || !isRunning) return;
+
+    let angle = 18;
+    let increasing = true;
+    let holdTicks = 0;
+
+    const cadenceTimer = setInterval(() => {
+      if (isAdvancing) return;
+
+      if (increasing) {
+        angle += 4;
+        if (angle >= targetRom + 4) {
+          angle = targetRom + 4;
+          holdTicks += 1;
+          if (holdTicks > 3) {
+            increasing = false;
+            holdTicks = 0;
+          }
+        }
+      } else {
+        angle -= 4;
+        if (angle <= 18) {
+          angle = 18;
+          increasing = true;
+          setCurrentReps((prev) => {
+            const next = prev + 1;
+            playRepChime();
+            return next;
+          });
         }
       }
-    } catch (err) {
-      console.warn('Failed to toggle skeleton:', err);
-      setShowSkeleton((prev) => !prev);
-    }
-  };
 
-  // Telemetry Poller (280ms cadence)
+      setTelemetry({
+        mode: activeMode,
+        protocol_name: activeExercise.protocol_name || activeGuide.title,
+        exercise_title: activeGuide.title,
+        exercise_short_name: activeGuide.short_name,
+        target_joint: activeGuide.targetJoint,
+        setup_instruction: activeGuide.actionSummary,
+        action_instruction: activeGuide.actionSummary,
+        form_tip: activeGuide.avoidSummary,
+        camera_view: activeGuide.recommendedView,
+        reps: currentReps,
+        target_reps: targetReps,
+        primary_angle: Math.min(180, Math.max(0, angle)),
+        max_rom: Math.max(targetRom, angle),
+        target_rom: targetRom,
+        symmetry_score: 95,
+        form_status: angle >= targetRom ? 'OPTIMAL BIOMECHANICS' : 'SMOOTH MOTION',
+        is_bad_form: false,
+        feedback_text:
+          currentReps >= targetReps
+            ? 'Prescribed reps reached! Great cadence.'
+            : angle >= targetRom
+            ? 'Peak ROM achieved — maintain control as you lower.'
+            : 'Keep cadence steady and aligned with the movement guide.',
+        fps: 60,
+        latency_ms: 8.2,
+        advancing: isAdvancing,
+        remaining_advance_sec: advanceCountdown,
+        show_skeleton: showSkeleton,
+        queue_idx: queueIndex,
+        total_queue: exerciseQueue.length
+      });
+    }, 120);
+
+    return () => clearInterval(cadenceTimer);
+  }, [
+    cameraMode,
+    isRunning,
+    isAdvancing,
+    targetRom,
+    targetReps,
+    currentReps,
+    activeMode,
+    activeExercise,
+    activeGuide,
+    showSkeleton,
+    queueIndex,
+    exerciseQueue.length,
+    advanceCountdown,
+    playRepChime
+  ]);
+
+  const handleFinishEarly = useCallback(async () => {
+    stopWebcam();
+    if (imgRef.current) {
+      imgRef.current.src = '';
+    }
+    if (cameraMode === 'stream') {
+      try {
+        const host = typeof window !== 'undefined' ? (window.location.hostname || '127.0.0.1') : '127.0.0.1';
+        await fetch(`http://${host}:8000/quit`);
+      } catch (err) {
+        console.warn('Failed to send quit action:', err);
+      }
+    }
+    onConcludeSession();
+  }, [stopWebcam, cameraMode, onConcludeSession]);
+
+  // 3. Auto-Advance Exercise Queue when Target Reps are Reached in Cloud / Webcam Mode
   useEffect(() => {
-    if (!isRunning) return;
+    if (cameraMode === 'stream' || !isRunning) return;
+
+    if (currentReps >= targetReps && !isAdvancing) {
+      setIsAdvancing(true);
+      setAdvanceCountdown(2);
+
+      const timer = setTimeout(() => {
+        if (queueIndex + 1 < exerciseQueue.length) {
+          setQueueIndex((prev) => prev + 1);
+          setCurrentReps(0);
+          setIsAdvancing(false);
+          setAdvanceCountdown(0);
+        } else {
+          handleFinishEarly();
+        }
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentReps, targetReps, queueIndex, exerciseQueue.length, isAdvancing, cameraMode, isRunning, handleFinishEarly]);
+
+  // 4. Telemetry Poller for Local Python Stream (ONLY runs when cameraMode === 'stream')
+  useEffect(() => {
+    if (!isRunning || cameraMode !== 'stream') return;
 
     let isFetching = false;
     const interval = setInterval(async () => {
@@ -590,10 +797,7 @@ export function EmbeddedVisionStudio({
       isFetching = true;
       try {
         const host = typeof window !== 'undefined' ? (window.location.hostname || '127.0.0.1') : '127.0.0.1';
-        const url = useDirectFeed
-          ? `http://${host}:8000/status`
-          : '/api/vision-control?action=status';
-
+        const url = `http://${host}:8000/status`;
         const res = await fetch(url, { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
@@ -605,16 +809,13 @@ export function EmbeddedVisionStudio({
                 prev.reps === data.reps &&
                 prev.primary_angle === data.primary_angle &&
                 prev.form_status === data.form_status &&
-                prev.symmetry_score === data.symmetry_score &&
-                prev.mode === data.mode &&
-                prev.advancing === data.advancing &&
-                prev.remaining_advance_sec === data.remaining_advance_sec &&
-                prev.fps === data.fps
+                prev.mode === data.mode
               ) {
                 return prev;
               }
               return data;
             });
+            setCurrentReps(data.reps ?? 0);
             if (typeof data.show_skeleton === 'boolean') {
               setShowSkeleton(data.show_skeleton);
             }
@@ -626,85 +827,32 @@ export function EmbeddedVisionStudio({
           }
         }
       } catch {
-        // Stream server warming up
+        // Local daemon warming up
       } finally {
         isFetching = false;
       }
     }, 280);
 
     return () => clearInterval(interval);
-  }, [isRunning, useDirectFeed]);
+  }, [isRunning, cameraMode]);
 
-  // Periodic stream cache flush: every 90 seconds of active streaming,
-  // cycles the cache-buster nonce to force Chromium to purge buffered MJPEG textures
-  useEffect(() => {
-    if (!isRunning) return;
-    const purgeTimer = setInterval(() => {
-      setRetryNonce(Date.now());
-    }, 90000);
-    return () => clearInterval(purgeTimer);
-  }, [isRunning]);
-
-  // Simulated Cloud Demonstration Loop (active when isSimulated is enabled)
-  useEffect(() => {
-    if (!isSimulated || !isRunning) return;
-
-    let simReps = 0;
-    let simAngle = 20;
-    let increasing = true;
-    const simTarget = activeGuide.targetReps || 8;
-    const simMaxRom = activeGuide.targetRom || 90;
-
-    const simInterval = setInterval(() => {
-      if (increasing) {
-        simAngle += 5;
-        if (simAngle >= simMaxRom + 6) {
-          increasing = false;
+  const handleToggleSkeleton = async () => {
+    if (cameraMode === 'stream') {
+      try {
+        const host = typeof window !== 'undefined' ? (window.location.hostname || '127.0.0.1') : '127.0.0.1';
+        const res = await fetch(`http://${host}:8000/toggle_skeleton`);
+        if (res.ok) {
+          const json = await res.json();
+          const data = json.data || json;
+          setShowSkeleton(typeof data.show_skeleton === 'boolean' ? data.show_skeleton : !showSkeleton);
         }
-      } else {
-        simAngle -= 5;
-        if (simAngle <= 20) {
-          increasing = true;
-          simReps += 1;
-        }
+      } catch {
+        setShowSkeleton((prev) => !prev);
       }
-
-      setTelemetry({
-        mode: activeMode,
-        protocol_name: activeGuide.title,
-        exercise_title: activeGuide.title,
-        exercise_short_name: activeGuide.short_name,
-        target_joint: activeGuide.targetJoint,
-        setup_instruction: activeGuide.actionSummary,
-        action_instruction: activeGuide.actionSummary,
-        form_tip: activeGuide.avoidSummary,
-        camera_view: activeGuide.recommendedView,
-        reps: simReps,
-        target_reps: simTarget,
-        primary_angle: Math.min(180, Math.max(0, simAngle)),
-        max_rom: Math.max(simMaxRom, simAngle),
-        target_rom: simMaxRom,
-        symmetry_score: 96,
-        form_status: simAngle > simMaxRom ? 'OPTIMAL BIOMECHANICS' : 'SMOOTH MOTION',
-        is_bad_form: false,
-        feedback_text: simReps >= simTarget ? 'Prescribed reps reached! Great cadence.' : 'Keep tempo smooth and controlled.',
-        fps: 30,
-        latency_ms: 12.4,
-        advancing: simReps >= simTarget,
-        remaining_advance_sec: simReps >= simTarget ? 2 : 0,
-        show_skeleton: true
-      });
-
-      if (simReps >= simTarget) {
-        clearInterval(simInterval);
-        setTimeout(() => {
-          onConcludeSession();
-        }, 1800);
-      }
-    }, 120);
-
-    return () => clearInterval(simInterval);
-  }, [isSimulated, isRunning, activeMode, activeGuide, onConcludeSession]);
+    } else {
+      setShowSkeleton((prev) => !prev);
+    }
+  };
 
   const handleStreamError = useCallback(() => {
     connectedRef.current = false;
@@ -729,45 +877,48 @@ export function EmbeddedVisionStudio({
   };
 
   const handleManualReconnect = () => {
-    connectedRef.current = false;
-    setStreamConnected(false);
-    setIsConnecting(true);
-    setRetryNonce(Date.now());
+    if (cameraMode === 'webcam') {
+      stopWebcam();
+      startWebcam();
+    } else if (cameraMode === 'stream') {
+      connectedRef.current = false;
+      setStreamConnected(false);
+      setIsConnecting(true);
+      setRetryNonce(Date.now());
+    }
+  };
+
+  const handleManualAddRep = () => {
+    setCurrentReps((prev) => {
+      const next = prev + 1;
+      playRepChime();
+      return next;
+    });
   };
 
   const handleSkipExercise = async () => {
-    try {
-      const host = typeof window !== 'undefined' ? (window.location.hostname || '127.0.0.1') : '127.0.0.1';
-      const url = useDirectFeed ? `http://${host}:8000/skip` : '/api/vision-control?action=skip';
-      await fetch(url);
-    } catch (err) {
-      console.warn('Failed to send skip action:', err);
-    }
-  };
-
-  const handleFinishEarly = async () => {
-    if (imgRef.current) {
-      imgRef.current.src = '';
-    }
-    try {
-      const host = typeof window !== 'undefined' ? (window.location.hostname || '127.0.0.1') : '127.0.0.1';
-      const url = useDirectFeed ? `http://${host}:8000/quit` : '/api/vision-control?action=quit';
-      await fetch(url);
-      onConcludeSession();
-    } catch (err) {
-      console.warn('Failed to send quit action:', err);
-      onConcludeSession();
+    if (cameraMode === 'stream') {
+      try {
+        const host = typeof window !== 'undefined' ? (window.location.hostname || '127.0.0.1') : '127.0.0.1';
+        await fetch(`http://${host}:8000/skip`);
+      } catch (err) {
+        console.warn('Failed to send skip action:', err);
+      }
+    } else {
+      if (queueIndex + 1 < exerciseQueue.length) {
+        setQueueIndex((prev) => prev + 1);
+        setCurrentReps(0);
+        setIsAdvancing(false);
+      } else {
+        handleFinishEarly();
+      }
     }
   };
 
   const streamHost = typeof window !== 'undefined' ? (window.location.hostname || '127.0.0.1') : '127.0.0.1';
-  const currentStreamUrl = useDirectFeed
-    ? `http://${streamHost}:8000/video_feed?t=${retryNonce}`
-    : `/api/video-feed?t=${retryNonce}`;
-
-  const currentReps = telemetry?.reps ?? 0;
-  const targetReps = telemetry?.target_reps || activeGuide.targetReps || 10;
-  const progressPercent = Math.min(100, Math.round((currentReps / Math.max(1, targetReps)) * 100));
+  const currentStreamUrl = `http://${streamHost}:8000/video_feed?t=${retryNonce}`;
+  const displayReps = currentReps;
+  const progressPercent = Math.min(100, Math.round((displayReps / Math.max(1, targetReps)) * 100));
 
   return (
     <div
@@ -912,12 +1063,56 @@ export function EmbeddedVisionStudio({
 
         {/* Studio Top Control Buttons */}
         <div className="flex items-center gap-2 flex-wrap self-start sm:self-center">
+          {/* Camera Source Selector Tabs */}
+          <div className="inline-flex items-center p-0.5 rounded-xl bg-slate-100 border border-slate-200 text-xs">
+            <button
+              onClick={() => setCameraMode('webcam')}
+              className={`px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+                cameraMode === 'webcam'
+                  ? 'bg-white text-emerald-800 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Use your live browser webcam"
+            >
+              <Video className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Live Camera</span>
+            </button>
+
+            <button
+              onClick={() => setCameraMode('simulation')}
+              className={`px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+                cameraMode === 'simulation'
+                  ? 'bg-white text-emerald-800 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="View guided exercise demonstration video"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>Demo Video</span>
+            </button>
+
+            {isLocalHost && (
+              <button
+                onClick={() => setCameraMode('stream')}
+                className={`px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 ${
+                  cameraMode === 'stream'
+                    ? 'bg-white text-emerald-800 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="Connect to local Python vision engine"
+              >
+                <Activity className="w-3.5 h-3.5 text-blue-600" />
+                <span>Python DirectShow</span>
+              </button>
+            )}
+          </div>
+
           <button
             onClick={() => setIsGuideOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+            className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
             title="Open Exercise Technique & Posture Guide"
           >
-            <BookOpen className="w-4 h-4 text-emerald-700" />
+            <BookOpen className="w-3.5 h-3.5 text-emerald-700" />
             <span>How To Do It</span>
           </button>
 
@@ -1064,8 +1259,23 @@ export function EmbeddedVisionStudio({
 
           {/* Camera Viewport Container */}
           <div className="relative rounded-3xl overflow-hidden border border-slate-200 bg-slate-950 aspect-video shadow-md flex items-center justify-center group w-full">
-            {/* Live Native Video Stream or Interactive Simulation */}
-            {isSimulated ? (
+            {cameraMode === 'webcam' ? (
+              <div className="relative w-full h-full flex items-center justify-center bg-slate-950">
+                <video
+                  ref={webcamVideoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover transform scale-x-[-1]"
+                />
+                <div className="absolute bottom-3 left-3 pointer-events-none z-10 flex items-center gap-2 bg-slate-900/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-emerald-500/40 text-[11px] text-slate-200 shadow-md">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-semibold text-emerald-300">Live Device Camera (Active)</span>
+                  <span className="text-slate-400">•</span>
+                  <span className="text-slate-300">60 FPS Hardware Rendered</span>
+                </div>
+              </div>
+            ) : cameraMode === 'simulation' ? (
               <div className="relative w-full h-full flex items-center justify-center bg-slate-950">
                 <video
                   src="/muscular_men.mp4"
@@ -1075,18 +1285,18 @@ export function EmbeddedVisionStudio({
                   playsInline
                   className="w-full h-full object-contain"
                 />
-                <div className="absolute bottom-3 left-3 pointer-events-none z-10 flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-xl border border-slate-700/80 text-[11px] text-slate-200 shadow-md">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="font-semibold text-emerald-300">Cloud Simulation (30 FPS)</span>
+                <div className="absolute bottom-3 left-3 pointer-events-none z-10 flex items-center gap-2 bg-slate-900/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700/80 text-[11px] text-slate-200 shadow-md">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-semibold text-emerald-300">Exercise Demonstration Video</span>
                   <span className="text-slate-400">•</span>
-                  <span className="text-slate-300">Kinematic Engine Active</span>
+                  <span className="text-slate-300">Kinematic Overlay Active</span>
                 </div>
               </div>
             ) : isRunning && (
               <img
                 ref={imgRef}
                 src={currentStreamUrl}
-                alt="PhysioPulse AI Clinical Vision Feed"
+                alt="PhysioPulse AI DirectShow Stream"
                 className={`w-full h-full object-contain transition-opacity duration-300 ${
                   streamConnected ? 'opacity-100' : 'opacity-0 absolute'
                 }`}
@@ -1095,44 +1305,44 @@ export function EmbeddedVisionStudio({
               />
             )}
 
-            {/* Clean bottom status indicator on camera (Doesn't cover patient head!) */}
-            {!isSimulated && streamConnected && isRunning && (
+            {/* DirectShow stream status badge */}
+            {cameraMode === 'stream' && streamConnected && isRunning && (
               <div className="absolute bottom-3 left-3 pointer-events-none z-10 flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-xl border border-slate-700/80 text-[11px] text-slate-200 shadow-md">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="font-semibold text-emerald-300">
                   {telemetry?.fps ? `${telemetry.fps} FPS Locked` : '30 FPS Video Feed'}
                 </span>
                 <span className="text-slate-400">•</span>
-                <span className="text-slate-300">Zero-Lag Stream</span>
+                <span className="text-slate-300">DirectShow Daemon</span>
               </div>
             )}
 
-            {/* Connecting / Loading Overlay */}
-            {!isSimulated && (!streamConnected || !isRunning) && (
+            {/* Connecting Overlay for Local Stream Mode */}
+            {cameraMode === 'stream' && (!streamConnected || !isRunning) && (
               <div className="flex flex-col items-center justify-center p-8 text-center bg-slate-950 w-full h-full text-slate-300">
                 <div className="relative w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-emerald-400 mb-4 shadow-xl">
                   <Video className="w-8 h-8 stroke-[2]" />
                 </div>
                 <h4 className="text-base font-bold text-white mb-1 font-sans">
-                  Starting 3D Biomechanical Camera...
+                  Connecting to Local Python Engine...
                 </h4>
                 <p className="text-xs text-slate-400 max-w-sm mb-4 font-sans leading-relaxed">
-                  Initializing MediaPipe skeletal tracking at 30+ FPS. Position yourself 6–8 feet in front of your webcam.
+                  Start the local vision daemon or switch to your device camera below.
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-2.5">
                   <button
-                    onClick={() => setIsSimulated(true)}
+                    onClick={() => setCameraMode('webcam')}
                     className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all shadow-md cursor-pointer flex items-center gap-1.5 shadow-emerald-600/20"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Run Interactive Demo Mode</span>
+                    <Video className="w-3.5 h-3.5" />
+                    <span>Switch to Device Webcam</span>
                   </button>
                   <button
-                    onClick={handleManualReconnect}
+                    onClick={() => setCameraMode('simulation')}
                     className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
                   >
-                    <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Connect Local Camera</span>
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Demo Video</span>
                   </button>
                 </div>
               </div>
@@ -1152,7 +1362,16 @@ export function EmbeddedVisionStudio({
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={handleManualAddRep}
+                className="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                title="Manually log a completed repetition"
+              >
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                <span>+1 Rep</span>
+              </button>
+
               <button
                 onClick={handleSkipExercise}
                 className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"

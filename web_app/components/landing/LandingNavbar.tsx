@@ -69,7 +69,7 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
                   AI
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-slate-400 tracking-wider uppercase mt-0.5 hidden xs:block">
+              <span className="text-[10px] font-mono text-slate-400 tracking-wider uppercase mt-0.5 hidden sm:block">
                 Markerless Telerehab
               </span>
             </div>
@@ -112,7 +112,7 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
           </nav>
 
           {/* Right Action Cluster */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
             {onOpenOcrModal && (
               <button
                 type="button"
@@ -129,16 +129,17 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
 
             <Link
               href="/session"
-              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs hover:shadow transition cursor-pointer group"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs hover:shadow transition cursor-pointer group"
             >
-              <span>Launch Studio</span>
+              <span className="hidden xs:inline">Launch Studio</span>
+              <span className="xs:hidden">Studio</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </Link>
 
-            {/* Mobile menu toggle button */}
+            {/* Mobile menu toggle button (sized for touch target WCAG 2.5.5) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer ml-0.5"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
               aria-label="Toggle navigation"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -155,7 +156,7 @@ export function LandingNavbar({ onOpenOcrModal }: LandingNavbarProps) {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22, ease: 'easeInOut' }}
-            className="lg:hidden border-b border-slate-200 bg-white px-4 pt-3 pb-5 space-y-3 overflow-hidden shadow-lg"
+            className="lg:hidden border-b border-slate-200 bg-white px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] space-y-3 overflow-hidden shadow-lg"
           >
             <nav className="flex flex-col space-y-1 text-sm font-medium text-slate-700">
               <a
