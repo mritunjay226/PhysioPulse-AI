@@ -3,8 +3,19 @@
 import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Heart, Activity, QrCode } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 
 export function StudioPatientPassport() {
+  const { user } = useUser();
+  const convexUser = useQuery(api.users.currentUser);
+
+  const displayName = convexUser?.name || user?.fullName || user?.firstName || 'Patient';
+  const displayAge = convexUser?.age || 32;
+  const displayAvatar = user?.imageUrl || convexUser?.imageUrl || '/patient_curtis.png';
+  const displayPid = convexUser?.clerkId ? `PID #${convexUser.clerkId.slice(-6).toUpperCase()}` : 'PID #PP-88214';
+
   const ecgCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const bpCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -105,8 +116,8 @@ export function StudioPatientPassport() {
           <div className="flex items-center gap-3">
             <div className="relative">
               <Image
-                src="/patient_curtis.png"
-                alt="Curtis Valk"
+                src={displayAvatar}
+                alt={displayName}
                 width={52}
                 height={52}
                 className="w-13 h-13 rounded-2xl object-cover ring-2 ring-slate-100 shadow-xs"
@@ -114,16 +125,16 @@ export function StudioPatientPassport() {
               <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 text-sm tracking-tight font-sans">
-                Curtis Valk
+              <h3 className="font-bold text-slate-900 text-sm tracking-tight font-sans truncate max-w-[140px]">
+                {displayName}
               </h3>
               <p className="text-[11px] text-slate-400 font-mono">
-                PID #PP-88214
+                {displayPid}
               </p>
             </div>
           </div>
           <button
-            onClick={() => alert('Patient QR Token: PP-CURTIS-88214-VERIFIED')}
+            onClick={() => alert(`Patient QR Verified for ${displayName}`)}
             className="p-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 transition-colors cursor-pointer"
             title="Scan Patient QR"
           >
@@ -135,7 +146,7 @@ export function StudioPatientPassport() {
         <div className="grid grid-cols-3 gap-2 py-3 border-y border-slate-100 text-center font-mono">
           <div className="bg-slate-50/70 rounded-xl p-2 border border-slate-100">
             <span className="text-[10px] text-slate-400 block font-sans">Age</span>
-            <span className="font-bold text-slate-800 text-xs">34</span>
+            <span className="font-bold text-slate-800 text-xs">{displayAge}</span>
           </div>
           <div className="bg-slate-50/70 rounded-xl p-2 border border-slate-100">
             <span className="text-[10px] text-slate-400 block font-sans">Height</span>

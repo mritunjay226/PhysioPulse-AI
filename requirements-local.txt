@@ -16,3 +16,4 @@ pywin32==312; sys_platform == 'win32'
 python-pptx==1.0.2
 pillow==13.0.0
 matplotlib==3.11.2
+

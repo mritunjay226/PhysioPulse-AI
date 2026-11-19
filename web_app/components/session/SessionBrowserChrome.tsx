@@ -5,7 +5,11 @@ import Link from 'next/link';
 import { ChevronLeft, Stethoscope } from 'lucide-react';
 import { UserAuthNav } from '@/components/auth/UserAuthNav';
 
-export function SessionBrowserChrome() {
+interface SessionBrowserChromeProps {
+  onOpenProfile?: () => void;
+}
+
+export function SessionBrowserChrome({ onOpenProfile }: SessionBrowserChromeProps = {}) {
   return (
     <div className="h-10 bg-slate-50 border-b border-slate-200 px-4 flex items-center justify-between text-xs text-slate-500 select-none no-print font-sans">
       <div className="flex items-center gap-2">

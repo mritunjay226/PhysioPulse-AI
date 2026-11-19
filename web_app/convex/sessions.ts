@@ -31,7 +31,10 @@ export const saveSession = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    const userId = identity?.tokenIdentifier ?? "anonymous";
+    if (!identity) {
+      throw new Error("Authentication required: Please sign in to save your clinical session.");
+    }
+    const userId = identity.tokenIdentifier;
 
     const id = await ctx.db.insert("sessions", {
       userId,
@@ -52,7 +55,8 @@ export const saveSession = mutation({
 });
 
 /**
- * List recent sessions for current user or all sessions if clinician.
+ * List recent sessions for current authenticated user.
+ * Returns empty array if unauthenticated or no records exist (no sample data leaks).
  */
 export const listSessions = query({
   args: {
@@ -60,24 +64,14 @@ export const listSessions = query({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
     const limit = args.limit ?? 20;
 
-    if (identity) {
-      const userSessions = await ctx.db
-        .query("sessions")
-        .withIndex("by_user", (q) => q.eq("userId", identity.tokenIdentifier))
-        .order("desc")
-        .take(limit);
-
-      if (userSessions.length > 0) {
-        return userSessions;
-      }
-    }
-
-    // Fallback: return most recent sessions by timestamp
     return await ctx.db
       .query("sessions")
-      .withIndex("by_created_at")
+      .withIndex("by_user", (q) => q.eq("userId", identity.tokenIdentifier))
       .order("desc")
       .take(limit);
   },
@@ -100,17 +94,20 @@ export const getClinicalSummaryStats = query({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
-    let sessionsQuery;
-
-    if (identity) {
-      sessionsQuery = ctx.db
-        .query("sessions")
-        .withIndex("by_user", (q) => q.eq("userId", identity.tokenIdentifier));
-    } else {
-      sessionsQuery = ctx.db.query("sessions");
+    if (!identity) {
+      return {
+        totalSessions: 0,
+        averageCompliance: 0,
+        totalReps: 0,
+        recentSessions: [],
+      };
     }
 
-    const sessions = await sessionsQuery.order("desc").take(50);
+    const sessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_user", (q) => q.eq("userId", identity.tokenIdentifier))
+      .order("desc")
+      .take(50);
 
     const totalSessions = sessions.length;
     if (totalSessions === 0) {

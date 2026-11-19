@@ -1,1 +1,21 @@
-{"pending":true,"start_time":1793700055953}
+{
+    "session_id": "session_sub_1795094104",
+    "timestamp": "2026-11-19T18:45:04.887342",
+    "patient_name": "mritunjay mishra",
+    "prescribed_diagnosis": "Comprehensive kinetic chain circuit (4 protocols) prescribed for mritunjay mishra (30 yo) addressing Shoulder & Neck with visual EMA compensation monitoring and axial stability.",
+    "overall_compliance_percent": 0,
+    "exercises_performed": [
+        {
+            "protocol_id": 1,
+            "protocol_name": "P1: Frozen Shoulder Abduction (Seated/Standing)",
+            "prescribed_reps": 4,
+            "completed_reps": 0,
+            "target_rom_degrees": 81,
+            "achieved_peak_rom_degrees": 38,
+            "mean_symmetry_percent": 100,
+            "compensation_frames_detected": 0,
+            "primary_compensation_issue": "None (Clean Biomechanics)",
+            "duration_seconds": 8.8
+        }
+    ]
+}

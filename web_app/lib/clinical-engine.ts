@@ -382,7 +382,7 @@ export function deterministicEvaluationEngine(
     ? Math.min(100, Math.max(35, Math.round((totalAchievedScore / totalMaxScore) * 100)))
     : 85;
 
-  const patientName = report.patient_name || 'Sarah Jenkins';
+  const patientName = report.patient_name || 'Patient';
   const compliance = report.overall_compliance_percent || 100;
   const numExercises = exercises.length;
   const topIssues = exercises

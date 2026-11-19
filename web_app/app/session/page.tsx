@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { useMutation } from 'convex/react';
+import { AlertTriangle, UserCheck, ShieldCheck, Sparkles, User, Settings2 } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import {
   PrescriptionOutput,
@@ -14,6 +15,8 @@ import {
   convertReportToPhysioPrescription
 } from '@/lib/doctor-report-ocr';
 
+import { ClinicalAuthGate } from '@/components/auth/ClinicalAuthGate';
+import { PatientProfileModal } from '@/components/auth/PatientProfileModal';
 import { SessionBrowserChrome } from '@/components/session/SessionBrowserChrome';
 import { SessionWorkflowStepper } from '@/components/session/SessionWorkflowStepper';
 import { IntakeFormStage, IntakePreset } from '@/components/session/IntakeFormStage';
@@ -23,24 +26,29 @@ import { DoctorReportScannerModal } from '@/components/session/DoctorReportScann
 import { ConvexTelemetryLedger } from '@/components/session/ConvexTelemetryLedger';
 
 export default function PhysioPulseApp() {
-  // Convex Cloud Database Mutations
+  // Clerk Authentication State
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  // Convex User Profile & Cloud Mutations
+  const convexUser = useQuery(api.users.currentUser);
   const saveSessionToConvex = useMutation(api.sessions.saveSession);
   const savePrescriptionToConvex = useMutation(api.prescriptions.savePrescription);
   const saveDoctorReportToConvex = useMutation(api.doctorReports.saveDoctorReport);
 
+  // Profile Modal State
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
   // 1 = Intake & Triage, 2 = Prescription & Session, 3 = Post-Session Report
   const [activeStage, setActiveStage] = useState<1 | 2 | 3>(1);
 
-  // Stage 1 Intake State
-  const [patientName, setPatientName] = useState('Sarah Jenkins');
-  const [age, setAge] = useState<number>(34);
+  // Stage 1 Intake State (Initialized dynamically from authenticated profile)
+  const [patientName, setPatientName] = useState('');
+  const [age, setAge] = useState<number>(30);
   const [affectedArea, setAffectedArea] = useState('Shoulder & Neck');
-  const [painLevel, setPainLevel] = useState<number>(6);
+  const [painLevel, setPainLevel] = useState<number>(5);
   const [circuitMode, setCircuitMode] = useState<'targeted' | 'standard' | 'comprehensive'>('standard');
-  const [symptoms, setSymptoms] = useState(
-    'I had rotator cuff surgery 4 weeks ago and my neck also hurts from sitting at my laptop all day.'
-  );
-  const [activeProtocols, setActiveProtocols] = useState<number[]>([1, 5, 3, 4]);
+  const [symptoms, setSymptoms] = useState('');
+  const [activeProtocols, setActiveProtocols] = useState<number[]>([1, 5, 3]);
 
   // Stage 2 Prescription & CV Session State
   const [isGeneratingPrescription, setIsGeneratingPrescription] = useState(false);
@@ -60,11 +68,29 @@ export default function PhysioPulseApp() {
   const [isOcrModalOpen, setIsOcrModalOpen] = useState(false);
   const [doctorReport, setDoctorReport] = useState<DecipheredDoctorReport | null>(null);
 
+  // Auto-populate intake form with authenticated user profile from Convex / Clerk
+  useEffect(() => {
+    if (convexUser) {
+      if (convexUser.name) setPatientName(convexUser.name);
+      if (convexUser.age) setAge(convexUser.age);
+      if (convexUser.affectedArea) setAffectedArea(convexUser.affectedArea);
+      if (convexUser.painLevel) setPainLevel(convexUser.painLevel);
+      if (convexUser.medicalHistory) setSymptoms(convexUser.medicalHistory);
+    } else if (user) {
+      const displayName = user.fullName || user.firstName || '';
+      if (displayName && !patientName) {
+        setPatientName(displayName);
+      }
+    }
+  }, [convexUser, user]);
+
   const handleApplyDoctorReport = (rep: DecipheredDoctorReport) => {
     setDoctorReport(rep);
     const formulatedPrescription = convertReportToPhysioPrescription(rep);
-    setPatientName(formulatedPrescription.patient_name);
-    setAge(rep.patient_details.age || 35);
+    
+    const resolvedName = formulatedPrescription.patient_name || patientName || user?.fullName || 'Patient';
+    setPatientName(resolvedName);
+    setAge(rep.patient_details.age || age || 32);
     setAffectedArea(rep.session_plan.affected_area || 'Shoulder & Neck');
     setPainLevel(rep.session_plan.vas_pain_level || 6);
     setSymptoms(
@@ -76,9 +102,9 @@ export default function PhysioPulseApp() {
     setPrescription(formulatedPrescription);
     setActiveProtocols(formulatedPrescription.exercises.map((e) => e.protocol_id));
 
-    // Persist deciphered OCR document to Convex DB
+    // Persist deciphered OCR document to Convex DB under authenticated user
     saveDoctorReportToConvex({
-      patientName: formulatedPrescription.patient_name,
+      patientName: resolvedName,
       doctorName: rep.doctor_details.doctor_name,
       clinic: rep.doctor_details.hospital_or_clinic,
       rawText: rep.raw_transcription || rep.clinical_findings.diagnosis,
@@ -86,10 +112,10 @@ export default function PhysioPulseApp() {
       confidenceScore: rep.handwriting_audit?.decipher_confidence_percent,
     }).catch((e) => console.warn('Convex OCR save notice:', e));
 
-    // Persist formulated prescription to Convex DB
+    // Persist formulated prescription to Convex DB under authenticated user
     savePrescriptionToConvex({
-      patientName: formulatedPrescription.patient_name,
-      age: rep.patient_details.age || 35,
+      patientName: resolvedName,
+      age: rep.patient_details.age || age || 32,
       affectedArea: rep.session_plan.affected_area || 'Shoulder & Neck',
       painLevel: rep.session_plan.vas_pain_level || 6,
       symptoms: rep.clinical_findings.diagnosis,
@@ -103,40 +129,18 @@ export default function PhysioPulseApp() {
     setActiveStage(2);
   };
 
-  // Check initial existing status on mount
+  // Check if a report was forwarded from the landing page scanner on mount
   useEffect(() => {
-    // Check if a report was forwarded from the landing page scanner
     try {
       const pending = sessionStorage.getItem('pending_doctor_report');
       if (pending) {
         sessionStorage.removeItem('pending_doctor_report');
         const parsedReport = JSON.parse(pending);
         handleApplyDoctorReport(parsedReport);
-        return;
       }
     } catch (e) {
       console.warn('Pending report extraction warning:', e);
     }
-
-    async function checkExistingStatus() {
-      try {
-        const res = await fetch('/api/session-status');
-        const data = await res.json();
-        if (data.prescription) {
-          setPrescription(data.prescription);
-          setPatientName(data.prescription.patient_name || 'Sarah Jenkins');
-          if (data.prescription.exercises) {
-            setActiveProtocols(data.prescription.exercises.map((e: any) => e.protocol_id));
-          }
-        }
-        if (data.report) {
-          setSessionReport(data.report);
-        }
-      } catch (err) {
-        console.warn('Status check warning:', err);
-      }
-    }
-    checkExistingStatus();
   }, []);
 
   // Update active protocols based on affected area
@@ -162,35 +166,35 @@ export default function PhysioPulseApp() {
       area: 'Shoulder & Neck',
       pain: 6,
       protocols: [1, 5, 3, 4],
-      desc: 'I had rotator cuff surgery 4 weeks ago and my neck also hurts from sitting at my laptop all day.'
+      desc: 'Rotator cuff impingement rehabilitation with cervical postural compensation prevention.'
     },
     {
       title: 'Post-ACL Knee Reconstruction',
       area: 'Knee & Hip',
       pain: 5,
       protocols: [2, 6, 7, 3],
-      desc: 'Recovering from an ACL tear reconstruction. Quad feels weak and knee stability feels hesitant when squatting.'
+      desc: 'Recovering from an ACL reconstruction. Rebuilding quadriceps and lateral pelvic stability.'
     },
     {
       title: 'Carpal Tunnel & Wrist Fatigue',
       area: 'Wrist & Forearm',
       pain: 4,
       protocols: [8, 4, 3, 5],
-      desc: 'Intense tingling and numbness in wrists and fingers from 10 hours daily software development and mouse usage.'
+      desc: 'Tingling and wrist fatigue from repetitive computer desk strain and typing.'
     },
     {
       title: 'Total Hip Replacement Rehab',
       area: 'Hip & Pelvis',
       pain: 7,
       protocols: [6, 2, 7, 3],
-      desc: 'Underwent total hip arthroplasty 6 weeks ago. Struggling with lateral pelvic stability and gluteus medius weakness.'
+      desc: 'Post-hip arthroplasty recovery focusing on gluteus medius coronal plane stability.'
     },
     {
       title: 'Lumbar Spine & Ergonomic Guard',
       area: 'Lower Back & Cervical Spine',
       pain: 6,
       protocols: [7, 6, 3, 2],
-      desc: 'L4-L5 disc bulge history with stiffness bending forward and chronic forward-head posture at computer terminal.'
+      desc: 'Lumbar disc bulge history with stiffness forward bending and postural slouch.'
     }
   ];
 
@@ -215,15 +219,16 @@ export default function PhysioPulseApp() {
     setIsGeneratingPrescription(true);
     setSessionError(null);
     try {
+      const activeName = patientName.trim() || user?.fullName || 'Patient';
       const res = await fetch('/api/prescribe-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: patientName,
+          name: activeName,
           age,
           affectedArea,
           painLevel,
-          symptoms,
+          symptoms: symptoms || 'Musculoskeletal movement limitation and stiffness.',
           selectedProtocols: activeProtocols,
           circuitMode
         })
@@ -235,13 +240,13 @@ export default function PhysioPulseApp() {
           setActiveProtocols(data.prescription.exercises.map((e: any) => e.protocol_id));
         }
 
-        // Persist formulated prescription to Convex DB
+        // Persist formulated prescription to Convex DB linked to authenticated user
         savePrescriptionToConvex({
-          patientName,
+          patientName: activeName,
           age,
           affectedArea,
           painLevel,
-          symptoms,
+          symptoms: symptoms || 'Targeted Physical Therapy Intake',
           circuitMode,
           clinicalDiagnosisSummary: data.prescription.clinical_diagnosis_summary || 'Custom Kinematic Regimen',
           precautions: data.prescription.precautions || 'Maintain neutral spine',
@@ -265,6 +270,7 @@ export default function PhysioPulseApp() {
       setIsGeneratingPrescription(false);
     }
   };
+
   const handleLaunchVisionSession = async () => {
     setIsRunningSession(true);
     setSessionError(null);
@@ -304,11 +310,11 @@ export default function PhysioPulseApp() {
         setEvaluation(data.evaluation);
         setEvaluationSource(data.source);
 
-        // Persist completed session & kinematic evaluation to Convex DB
+        // Persist completed session & kinematic evaluation to Convex DB under authenticated user
         if (rep) {
           saveSessionToConvex({
             sessionId: rep.session_id,
-            patientName: rep.patient_name || patientName,
+            patientName: rep.patient_name || patientName || user?.fullName || 'Patient',
             age,
             affectedArea,
             painLevel,
@@ -336,7 +342,7 @@ export default function PhysioPulseApp() {
   const handleCopySummary = () => {
     if (!evaluation && !sessionReport) return;
     const text = `PHYSIOPULSE CLINICAL ORTHOPEDIC REPORT
-Patient: ${sessionReport?.patient_name || patientName}
+Patient: ${sessionReport?.patient_name || patientName || user?.fullName || 'Patient'}
 Diagnosis: ${evaluation?.cpt_billing?.diagnosis_name || 'Musculoskeletal Derangement'} (${evaluation?.cpt_billing?.icd10_code || 'M75.10'})
 Readiness Score: ${evaluation?.readiness_score || 85}%
 Compliance: ${sessionReport?.overall_compliance_percent || 100}%
@@ -358,7 +364,7 @@ ${(evaluation?.clinical_tips || []).map((t, i) => `[${t.category}] ${t.title}\nI
   const handleCopyTips = () => {
     const tips = evaluation?.clinical_tips || [];
     const text = `PHYSIOPULSE AT-HOME REHABILITATION DIRECTIVES
-Patient: ${sessionReport?.patient_name || patientName}
+Patient: ${sessionReport?.patient_name || patientName || user?.fullName || 'Patient'}
 Timestamp: ${new Date().toLocaleString()}
 
 ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstruction: ${t.instruction}\nClinical Rationale: ${t.rationale}\n`).join('\n')}
@@ -368,22 +374,74 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
     setTimeout(() => setCopiedTips(false), 2500);
   };
 
+  // ---------------------------------------------------------------------------
+  // AUTHENTICATION GUARD
+  // ---------------------------------------------------------------------------
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#EFF2F6] font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-semibold text-slate-600 font-mono">
+            Verifying Clinical Authentication...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is not signed in, render the secure clinical authentication gate
+  if (!isSignedIn) {
+    return (
+      <div className="min-h-screen bg-[#EFF2F6] flex flex-col justify-center items-center p-4">
+        <ClinicalAuthGate />
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // AUTHENTICATED CLINICAL APP
+  // ---------------------------------------------------------------------------
   return (
     <div className="min-h-screen w-full bg-slate-100/80 text-slate-900 flex flex-col items-center justify-start p-2 sm:p-4 md:p-6 lg:p-8 font-sans selection:bg-emerald-600 selection:text-white">
       {/* Outer Desktop Window Shell */}
       <div className="relative w-full max-w-[1580px] bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
         {/* 1. Desktop Browser Chrome Header */}
-        <SessionBrowserChrome />
+        <SessionBrowserChrome onOpenProfile={() => setIsProfileModalOpen(true)} />
 
-        {/* 2. Top Header Stepper */}
+        {/* 2. Authenticated Patient Bar */}
+        <div className="px-6 py-2.5 bg-slate-50 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-semibold text-slate-700">Authenticated Patient:</span>
+            <span className="font-bold text-slate-900 font-sans">
+              {patientName || user?.fullName || 'Active Patient'}
+            </span>
+            <span className="text-[10px] bg-emerald-100 text-emerald-800 font-mono px-2 py-0.5 rounded-full font-semibold">
+              Convex DB Sync Active
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsProfileModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold transition cursor-pointer shadow-2xs text-[11px]"
+            >
+              <Settings2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Edit Health Profile</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 3. Top Header Stepper */}
         <SessionWorkflowStepper
           activeStage={activeStage}
           setActiveStage={setActiveStage}
           canAccessStage2={!!prescription}
-          canAccessStage3={!!evaluation || !!sessionReport}
+          canAccessStage3={true}
         />
 
-        {/* 3. Main Workbench Canvas */}
+        {/* 4. Main Workbench Canvas */}
         <main className="bg-slate-50 min-h-[calc(100vh-140px)] p-4 sm:p-6 lg:p-8">
           {sessionError && (
             <div className="mb-6 p-4 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 flex items-center gap-3 shadow-md">
@@ -422,7 +480,7 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
           {activeStage === 2 && prescription && (
             <PrescriptionQueueStage
               prescription={prescription}
-              patientName={patientName}
+              patientName={patientName || user?.fullName || 'Patient'}
               onEditIntake={() => setActiveStage(1)}
               isRunningSession={isRunningSession}
               onLaunchVisionSession={handleLaunchVisionSession}
@@ -433,11 +491,11 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
           )}
 
           {/* Stage 3: Clinical Report */}
-          {activeStage === 3 && (evaluation || sessionReport) && (
+          {activeStage === 3 && (
             <ClinicalReportStage
               evaluation={evaluation}
               sessionReport={sessionReport}
-              patientName={patientName}
+              patientName={patientName || user?.fullName || 'Patient'}
               painLevel={painLevel}
               evaluationSource={evaluationSource}
               onCopySummary={handleCopySummary}
@@ -463,7 +521,19 @@ ${tips.map((t, i) => `${i + 1}. [${t.category.toUpperCase()}] ${t.title}\nInstru
         onClose={() => setIsOcrModalOpen(false)}
         onApplyPlan={handleApplyDoctorReport}
       />
+
+      {/* Patient Health Profile Edit Modal */}
+      <PatientProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onProfileUpdated={(updated) => {
+          setPatientName(updated.name);
+          setAge(updated.age);
+          setAffectedArea(updated.affectedArea);
+          setPainLevel(updated.painLevel);
+          if (updated.medicalHistory) setSymptoms(updated.medicalHistory);
+        }}
+      />
     </div>
   );
 }
-

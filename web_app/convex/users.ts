@@ -88,3 +88,72 @@ export const updateRole = mutation({
     return user._id;
   },
 });
+
+/**
+ * Update the clinical health profile for the authenticated user.
+ */
+export const updateProfile = mutation({
+  args: {
+    name: v.optional(v.string()),
+    age: v.optional(v.number()),
+    phone: v.optional(v.string()),
+    gender: v.optional(v.string()),
+    affectedArea: v.optional(v.string()),
+    painLevel: v.optional(v.number()),
+    medicalHistory: v.optional(v.string()),
+    emergencyContact: v.optional(v.string()),
+    role: v.optional(v.union(v.literal("patient"), v.literal("therapist"), v.literal("admin"))),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Authentication required: Please sign in to update your profile");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .first();
+
+    if (!user) {
+      // Auto-create user if record hasn't synced yet
+      const newId = await ctx.db.insert("users", {
+        tokenIdentifier: identity.tokenIdentifier,
+        clerkId: identity.subject,
+        name: args.name || identity.name || "PhysioPulse Patient",
+        email: identity.email,
+        imageUrl: identity.pictureUrl,
+        age: args.age,
+        phone: args.phone,
+        gender: args.gender,
+        affectedArea: args.affectedArea,
+        painLevel: args.painLevel,
+        medicalHistory: args.medicalHistory,
+        emergencyContact: args.emergencyContact,
+        role: args.role ?? "patient",
+        profileCompleted: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+      return newId;
+    }
+
+    const updates: Record<string, any> = {
+      profileCompleted: true,
+      updatedAt: Date.now(),
+    };
+
+    if (args.name !== undefined) updates.name = args.name;
+    if (args.age !== undefined) updates.age = args.age;
+    if (args.phone !== undefined) updates.phone = args.phone;
+    if (args.gender !== undefined) updates.gender = args.gender;
+    if (args.affectedArea !== undefined) updates.affectedArea = args.affectedArea;
+    if (args.painLevel !== undefined) updates.painLevel = args.painLevel;
+    if (args.medicalHistory !== undefined) updates.medicalHistory = args.medicalHistory;
+    if (args.emergencyContact !== undefined) updates.emergencyContact = args.emergencyContact;
+    if (args.role !== undefined) updates.role = args.role;
+
+    await ctx.db.patch(user._id, updates);
+    return user._id;
+  },
+});

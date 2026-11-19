@@ -10,7 +10,16 @@ export default defineSchema({
     email: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     role: v.optional(v.union(v.literal("patient"), v.literal("therapist"), v.literal("admin"))),
+    age: v.optional(v.number()),
+    phone: v.optional(v.string()),
+    gender: v.optional(v.string()),
+    affectedArea: v.optional(v.string()),
+    painLevel: v.optional(v.number()),
+    medicalHistory: v.optional(v.string()),
+    emergencyContact: v.optional(v.string()),
+    profileCompleted: v.optional(v.boolean()),
     createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
   })
     .index("by_token", ["tokenIdentifier"])
     .index("by_clerk_id", ["clerkId"]),

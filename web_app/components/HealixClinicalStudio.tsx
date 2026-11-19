@@ -143,7 +143,7 @@ export function PhysioPulseClinicalStudio({ onStartLiveSession }: { onStartLiveS
             setRotationAngle={setRotationAngle}
           />
 
-          {/* Left Column: Curtis Valk Patient Passport Card */}
+          {/* Left Column: Patient Passport Card */}
           <StudioPatientPassport />
 
           {/* Center Column: 3D Anatomical Muscular Body Stage */}

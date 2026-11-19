@@ -15,7 +15,10 @@ export const saveDoctorReport = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    const userId = identity?.tokenIdentifier ?? "anonymous";
+    if (!identity) {
+      throw new Error("Authentication required: Please sign in to save doctor report OCR records.");
+    }
+    const userId = identity.tokenIdentifier;
 
     return await ctx.db.insert("doctorReports", {
       userId,
@@ -31,27 +34,21 @@ export const saveDoctorReport = mutation({
 });
 
 /**
- * List scanned doctor reports.
+ * List scanned doctor reports for the authenticated user only.
+ * Returns empty array if not logged in or no records found.
  */
 export const listDoctorReports = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    const limit = args.limit ?? 10;
     const identity = await ctx.auth.getUserIdentity();
-
-    if (identity) {
-      const userReports = await ctx.db
-        .query("doctorReports")
-        .withIndex("by_user", (q) => q.eq("userId", identity.tokenIdentifier))
-        .order("desc")
-        .take(limit);
-
-      if (userReports.length > 0) return userReports;
+    if (!identity) {
+      return [];
     }
+    const limit = args.limit ?? 10;
 
     return await ctx.db
       .query("doctorReports")
-      .withIndex("by_created_at")
+      .withIndex("by_user", (q) => q.eq("userId", identity.tokenIdentifier))
       .order("desc")
       .take(limit);
   },

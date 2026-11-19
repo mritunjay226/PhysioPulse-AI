@@ -1,0 +1,10 @@
+{
+  "name": "physiopulse-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix web_app",
+    "build": "npm run build --prefix web_app",
+    "start": "npm run start --prefix web_app",
+    "lint": "npm run lint --prefix web_app"
+  }
+}

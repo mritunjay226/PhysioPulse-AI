@@ -504,7 +504,14 @@ export function EmbeddedVisionStudio({
   const [telemetry, setTelemetry] = useState<any>(null);
   const [streamConnected, setStreamConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(true);
-  const [useDirectFeed, setUseDirectFeed] = useState(false);
+  const [isSimulated, setIsSimulated] = useState(false);
+  const [useDirectFeed, setUseDirectFeed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const h = window.location.hostname;
+      return h === 'localhost' || h === '127.0.0.1';
+    }
+    return false;
+  });
   const [retryNonce, setRetryNonce] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
@@ -592,7 +599,22 @@ export function EmbeddedVisionStudio({
           const json = await res.json();
           const data = json.data || (json.mode !== undefined ? json : null);
           if (data) {
-            setTelemetry(data);
+            setTelemetry((prev: any) => {
+              if (
+                prev &&
+                prev.reps === data.reps &&
+                prev.primary_angle === data.primary_angle &&
+                prev.form_status === data.form_status &&
+                prev.symmetry_score === data.symmetry_score &&
+                prev.mode === data.mode &&
+                prev.advancing === data.advancing &&
+                prev.remaining_advance_sec === data.remaining_advance_sec &&
+                prev.fps === data.fps
+              ) {
+                return prev;
+              }
+              return data;
+            });
             if (typeof data.show_skeleton === 'boolean') {
               setShowSkeleton(data.show_skeleton);
             }
@@ -612,6 +634,77 @@ export function EmbeddedVisionStudio({
 
     return () => clearInterval(interval);
   }, [isRunning, useDirectFeed]);
+
+  // Periodic stream cache flush: every 90 seconds of active streaming,
+  // cycles the cache-buster nonce to force Chromium to purge buffered MJPEG textures
+  useEffect(() => {
+    if (!isRunning) return;
+    const purgeTimer = setInterval(() => {
+      setRetryNonce(Date.now());
+    }, 90000);
+    return () => clearInterval(purgeTimer);
+  }, [isRunning]);
+
+  // Simulated Cloud Demonstration Loop (active when isSimulated is enabled)
+  useEffect(() => {
+    if (!isSimulated || !isRunning) return;
+
+    let simReps = 0;
+    let simAngle = 20;
+    let increasing = true;
+    const simTarget = activeGuide.targetReps || 8;
+    const simMaxRom = activeGuide.targetRom || 90;
+
+    const simInterval = setInterval(() => {
+      if (increasing) {
+        simAngle += 5;
+        if (simAngle >= simMaxRom + 6) {
+          increasing = false;
+        }
+      } else {
+        simAngle -= 5;
+        if (simAngle <= 20) {
+          increasing = true;
+          simReps += 1;
+        }
+      }
+
+      setTelemetry({
+        mode: activeMode,
+        protocol_name: activeGuide.title,
+        exercise_title: activeGuide.title,
+        exercise_short_name: activeGuide.short_name,
+        target_joint: activeGuide.targetJoint,
+        setup_instruction: activeGuide.actionSummary,
+        action_instruction: activeGuide.actionSummary,
+        form_tip: activeGuide.avoidSummary,
+        camera_view: activeGuide.recommendedView,
+        reps: simReps,
+        target_reps: simTarget,
+        primary_angle: Math.min(180, Math.max(0, simAngle)),
+        max_rom: Math.max(simMaxRom, simAngle),
+        target_rom: simMaxRom,
+        symmetry_score: 96,
+        form_status: simAngle > simMaxRom ? 'OPTIMAL BIOMECHANICS' : 'SMOOTH MOTION',
+        is_bad_form: false,
+        feedback_text: simReps >= simTarget ? 'Prescribed reps reached! Great cadence.' : 'Keep tempo smooth and controlled.',
+        fps: 30,
+        latency_ms: 12.4,
+        advancing: simReps >= simTarget,
+        remaining_advance_sec: simReps >= simTarget ? 2 : 0,
+        show_skeleton: true
+      });
+
+      if (simReps >= simTarget) {
+        clearInterval(simInterval);
+        setTimeout(() => {
+          onConcludeSession();
+        }, 1800);
+      }
+    }, 120);
+
+    return () => clearInterval(simInterval);
+  }, [isSimulated, isRunning, activeMode, activeGuide, onConcludeSession]);
 
   const handleStreamError = useCallback(() => {
     connectedRef.current = false;
@@ -971,8 +1064,25 @@ export function EmbeddedVisionStudio({
 
           {/* Camera Viewport Container */}
           <div className="relative rounded-3xl overflow-hidden border border-slate-200 bg-slate-950 aspect-video shadow-md flex items-center justify-center group w-full">
-            {/* Live Native Video Stream */}
-            {isRunning && (
+            {/* Live Native Video Stream or Interactive Simulation */}
+            {isSimulated ? (
+              <div className="relative w-full h-full flex items-center justify-center bg-slate-950">
+                <video
+                  src="/muscular_men.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-contain"
+                />
+                <div className="absolute bottom-3 left-3 pointer-events-none z-10 flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-xl border border-slate-700/80 text-[11px] text-slate-200 shadow-md">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-semibold text-emerald-300">Cloud Simulation (30 FPS)</span>
+                  <span className="text-slate-400">•</span>
+                  <span className="text-slate-300">Kinematic Engine Active</span>
+                </div>
+              </div>
+            ) : isRunning && (
               <img
                 ref={imgRef}
                 src={currentStreamUrl}
@@ -986,7 +1096,7 @@ export function EmbeddedVisionStudio({
             )}
 
             {/* Clean bottom status indicator on camera (Doesn't cover patient head!) */}
-            {streamConnected && isRunning && (
+            {!isSimulated && streamConnected && isRunning && (
               <div className="absolute bottom-3 left-3 pointer-events-none z-10 flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-xl border border-slate-700/80 text-[11px] text-slate-200 shadow-md">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="font-semibold text-emerald-300">
@@ -998,7 +1108,7 @@ export function EmbeddedVisionStudio({
             )}
 
             {/* Connecting / Loading Overlay */}
-            {(!streamConnected || !isRunning) && (
+            {!isSimulated && (!streamConnected || !isRunning) && (
               <div className="flex flex-col items-center justify-center p-8 text-center bg-slate-950 w-full h-full text-slate-300">
                 <div className="relative w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-emerald-400 mb-4 shadow-xl">
                   <Video className="w-8 h-8 stroke-[2]" />
@@ -1009,13 +1119,22 @@ export function EmbeddedVisionStudio({
                 <p className="text-xs text-slate-400 max-w-sm mb-4 font-sans leading-relaxed">
                   Initializing MediaPipe skeletal tracking at 30+ FPS. Position yourself 6–8 feet in front of your webcam.
                 </p>
-                <button
-                  onClick={handleManualReconnect}
-                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
-                >
-                  <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Reconnect Camera</span>
-                </button>
+                <div className="flex flex-wrap items-center justify-center gap-2.5">
+                  <button
+                    onClick={() => setIsSimulated(true)}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all shadow-md cursor-pointer flex items-center gap-1.5 shadow-emerald-600/20"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Run Interactive Demo Mode</span>
+                  </button>
+                  <button
+                    onClick={handleManualReconnect}
+                    className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Connect Local Camera</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
